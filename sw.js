@@ -1,5 +1,5 @@
 // Bdel had numéro kol merra katbeddel l'app bach telephone yjib version jdida
-const VERSION = 'mizan-v1';
+const VERSION = 'mizan-v2';
 const SHELL = ['./', './index.html', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png'];
 

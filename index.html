@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Macros, planning dyal simana w lista dyal t9edya b dirham.">
-<meta name="theme-color" content="#2747c9">
+<meta name="theme-color" content="#0f5257">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -16,32 +16,35 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
 <style>
-/* Layout: one column app, tabs on top, sticky totals bar on the day editor, bottom sheet for adding food */
+/* Soft UI (neumorphism): surfaces share the page colour and are lifted or pressed with paired light/dark shadows; one deep-teal accent */
 :root{
-  --bg:#f3f5fa; --surface:#ffffff; --sunk:#e8ecf5; --line:#d6dceb;
-  --ink:#141a2e; --muted:#5b6480;
-  --accent:#2747c9; --accent-ink:#ffffff; --accent-soft:#e2e8fb;
-  --money:#b8740a; --money-soft:#fbf0dc;
-  --p:#16825d; --c:#c48a12; --f:#c2415d; --kcal:#d65f1a;
-  --danger:#b4232f;
+  --bg:#ece5da; --surface:#ece5da; --sunk:#e3dbcf; --line:#d6ccbd;
+  --ink:#1f2a2b; --muted:#6e6a62;
+  --accent:#0f5257; --accent-ink:#ffffff; --accent-soft:#dfe6e1;
+  --money:#8f5f14; --money-soft:#e7dccb;
+  --p:#2c7a5c; --c:#b07f12; --f:#b2474f; --kcal:#bf5f26;
+  --danger:#b2363f;
+  --hi:rgba(255,255,255,.85); --lo:rgba(163,146,120,.55);
   --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
   --body:"Instrument Sans", "Segoe UI", system-ui, sans-serif;
   --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
-  --r:12px;
+  --r:18px;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0e1220; --surface:#161b2d; --sunk:#1d2338; --line:#2b3350;
-  --ink:#e8ebf5; --muted:#99a2bf;
-  --accent:#7d95ff; --accent-ink:#0e1220; --accent-soft:#232c52;
-  --money:#f0b545; --money-soft:#2e2614;
-  --p:#3fc993; --c:#e6b13d; --f:#f0718c; --kcal:#f28a4b; --danger:#f0717b;
+  --bg:#252a2c; --surface:#252a2c; --sunk:#1f2325; --line:#343a3d;
+  --ink:#e9e6df; --muted:#a19d94;
+  --accent:#5fb8b2; --accent-ink:#10292a; --accent-soft:#2c3537;
+  --money:#e2b25a; --money-soft:#2e2b24;
+  --p:#5fc79a; --c:#e0b448; --f:#ec7a82; --kcal:#ee9356; --danger:#ef7b82;
+  --hi:rgba(255,255,255,.06); --lo:rgba(0,0,0,.55);
   color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0e1220; --surface:#161b2d; --sunk:#1d2338; --line:#2b3350;
-  --ink:#e8ebf5; --muted:#99a2bf;
-  --accent:#7d95ff; --accent-ink:#0e1220; --accent-soft:#232c52;
-  --money:#f0b545; --money-soft:#2e2614;
-  --p:#3fc993; --c:#e6b13d; --f:#f0718c; --kcal:#f28a4b; --danger:#f0717b;
+  --bg:#252a2c; --surface:#252a2c; --sunk:#1f2325; --line:#343a3d;
+  --ink:#e9e6df; --muted:#a19d94;
+  --accent:#5fb8b2; --accent-ink:#10292a; --accent-soft:#2c3537;
+  --money:#e2b25a; --money-soft:#2e2b24;
+  --p:#5fc79a; --c:#e0b448; --f:#ec7a82; --kcal:#ee9356; --danger:#ef7b82;
+  --hi:rgba(255,255,255,.06); --lo:rgba(0,0,0,.55);
   color-scheme:dark}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
@@ -159,6 +162,40 @@ nav.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink)
 .fopt .add{font-weight:700;color:var(--accent);font-size:20px;padding:0 8px}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:13.5px;font-weight:600;z-index:60}
 @media (prefers-reduced-motion:no-preference){.fill{transition:width .25s}}
+
+/* ---- Soft UI layer ---- */
+:root{--raise:6px 6px 14px var(--lo),-6px -6px 14px var(--hi);--raise-sm:3px 3px 7px var(--lo),-3px -3px 7px var(--hi);
+  --press:inset 3px 3px 7px var(--lo),inset -3px -3px 7px var(--hi)}
+.panel,.meal,.bars,.receipt{border:0;box-shadow:var(--raise);border-radius:var(--r)}
+.meal-h{border-bottom:1px solid var(--line)}
+.item,.li,.fopt,.prow{border-bottom-color:var(--line)}
+.in,.who select,.wd select{border:0;background:var(--bg);box-shadow:var(--press);border-radius:12px}
+.in:focus,.who select:focus{box-shadow:var(--press),0 0 0 2px var(--accent)}
+nav.tabs{background:var(--bg);box-shadow:var(--press);padding:6px}
+nav.tabs button[aria-selected="true"]{background:var(--bg);color:var(--accent);box-shadow:var(--raise-sm)}
+.btn{border:0;background:var(--bg);box-shadow:var(--raise-sm);border-radius:12px;color:var(--ink)}
+.btn:hover{border:0;color:var(--accent)}
+.btn:active,.chip:active,.qty button:active{box-shadow:var(--press)}
+.btn.pri{background:var(--accent);color:var(--accent-ink);box-shadow:var(--raise-sm)}
+.btn.pri:hover{color:var(--accent-ink);filter:brightness(1.08)}
+.btn.ghost{box-shadow:none;background:transparent}
+.btn.danger{color:var(--danger)}
+.chip{border:0;background:var(--bg);box-shadow:var(--raise-sm)}
+.chip[aria-pressed="true"]{background:var(--bg);color:var(--accent);box-shadow:var(--press);border:0}
+.tbox{background:var(--bg);box-shadow:var(--press);border-radius:14px}
+.track{background:var(--bg);box-shadow:inset 2px 2px 4px var(--lo),inset -2px -2px 4px var(--hi);height:8px}
+.qty{border:0;box-shadow:var(--press);border-radius:12px;background:var(--bg);width:max-content}
+.qty button{background:transparent;color:var(--accent)}
+.wd{background:var(--bg);box-shadow:var(--raise-sm);border-radius:14px}
+.receipt .grp{background:var(--sunk)}
+.tot{background:var(--sunk)}
+.note,.warn{background:var(--bg);box-shadow:var(--press);border-radius:14px}
+.note{border-left:3px solid var(--accent)}
+.warn{border-left:3px solid var(--money)}
+.sheet{background:var(--bg);box-shadow:0 -8px 24px var(--lo)}
+.toast{background:var(--accent);color:var(--accent-ink);box-shadow:var(--raise-sm)}
+.x:hover{background:var(--bg);box-shadow:var(--press)}
+.brand h1{color:var(--accent)}
 </style>
 </head>
 <body>
