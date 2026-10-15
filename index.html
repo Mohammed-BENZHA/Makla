@@ -269,6 +269,16 @@ const LANGS=[['dj','Darija'],['da','الدارجة'],['fr','Français'],['ar','�
 const RTL={da:1,ar:1};
 const I18N={
 dj:{
+ fat_pct:'Dhoun (% men calories)',
+ ref_note:"L'protein m7soub 3la lwazn l'marja3i: {w} kg (BMI 25), 7it BMI dyalek {bmi}. L'7ajat dyal l'protein kaymchiw m3a l'3dalat, machi m3a chhem. Ila 3ndek ra9m dyalek, dirou f \"Protein (g/kg)\".",
+ floor_note:"Lhadaf t-rfe3 l {k} kcal: hada l7ed l'adna bla tbib. Ila bghiti tn9es ktar, chouf tbib wla diététicien.",
+ minor_note:"Ta7t 18 3am: l'app kat7seb ghir \"7afed 3la lwazn\". Tnchif f had l'3mer khasso tbib.",
+ avg_n:' ({n}/7 ayyam m3emrin)',
+ double_warn:"<b>{n}</b>: l'ayyam dyalo fihom ~{k} kcal f nhar, zayd 3lihom makla dyal dar. Ila kayakol m3a dar, khalli f l'ayyam dyalo ghir l'extras bach ma yt7sebch joj merrat.",
+ export_file:'Telecharger fichier',import_file:'Importer men fichier',last_backup:'Akhir sauvegarde: {d}',never_backup:'Mazal ma dertich sauvegarde.',
+ backup_old:'Daz ktar men 30 yom men akhir sauvegarde. Dir wa7da jdida.',go_backup:'Dir sauvegarde',
+ edit:'Beddel',save:'Sjel',cancel:'Lgha',toast_saved:'Tsjel',toast_deleted:'Tmse7',custom_list:'Makla li zedti',
+ reset_all:'Mse7 ga3 data',reset_confirm:'Mta2ked? Kolchi ghadi ymchi',toast_reset_all:'Data tmse7at',
  tagline:'Macros, planning dyal simana w lista dyal t9edya b dirham',profile:'Profil',install:"Installi l'app",lang:'Lougha',
  theme:'Mode',theme_light:'Fat7',theme_auto:'Auto',theme_auto_aria:'3la 7sab telephone',theme_dark:'Ghamej',
  tab_profil:'Profil',tab_ayyam:'Ayyam',tab_simana:'Simana',tab_dar:'Dar',tab_t9edya:'T9edya',tab_prix:'Prix',
@@ -302,7 +312,7 @@ dj:{
  prices:'Prix',reset_prices:'Rje3 l les prix l9dam',toast_reset:'Rje3 les prix l9dam',add_custom:'Zid makla dyalek',custom_ph:'Jben beldi',
  category:'Categorie',calc_by:'Kat7seb b',by_gram:'Gram (macros l 100 g, prix l kg)',by_unit:'7ba (macros w prix l 7ba)',price_dh:'Prix (DH)',
  prot_g:'Protein g',carbs_g:'Karb g',fat_g:'Dhoun g',add:'Zid',custom_err:"3mmer smiya w ga3 l'ar9am.",toast_custom:'{n} tzadet',
- backup:'Sauvegarde',backup_hint:"Data katsjel ghir f had l'telephone. Bach tdiha l telephone akhor, nsakh l'code w lsa9o temma.",copy_backup:'Nsakh sauvegarde',
+ backup:'Sauvegarde',backup_hint:"Data katsjel ghir f had l'telephone. Ila mse7ti l'app wla l'cache, data katmchi. Telecharger l'fichier w khbih f Drive wla WhatsApp.",copy_backup:'Nsakh sauvegarde',
  paste_ph:'Lsa9 sauvegarde hna…',import:'Importer',toast_copied:'Tnsakh',toast_select:'Selectionni w nsakh',toast_import:'Importa mzyan',import_err:"Had l'code machi s7i7.",
  toast_installed:"L'app tinstallat",
  u_g:'g',u_kg:'kg',u_L:'L',u_ml:'ml',dh:'DH',kcal_u:'kcal',mP:'P',mC:'K',mF:'D',
@@ -318,6 +328,16 @@ dj:{
  foods:["Bid roumi","Bid beldi","Khobz kamel (khobza ~200g)","Khobz byed (khobza ~200g)","Msemen","Harcha","Choufan (flocons d'avoine)","7lib (kas 200 ml)","Perly / yaourt (7ok)","Fromage mtellat","Whey (scoop 30g)","Atay b sokar (kas)","Sder djaj (nay)","Fkhad djaj bla jeld (nay)","Sardine (nay, li katakol)","Merla / 7out byed (nay, filet)","L7em bgri habra (nay)","Kefta bgri (nay)","Kefta dinde (nay)","Kebda djaj (nay)","Ton (7ok, ~80g msfi)","Rouz (tayeb)","Ma9arouna (tayba)","3des (tayeb)","Loubia (tayba)","7mes (tayeb)","Batata (nay)","Batata 7lowa (nay)","Khodra (maticha, khyar, bsla…)","Banan","Tfa7a / limouna","Tmer","Avoka","Zit dyal tayb (mo3al9a kbira)","Zit zitoun (mo3al9a kbira)","Louz","Kawkaw","Amlou (mo3al9a 20g)"]
 },
 da:{
+ fat_pct:'الدهون (% من الكالوري)',
+ ref_note:'البروتين محسوب على الوزن المرجعي: {w} كيلو (BMI 25)، حيت BMI ديالك {bmi}. الحاجة ديال البروتين كتمشي مع العضلات، ماشي مع الشحم. إلا عندك رقم ديالك، ديرو فـ"البروتين (غ/كيلو)".',
+ floor_note:'الهدف ترفع لـ{k} كالوري: هادا الحد الأدنى بلا طبيب. إلا بغيتي تنقص كثر، شوف طبيب ولا ديتيتيسيان.',
+ minor_note:'تحت 18 عام: الأپليكاسيون كتحسب غير "حافظ على الوزن". التنشيف فهاد العمر خاصو طبيب.',
+ avg_n:' ({n}/7 أيام معمرين)',
+ double_warn:'<b>{n}</b>: الأيام ديالو فيهم ~{k} كالوري فالنهار، زايد عليهم الماكلة ديال الدار. إلا كياكل مع الدار، خلي فالأيام ديالو غير الزيادات باش ما يتحسبش جوج مرات.',
+ export_file:'تيليشارجي الفيشي',import_file:'إمپورطي من فيشي',last_backup:'آخر سوفگارد: {d}',never_backup:'مازال ما درتي حتى سوفگارد.',
+ backup_old:'داز كثر من 30 يوم من آخر سوفگارد. دير وحدة جديدة.',go_backup:'دير سوفگارد',
+ edit:'بدل',save:'سجل',cancel:'لغي',toast_saved:'تسجل',toast_deleted:'تمسح',custom_list:'الماكلة لي زدتي',
+ reset_all:'مسح كاع الداتا',reset_confirm:'متأكد؟ كلشي غادي يمشي',toast_reset_all:'الداتا تمسحات',
  tagline:'الماكروز، البرنامج ديال السيمانة واللائحة ديال التقضية بالدرهم',profile:'البروفيل',install:'إنستالي الأپليكاسيون',lang:'اللغة',
  theme:'الموض',theme_light:'فاتح',theme_auto:'أوطو',theme_auto_aria:'على حساب التيليفون',theme_dark:'غامق',
  tab_profil:'البروفيل',tab_ayyam:'الأيام',tab_simana:'السيمانة',tab_dar:'الدار',tab_t9edya:'التقضية',tab_prix:'الأثمنة',
@@ -351,7 +371,7 @@ da:{
  prices:'الأثمنة',reset_prices:'رجع للأثمنة القدام',toast_reset:'رجعو الأثمنة القدام',add_custom:'زيد ماكلة ديالك',custom_ph:'جبن بلدي',
  category:'النوع',calc_by:'كتحسب بـ',by_gram:'الغرام (الماكروز لـ100 غ، الثمن للكيلو)',by_unit:'الحبة (الماكروز والثمن للحبة)',price_dh:'الثمن (درهم)',
  prot_g:'بروتين غ',carbs_g:'كارب غ',fat_g:'دهون غ',add:'زيد',custom_err:'عمّر السمية وكاع الأرقام.',toast_custom:'تزادت {n}',
- backup:'السوفگارد',backup_hint:'الداتا كتتسجل غير فهاد التيليفون. باش تديها لتيليفون آخر، نسخ الكود ولصقو تما.',copy_backup:'نسخ السوفگارد',
+ backup:'السوفگارد',backup_hint:'الداتا كتتسجل غير فهاد التيليفون. إلا مسحتي الأپليكاسيون ولا الكاش، الداتا كتمشي. تيليشارجي الفيشي وخبيه فـDrive ولا WhatsApp.',copy_backup:'نسخ السوفگارد',
  paste_ph:'لصق السوفگارد هنا…',import:'إمپورطي',toast_copied:'تنسخ',toast_select:'سيليكسيوني ونسخ',toast_import:'تإمپورطا مزيان',import_err:'هاد الكود ماشي صحيح.',
  toast_installed:'الأپليكاسيون تإنستالات',
  u_g:'غ',u_kg:'كيلو',u_L:'لتر',u_ml:'مل',dh:'درهم',kcal_u:'كالوري',mP:'ب',mC:'ك',mF:'د',
@@ -367,6 +387,16 @@ da:{
  foods:['بيض رومي','بيض بلدي','خبز كامل (خبزة ~200 غ)','خبز أبيض (خبزة ~200 غ)','مسمن','حرشة','الشوفان','حليب (كاس 200 مل)','بيرلي / ياغورت (حك)','فرماج مثلث','واي (سكوب 30 غ)','أتاي بالسكر (كاس)','صدر الدجاج (ناي)','فخاد الدجاج بلا جلد (ناي)','سردين (ناي، لي كتاكل)','ميرلا / حوت بيض (ناي، فيلي)','لحم بگري هبرة (ناي)','كفتة بگري (ناية)','كفتة الداند (ناية)','كبدة الدجاج (ناية)','طون (حك، ~80 غ مصفي)','روز (طايب)','مقارونة (طايبة)','عدس (طايب)','لوبيا (طايبة)','حمص (طايب)','بطاطا (ناية)','بطاطا حلوة (ناية)','خضرة (ماطيشة، خيار، بصلة…)','بنان','تفاحة / ليمونة','تمر','أفوكا','زيت ديال الطيب (معيلقة كبيرة)','زيت الزيتون (معيلقة كبيرة)','لوز','كاوكاو','أملو (معيلقة 20 غ)']
 },
 fr:{
+ fat_pct:'Lipides (% des calories)',
+ ref_note:"Protéines calculées sur un poids de référence de {w} kg (IMC 25), car votre IMC est de {bmi}. Les besoins en protéines suivent la masse musculaire, pas la masse grasse. Si vous avez votre propre chiffre, saisissez-le dans « Protéines (g/kg) ».",
+ floor_note:"Objectif relevé à {k} kcal : c'est le minimum sans suivi médical. Pour descendre plus bas, consultez un médecin ou un diététicien.",
+ minor_note:"Moins de 18 ans : l'app calcule uniquement le maintien du poids. Une sèche à cet âge nécessite un avis médical.",
+ avg_n:' ({n}/7 jours remplis)',
+ double_warn:"<b>{n}</b> : ses jours contiennent déjà ~{k} kcal par jour, en plus des repas du foyer. S'il mange avec le foyer, ne gardez que ses extras pour ne pas compter deux fois.",
+ export_file:'Télécharger le fichier',import_file:'Importer un fichier',last_backup:'Dernière sauvegarde : {d}',never_backup:'Aucune sauvegarde pour le moment.',
+ backup_old:'Plus de 30 jours depuis la dernière sauvegarde. Faites-en une nouvelle.',go_backup:'Sauvegarder',
+ edit:'Modifier',save:'Enregistrer',cancel:'Annuler',toast_saved:'Enregistré',toast_deleted:'Supprimé',custom_list:'Vos aliments',
+ reset_all:'Effacer toutes les données',reset_confirm:'Sûr ? Tout sera effacé',toast_reset_all:'Données effacées',
  tagline:'Macros, planning de la semaine et liste de courses en dirhams',profile:'Profil',install:"Installer l'app",lang:'Langue',
  theme:'Mode',theme_light:'Clair',theme_auto:'Auto',theme_auto_aria:'Selon le téléphone',theme_dark:'Sombre',
  tab_profil:'Profil',tab_ayyam:'Jours',tab_simana:'Semaine',tab_dar:'Foyer',tab_t9edya:'Courses',tab_prix:'Prix',
@@ -400,7 +430,7 @@ fr:{
  prices:'Prix',reset_prices:'Prix par défaut',toast_reset:'Prix par défaut rétablis',add_custom:'Ajouter un aliment',custom_ph:'Fromage frais (jben)',
  category:'Catégorie',calc_by:'Mesuré en',by_gram:'Grammes (macros pour 100 g, prix au kg)',by_unit:'Unités (macros et prix par unité)',price_dh:'Prix (DH)',
  prot_g:'Protéines g',carbs_g:'Glucides g',fat_g:'Lipides g',add:'Ajouter',custom_err:'Renseignez le nom et toutes les valeurs.',toast_custom:'{n} ajouté',
- backup:'Sauvegarde',backup_hint:'Les données restent sur ce téléphone. Pour les transférer, copiez le code et collez-le sur l’autre appareil.',copy_backup:'Copier la sauvegarde',
+ backup:'Sauvegarde',backup_hint:"Les données sont uniquement sur ce téléphone. Si vous supprimez l'app ou son cache, elles disparaissent. Téléchargez le fichier et gardez-le dans Drive ou WhatsApp.",copy_backup:'Copier la sauvegarde',
  paste_ph:'Collez la sauvegarde ici…',import:'Importer',toast_copied:'Copié',toast_select:'Sélectionnez puis copiez',toast_import:'Import réussi',import_err:'Ce code est invalide.',
  toast_installed:'Application installée',
  u_g:'g',u_kg:'kg',u_L:'L',u_ml:'ml',dh:'DH',kcal_u:'kcal',mP:'P',mC:'G',mF:'L',
@@ -416,6 +446,16 @@ fr:{
  foods:["Œufs","Œufs beldi","Pain complet (~200 g)","Pain blanc (~200 g)","Msemen","Harcha","Flocons d'avoine","Lait (verre 200 ml)","Yaourt / Perly (pot)","Fromage portion","Whey (dose 30 g)","Thé sucré (verre)","Blanc de poulet (cru)","Cuisse de poulet sans peau (crue)","Sardine (crue, partie comestible)","Merlan / poisson blanc (filet cru)","Bœuf maigre (cru)","Kefta de bœuf (crue)","Kefta de dinde (crue)","Foie de poulet (cru)","Thon (boîte, ~80 g égoutté)","Riz (cuit)","Pâtes (cuites)","Lentilles (cuites)","Haricots blancs (cuits)","Pois chiches (cuits)","Pomme de terre (crue)","Patate douce (crue)","Légumes (tomate, concombre, oignon…)","Banane","Pomme / orange","Dattes","Avocat","Huile de cuisson (c. à soupe)","Huile d'olive (c. à soupe)","Amandes","Cacahuètes","Amlou (c. à soupe 20 g)"]
 },
 ar:{
+ fat_pct:'الدهون (% من السعرات)',
+ ref_note:'البروتين محسوب على وزن مرجعي قدره {w} كغ (مؤشر كتلة 25)، لأن مؤشر كتلة جسمك {bmi}. احتياج البروتين يتبع الكتلة العضلية لا الدهون. إن كان لديك رقمك الخاص، أدخله في "البروتين (غ/كغ)".',
+ floor_note:'رُفع الهدف إلى {k} سعرة: هذا هو الحد الأدنى دون إشراف طبي. للنزول أكثر، استشر طبيبًا أو أخصائي تغذية.',
+ minor_note:'دون 18 سنة: يحسب التطبيق الحفاظ على الوزن فقط. التنشيف في هذا العمر يحتاج استشارة طبية.',
+ avg_n:' ({n}/7 أيام مملوءة)',
+ double_warn:'<b>{n}</b>: أيامه تحتوي على ~{k} سعرة يوميًا، إضافة إلى وجبات الأسرة. إن كان يأكل مع الأسرة، أبقِ في أيامه الإضافات فقط لتجنب الحساب مرتين.',
+ export_file:'تنزيل الملف',import_file:'استيراد من ملف',last_backup:'آخر نسخة احتياطية: {d}',never_backup:'لا توجد نسخة احتياطية بعد.',
+ backup_old:'مرّ أكثر من 30 يومًا على آخر نسخة احتياطية. أنشئ واحدة جديدة.',go_backup:'نسخ احتياطي',
+ edit:'تعديل',save:'حفظ',cancel:'إلغاء',toast_saved:'تم الحفظ',toast_deleted:'تم الحذف',custom_list:'أطعمتك',
+ reset_all:'حذف كل البيانات',reset_confirm:'متأكد؟ سيُحذف كل شيء',toast_reset_all:'حُذفت البيانات',
  tagline:'الماكروز، برنامج الأسبوع ولائحة المشتريات بالدرهم',profile:'الملف',install:'تثبيت التطبيق',lang:'اللغة',
  theme:'الوضع',theme_light:'فاتح',theme_auto:'تلقائي',theme_auto_aria:'حسب الهاتف',theme_dark:'داكن',
  tab_profil:'الملف',tab_ayyam:'الأيام',tab_simana:'الأسبوع',tab_dar:'الأسرة',tab_t9edya:'المشتريات',tab_prix:'الأسعار',
@@ -449,7 +489,7 @@ ar:{
  prices:'الأسعار',reset_prices:'الأسعار الافتراضية',toast_reset:'أُعيدت الأسعار الافتراضية',add_custom:'أضف طعامًا',custom_ph:'جبن بلدي',
  category:'الفئة',calc_by:'وحدة القياس',by_gram:'بالغرام (الماكروز لكل 100 غ، السعر للكيلو)',by_unit:'بالحبة (الماكروز والسعر للحبة)',price_dh:'السعر (درهم)',
  prot_g:'بروتين غ',carbs_g:'نشويات غ',fat_g:'دهون غ',add:'أضف',custom_err:'أدخل الاسم وجميع القيم.',toast_custom:'أُضيف {n}',
- backup:'النسخ الاحتياطي',backup_hint:'تُحفظ البيانات على هذا الهاتف فقط. لنقلها، انسخ الرمز والصقه في الجهاز الآخر.',copy_backup:'نسخ البيانات',
+ backup:'النسخ الاحتياطي',backup_hint:'تُحفظ البيانات على هذا الهاتف فقط. إذا حذفت التطبيق أو ذاكرته المؤقتة تضيع. نزّل الملف واحفظه في Drive أو WhatsApp.',copy_backup:'نسخ البيانات',
  paste_ph:'الصق النسخة الاحتياطية هنا…',import:'استيراد',toast_copied:'تم النسخ',toast_select:'حدّد ثم انسخ',toast_import:'تم الاستيراد',import_err:'هذا الرمز غير صالح.',
  toast_installed:'تم تثبيت التطبيق',
  u_g:'غ',u_kg:'كغ',u_L:'ل',u_ml:'مل',dh:'درهم',kcal_u:'سعرة',mP:'ب',mC:'ن',mF:'د',
@@ -465,6 +505,16 @@ ar:{
  foods:['بيض عادي','بيض بلدي','خبز كامل (رغيف ~200 غ)','خبز أبيض (رغيف ~200 غ)','مسمن','حرشة','رقائق الشوفان','حليب (كأس 200 مل)','ياغورت (علبة)','جبن مثلث','واي بروتين (مغرفة 30 غ)','شاي بالسكر (كأس)','صدر دجاج (نيء)','فخذ دجاج بدون جلد (نيء)','سردين (نيء، الجزء المأكول)','سمك أبيض (فيليه نيء)','لحم بقري هبرة (نيء)','كفتة بقري (نيئة)','كفتة ديك رومي (نيئة)','كبد دجاج (نيء)','تونة (علبة، ~80 غ مصفاة)','أرز (مطبوخ)','معكرونة (مطبوخة)','عدس (مطبوخ)','لوبيا بيضاء (مطبوخة)','حمص (مطبوخ)','بطاطس (نيئة)','بطاطا حلوة (نيئة)','خضر (طماطم، خيار، بصل…)','موز','تفاح / برتقال','تمر','أفوكادو','زيت الطبخ (ملعقة كبيرة)','زيت الزيتون (ملعقة كبيرة)','لوز','فول سوداني','أملو (ملعقة 20 غ)']
 },
 en:{
+ fat_pct:'Fat (% of calories)',
+ ref_note:'Protein is based on a reference weight of {w} kg (BMI 25), because your BMI is {bmi}. Protein needs follow muscle mass, not body fat. If you have your own number, enter it in "Protein (g/kg)".',
+ floor_note:'Target raised to {k} kcal: the minimum without medical supervision. To go lower, see a doctor or dietitian.',
+ minor_note:'Under 18: the app only calculates weight maintenance. Cutting at this age needs medical advice.',
+ avg_n:' ({n}/7 days filled)',
+ double_warn:'<b>{n}</b>: their days already hold ~{k} kcal a day on top of household meals. If they eat with the household, keep only their extras so nothing is counted twice.',
+ export_file:'Download file',import_file:'Import from file',last_backup:'Last backup: {d}',never_backup:'No backup yet.',
+ backup_old:'More than 30 days since the last backup. Make a new one.',go_backup:'Back up now',
+ edit:'Edit',save:'Save',cancel:'Cancel',toast_saved:'Saved',toast_deleted:'Deleted',custom_list:'Your foods',
+ reset_all:'Delete all data',reset_confirm:'Sure? Everything will be deleted',toast_reset_all:'Data deleted',
  tagline:'Macros, weekly meal plan and shopping list in dirhams',profile:'Profile',install:'Install app',lang:'Language',
  theme:'Mode',theme_light:'Light',theme_auto:'Auto',theme_auto_aria:'Follow phone',theme_dark:'Dark',
  tab_profil:'Profile',tab_ayyam:'Days',tab_simana:'Week',tab_dar:'Household',tab_t9edya:'Shopping',tab_prix:'Prices',
@@ -498,7 +548,7 @@ en:{
  prices:'Prices',reset_prices:'Reset to defaults',toast_reset:'Default prices restored',add_custom:'Add your own food',custom_ph:'Fresh cheese (jben)',
  category:'Category',calc_by:'Measured in',by_gram:'Grams (macros per 100 g, price per kg)',by_unit:'Units (macros and price per unit)',price_dh:'Price (DH)',
  prot_g:'Protein g',carbs_g:'Carbs g',fat_g:'Fat g',add:'Add',custom_err:'Fill in the name and every number.',toast_custom:'{n} added',
- backup:'Backup',backup_hint:'Data is stored on this phone only. To move it, copy the code and paste it on the other device.',copy_backup:'Copy backup',
+ backup:'Backup',backup_hint:'Data is stored on this phone only. Deleting the app or its cache erases it. Download the file and keep it in Drive or WhatsApp.',copy_backup:'Copy backup',
  paste_ph:'Paste a backup here…',import:'Import',toast_copied:'Copied',toast_select:'Select and copy',toast_import:'Imported',import_err:'This code is not valid.',
  toast_installed:'App installed',
  u_g:'g',u_kg:'kg',u_L:'L',u_ml:'ml',dh:'DH',kcal_u:'kcal',mP:'P',mC:'C',mF:'F',
@@ -592,7 +642,7 @@ const emptyMeals=()=>({ftour:[],ghda:[],kaskrout:[],'3cha':[]});
 function sampleProfile(){
   const a={id:uid(),name:'Nhar A — training',meals:{ftour:[['bid',4],['choufan',70],['hlib',1],['banan',1]],ghda:[['fkhad',250],['rouz',200],['khodra',200],['zit_t',1]],kaskrout:[['perly',2],['kawkaw',25]],'3cha':[['sardine',250],['batata',300],['khodra',150],['zit_z',1]]}};
   const b={id:uid(),name:'Nhar B — raha',meals:{ftour:[['bid',3],['khobz',.5],['zit_z',1],['atay',1]],ghda:[['3des',300],['kebda',150],['khobz',.5],['khodra',200]],kaskrout:[['perly',1],['tfa7',1]],'3cha':[['merla',250],['batata',250],['khodra',150],['zit_t',1]]}};
-  return {id:uid(),name:'Mital (beddlo)',sex:'m',age:28,w:74,h:176,act:1.55,goal:'recomp',protKg:null,fatKg:.9,budget:'',days:[a,b],week:[a.id,b.id,a.id,b.id,a.id,b.id,b.id],eatsHouse:false,hf:1,example:true};
+  return {id:uid(),name:'Mital (beddlo)',sex:'m',age:28,w:74,h:176,act:1.55,goal:'recomp',protKg:null,fatPct:27,budget:'',days:[a,b],week:[a.id,b.id,a.id,b.id,a.id,b.id,b.id],eatsHouse:false,hf:1,example:true};
 }
 function sampleHouse(){
   const a={id:uid(),name:'Tajine djaj',meals:{ftour:[['bid',1],['khobz',.25],['zit_z',.5],['atay',1]],ghda:[['fkhad',150],['batata',150],['khodra',150],['zit_t',1],['khobz',.25]],kaskrout:[['atay',1],['msemen',.5]],'3cha':[['3des',250],['khobz',.25]]}};
@@ -605,7 +655,7 @@ function normalize(){
   S.custom.forEach(f=>{if(typeof f.n!=='string')f.n='?';if(f.ul==='7ba'||!f.ul)f.ul='7ba';if(!f.bl)f.bl='7ba';delete f.nt});
   if(!S.house) S.house=sampleHouse();
   if(!S.shop) S.shop={house:true};
-  S.profiles.forEach(p=>{if(p.eatsHouse==null)p.eatsHouse=false;if(p.hf==null)p.hf=p.sex==='f'?.85:1;if(S.shop[p.id]==null)S.shop[p.id]=true;delete p.checked});
+  S.profiles.forEach(p=>{if(p.fatPct==null)p.fatPct=27;if(p.eatsHouse==null)p.eatsHouse=false;if(p.hf==null)p.hf=p.sex==='f'?.85:1;if(S.shop[p.id]==null)S.shop[p.id]=true;delete p.checked});
 }
 function load(){
   try{const r=localStorage.getItem(KEY); if(r){const o=JSON.parse(r); if(o&&o.profiles&&o.profiles.length){S=o;normalize();return;}}}catch(e){}
@@ -622,15 +672,32 @@ const r1=x=>Math.round(x*10)/10, r0=x=>Math.round(x), r2=x=>Math.round(x*100)/10
 const dh=x=>nu(x.toFixed(2),t('dh'));
 
 /* ---------- Maths ---------- */
+const LIM={w:[35,250],h:[120,230],age:[14,90],fatPct:[20,40],protKg:[1,3.3],hf:[0,2]};
+const clamp=(k,v,def)=>{v=+v;if(!isFinite(v)||v<=0)return def;return Math.min(LIM[k][1],Math.max(LIM[k][0],v))};
+/* Targets.
+ - Energy: Mifflin-St Jeor BMR × activity × goal factor, with a floor (1200 kcal women, 1500 men) for deficits.
+ - Under 18: no deficit (Mifflin is not validated for adolescents; cutting needs medical follow-up).
+ - Protein: g/kg of a reference weight = actual weight, capped at the weight for BMI 25, because protein
+   needs track lean mass, not fat mass.
+ - Fat: % of calories (default 27%), never below 0.6 g/kg of reference weight. Carbs fill the rest. */
 function targets(p){
-  const bmr=10*p.w+6.25*p.h-5*p.age+(p.sex==='m'?5:-161);
-  const tdee=bmr*p.act; const g=GOALS[p.goal];
-  const kcal=Math.round(tdee*g[0]);
-  const pk=p.protKg||g[1]; const prot=Math.round(p.w*pk);
-  const fat=Math.round(p.w*(p.fatKg||.9));
+  const w=clamp('w',p.w,70), h=clamp('h',p.h,170), age=clamp('age',p.age,30);
+  const bmr=10*w+6.25*h-5*age+(p.sex==='m'?5:-161);
+  const tdee=bmr*p.act; const minor=age<18;
+  const goal=(minor&&GOALS[p.goal][0]<1)?'maintain':p.goal;
+  let kcal=Math.round(tdee*GOALS[goal][0]); let floored=false;
+  const floor=p.sex==='f'?1200:1500;
+  if(GOALS[goal][0]<1&&kcal<floor){const k2=Math.min(floor,Math.round(tdee));floored=k2>kcal;kcal=k2;}
+  const hm=h/100, bmi=w/(hm*hm), refW=bmi>25?25*hm*hm:w;
+  const pk=p.protKg?clamp('protKg',p.protKg,GOALS[goal][1]):GOALS[goal][1]; const prot=Math.round(refW*pk);
+  const fatPct=clamp('fatPct',p.fatPct,27);
+  const fat=Math.max(Math.round(kcal*fatPct/100/9),Math.round(refW*.6));
   const carbs=Math.max(0,Math.round((kcal-prot*4-fat*9)/4));
-  return {bmr:Math.round(bmr),tdee:Math.round(tdee),kcal,prot,fat,carbs,pk};
+  return {bmr:Math.round(bmr),tdee:Math.round(tdee),kcal,prot,fat,carbs,pk,refW:Math.round(refW),bmi:r1(bmi),usesRef:bmi>25,floored,minor,goal};
 }
+/* Average personal kcal per filled day: used to warn about counting a person's food twice */
+function personalAvg(p){let n=0,k=0;p.week.forEach(id=>{const d=p.days.find(x=>x.id===id);if(d){const v=dayTot(d).k;if(v>0){n++;k+=v}}});return n?k/n:0}
+function doubleWarn(p){if(!p.eatsHouse)return '';const a=personalAvg(p);return a>targets(p).kcal*.5?`<div class="warn">${t('double_warn',{n:esc(p.name),k:bdi(r0(a))})}</div>`:''}
 function itemM(fid,q){
   const f=food(fid); if(!f) return {k:0,p:0,c:0,f:0,cost:0};
   const mul=f.u==='g'?q/100:q;
@@ -664,7 +731,10 @@ function renderHeader(){
   const au=sw.querySelector('[data-t=auto]'); au.textContent=t('theme_auto'); au.setAttribute('aria-label',t('theme_auto_aria'));
   sw.querySelector('[data-t=dark]').setAttribute('aria-label',t('theme_dark'));
 }
-function render(){
+/* Re-entrancy guard: replacing the view blurs the focused input, whose change handler calls render() again */
+let _rendering=false,_again=false;
+function render(){if(_rendering){_again=true;return}_rendering=true;try{renderNow()}finally{_rendering=false}if(_again){_again=false;render()}}
+function renderNow(){
   renderHeader();
   const p=P();
   document.getElementById('profSel').innerHTML=S.profiles.map(x=>`<option value="${x.id}" ${x.id===p.id?'selected':''}>${esc(x.name)}</option>`).join('');
@@ -683,7 +753,7 @@ function vProfil(p){
   const tg=targets(p);
   const o=(v,l,cur)=>`<option value="${v}" ${String(cur)===String(v)?'selected':''}>${l}</option>`;
   return `<div class="stack">
-  ${p.example?`<div class="note">${t('ex_profile')}</div>`:''}
+  ${p.example?`<div class="note">${t('ex_profile')}</div>`:backupNag()}
   <section class="panel stack">
     <div class="sec-h"><h2>${t('info')}</h2>
       <div class="row"><button class="btn sm" onclick="newProfile()">${t('new_profile')}</button>
@@ -691,17 +761,17 @@ function vProfil(p){
     <div class="grid">
       <div><label class="lbl" for="pName">${t('name')}</label><input id="pName" class="in" value="${esc(p.name)}" onchange="upd('name',this.value)"></div>
       <div><label class="lbl" for="pSex">${t('sex')}</label><select id="pSex" class="in" onchange="upd('sex',this.value)">${o('m',t('male'),p.sex)}${o('f',t('female'),p.sex)}</select></div>
-      <div><label class="lbl" for="pAge">${t('age')}</label><input id="pAge" class="in num" type="number" min="14" max="90" value="${p.age}" onchange="upd('age',+this.value)"></div>
-      <div><label class="lbl" for="pW">${t('weight')}</label><input id="pW" class="in num" type="number" step="0.5" min="35" max="250" value="${p.w}" onchange="upd('w',+this.value)"></div>
-      <div><label class="lbl" for="pH">${t('height')}</label><input id="pH" class="in num" type="number" min="120" max="230" value="${p.h}" onchange="upd('h',+this.value)"></div>
+      <div><label class="lbl" for="pAge">${t('age')}</label><input id="pAge" class="in num" type="number" min="14" max="90" value="${p.age}" onchange="upd('age',this.value)"></div>
+      <div><label class="lbl" for="pW">${t('weight')}</label><input id="pW" class="in num" type="number" step="0.5" min="35" max="250" value="${p.w}" onchange="upd('w',this.value)"></div>
+      <div><label class="lbl" for="pH">${t('height')}</label><input id="pH" class="in num" type="number" min="120" max="230" value="${p.h}" onchange="upd('h',this.value)"></div>
     </div>
     <div class="grid wide">
       <div><label class="lbl" for="pAct">${t('activity')}</label><select id="pAct" class="in" onchange="upd('act',+this.value)">${ACTS.map((v,i)=>o(v,tl('acts',i),p.act)).join('')}</select></div>
       <div><label class="lbl" for="pGoal">${t('goal')}</label><select id="pGoal" class="in" onchange="upd('goal',this.value)">${GOAL_KEYS.map((k,i)=>o(k,tl('goals',i),p.goal)).join('')}</select></div>
     </div>
     <div class="grid">
-      <div><label class="lbl" for="pPk">${t('prot_kg')}</label><input id="pPk" class="in num" type="number" step="0.1" min="1" max="3.3" placeholder="${GOALS[p.goal][1]}" value="${p.protKg??''}" onchange="upd('protKg',this.value?+this.value:null)"></div>
-      <div><label class="lbl" for="pFk">${t('fat_kg')}</label><input id="pFk" class="in num" type="number" step="0.1" min="0.5" max="1.5" value="${p.fatKg}" onchange="upd('fatKg',+this.value||.9)"></div>
+      <div><label class="lbl" for="pPk">${t('prot_kg')}</label><input id="pPk" class="in num" type="number" step="0.1" min="1" max="3.3" placeholder="${GOALS[p.goal][1]}" value="${p.protKg??''}" onchange="upd('protKg',this.value?this.value:null)"></div>
+      <div><label class="lbl" for="pFp">${t('fat_pct')}</label><input id="pFp" class="in num" type="number" step="1" min="20" max="40" value="${p.fatPct}" onchange="upd('fatPct',this.value)"></div>
       <div><label class="lbl" for="pBud">${t('budget_month')}</label><input id="pBud" class="in num" type="number" min="0" value="${p.budget}" onchange="upd('budget',this.value)"></div>
     </div>
     <p class="hint">${t('prot_hint',{g:GOALS[p.goal][1]})}</p>
@@ -714,12 +784,17 @@ function vProfil(p){
       <div class="tbox"><span>${t('carbs')}</span><b style="color:var(--c)">${tg.carbs}</b><span>${t('u_g')}</span></div>
       <div class="tbox"><span>${t('fat')}</span><b style="color:var(--f)">${tg.fat}</b><span>${t('u_g')}</span></div>
     </div>
-    <p class="hint">${t('target_hint',{bmr:bdi(tg.bmr),tdee:bdi(tg.tdee),x:bdi(GOALS[p.goal][0])})}</p>
+    ${tg.minor?`<div class="warn">${t('minor_note')}</div>`:''}
+    ${tg.floored?`<div class="warn">${t('floor_note',{k:bdi(tg.kcal)})}</div>`:''}
+    ${tg.usesRef&&!p.protKg?`<p class="hint">${t('ref_note',{w:bdi(tg.refW),bmi:bdi(tg.bmi)})}</p>`:''}
+    <p class="hint">${t('target_hint',{bmr:bdi(tg.bmr),tdee:bdi(tg.tdee),x:bdi(GOALS[tg.goal][0])})}</p>
   </section></div>`;
 }
-function upd(k,v){const p=P();p[k]=v;if(['w','h','age','sex','act','goal','name'].includes(k))p.example=false;save();render()}
+function upd(k,v){const p=P();
+  if(LIM[k]){if(v===null||v===''){if(k!=='protKg'){render();return}v=null}else{const c=clamp(k,v,NaN);if(isNaN(c)){render();return}v=c}}
+  p[k]=v;if(['w','h','age','sex','act','goal','name'].includes(k))p.example=false;save();render()}
 function newProfile(){const d={id:uid(),name:t('day_prefix')+' A',meals:emptyMeals()};
-  const p={id:uid(),name:t('new_profile_name',{n:S.profiles.length+1}),sex:'m',age:25,w:70,h:175,act:1.55,goal:'maintain',protKg:null,fatKg:.9,budget:'',days:[d],week:Array(7).fill(d.id),eatsHouse:false,hf:1};
+  const p={id:uid(),name:t('new_profile_name',{n:S.profiles.length+1}),sex:'m',age:25,w:70,h:175,act:1.55,goal:'maintain',protKg:null,fatPct:27,budget:'',days:[d],week:Array(7).fill(d.id),eatsHouse:false,hf:1};
   S.profiles.push(p);S.active=p.id;S.shop[p.id]=true;save();render();toast(t('toast_profile_new'))}
 function delProfile(){if(delArm!=='p'){delArm='p';render();return}delete S.shop[S.active];S.profiles=S.profiles.filter(x=>x.id!==S.active);S.active=S.profiles[0].id;delArm=null;save();render();toast(t('toast_profile_del'))}
 
@@ -745,6 +820,7 @@ function vAyyam(p){
   if(hd) tot=addT(tot,dayTot(hd),p.hf);
   return `<div class="stack">
   <p class="hint">${p.eatsHouse?t('hint_eats_house'):t('hint_days')}</p>
+  ${doubleWarn(p)}
   ${dayHeader(p,curDay,t('new_day'))}
   ${p.eatsHouse&&H().days.length?`<div class="row"><label class="lbl" for="hpSel" style="margin:0">${t('add_house_calc')}</label>
     <select id="hpSel" class="in" style="flex:1;min-width:150px" onchange="D().hp=this.value||null;save();render()"><option value="">${t('none')}</option>${H().days.map(x=>`<option value="${x.id}" ${d.hp===x.id?'selected':''}>${esc(x.name)} (×${p.hf})</option>`).join('')}</select></div>`:''}
@@ -813,14 +889,16 @@ function weekSelect(c,setter){
   return `<div class="week">${[0,1,2,3,4,5,6].map(i=>{const w=tl('week_days',i);return `<div class="wd"><b>${w}</b><select id="${setter}${i}" aria-label="${w}" onchange="${setter}(${i},this.value)">${c.days.map(d=>`<option value="${d.id}" ${c.week[i]===d.id?'selected':''}>${esc(d.name)}</option>`).join('')}<option value="" ${!c.week[i]?'selected':''}>${t('none')}</option></select></div>`}).join('')}</div>`;
 }
 function vSimana(p){
-  const tg=targets(p); const avg={k:0,p:0,c:0,f:0}; let own=0;
+  const tg=targets(p); const sumT={k:0,p:0,c:0,f:0}; let own=0, n=0;
   [0,1,2,3,4,5,6].forEach(i=>{const d=p.days.find(x=>x.id===p.week[i]);const dt=dayTot(d);own+=dt.cost;
     let tt=dt; if(p.eatsHouse) tt=addT(tt,dayTot(hDay(H().week[i])),p.hf);
-    for(const k in avg)avg[k]+=tt[k]/7});
+    if(tt.k>0){n++;for(const k in sumT)sumT[k]+=tt[k]}});
+  const avg={};for(const k in sumT)avg[k]=n?sumT[k]/n:0;
   return `<div class="stack">
   <section class="panel stack"><div class="sec-h"><h2>${t('week_of',{n:esc(p.name)})}</h2><span class="hint">${t('pick_template')}</span></div>
     ${weekSelect(p,'setW')}
-    <h3 style="font-size:15px">${t('avg_day')}${p.eatsHouse?t('avg_with_house',{x:p.hf}):''}</h3>
+    <h3 style="font-size:15px">${t('avg_day')}${p.eatsHouse?t('avg_with_house',{x:p.hf}):''}${t('avg_n',{n})}</h3>
+    ${doubleWarn(p)}
     <div class="bars" style="position:static">${bars4(avg,tg)}
       <div class="cost"><span>${p.eatsHouse?t('extras_week'):t('cost_week')}</span><b>${dh(own)}</b></div></div>
     <p class="hint">${t('simana_hint')}</p>
@@ -851,6 +929,7 @@ function vDar(){
       </div>`).join('')}
     </div>
     <div class="row"><button class="btn sm" onclick="addM()">${t('add_member')}</button></div>
+    ${S.profiles.map(doubleWarn).join('')}
   </section>
 
   <section class="stack">
@@ -876,8 +955,8 @@ function rmM(id){H().members=H().members.filter(m=>m.id!==id);save();render()}
 
 /* ---------- Shopping (whole household) ---------- */
 function fmtAmt(f,x){
-  if(f.b==='kg') return x>=1?nu(r1(x),t('u_kg')):gr(Math.ceil(x*1000/10)*10);
-  if(f.b==='L') return x>=1?nu(r1(x),t('u_L')):nu(Math.ceil(x*1000/10)*10,t('u_ml'));
+  if(f.b==='kg') return x>=1?nu(Math.ceil(x*10-1e-9)/10,t('u_kg')):gr(Math.ceil(x*1000/10)*10);
+  if(f.b==='L') return x>=1?nu(Math.ceil(x*10-1e-9)/10,t('u_L')):nu(Math.ceil(x*1000/10)*10,t('u_ml'));
   return nu(Math.ceil(x-1e-9),esc(unitName(f.bl||'7ba')));
 }
 function vT9edya(){
@@ -919,7 +998,10 @@ function vPrix(){
     <div class="prow"><div style="min-width:0"><div style="font-weight:600">${esc(fname(f))}</div>${f.nt?`<small>${esc(noteOf(f))}</small>`:''}</div>
     <div class="pi"><input id="pr_${f.id}" class="in" type="number" step="0.1" min="0" value="${price(f)}" onchange="setP('${f.id}',this.value)"><small>${esc(unitL(f))}</small></div></div>`).join('')}</div>`).join('')}
   </section>
-  <section class="panel stack"><h2 style="font-size:19px">${t('add_custom')}</h2>
+  ${S.custom.length?`<section class="panel stack"><h2 style="font-size:19px">${t('custom_list')}</h2>
+    <div class="ptable">${S.custom.map(f=>`<div class="prow"><div style="min-width:0"><div style="font-weight:600">${esc(f.n)}</div><small>${catName(f.cat)} · ${macro({k:f.m[0],p:f.m[1],c:f.m[2],f:f.m[3]})}</small></div>
+      <div class="row"><button class="btn sm" onclick="editCustom('${f.id}')">${t('edit')}</button><button class="btn sm danger" onclick="delCustom('${f.id}')">${delArm==='c_'+f.id?t('confirm_del'):t('del')}</button></div></div>`).join('')}</div></section>`:''}
+  <section class="panel stack" id="customForm"><h2 style="font-size:19px">${editingCustom?t('edit')+' · '+esc((food(editingCustom)||{}).n||''):t('add_custom')}</h2>
     <div class="grid">
       <div><label class="lbl" for="cN">${t('name')}</label><input id="cN" class="in" placeholder="${t('custom_ph')}"></div>
       <div><label class="lbl" for="cCat">${t('category')}</label><select id="cCat" class="in">${CAT_KEYS.map(k=>`<option value="${k}">${catName(k)}</option>`).join('')}</select></div>
@@ -932,23 +1014,55 @@ function vPrix(){
       <div><label class="lbl" for="cC">${t('carbs_g')}</label><input id="cC" class="in num" type="number" step="0.1" min="0"></div>
       <div><label class="lbl" for="cF">${t('fat_g')}</label><input id="cF" class="in num" type="number" step="0.1" min="0"></div>
     </div>
-    <div class="row"><button class="btn pri" onclick="addCustom()">${t('add')}</button><span id="cErr" class="hint" style="color:var(--danger)"></span></div>
+    <div class="row"><button class="btn pri" onclick="addCustom()">${editingCustom?t('save'):t('add')}</button>${editingCustom?`<button class="btn" onclick="editingCustom=null;render()">${t('cancel')}</button>`:''}<span id="cErr" class="hint" style="color:var(--danger)"></span></div>
   </section>
   <section class="panel stack"><h2 style="font-size:19px">${t('backup')}</h2>
     <p class="hint">${t('backup_hint')}</p>
-    <div class="row"><button class="btn" onclick="exportData()">${t('copy_backup')}</button></div>
+    <p class="hint"><b>${S.lastBackup?t('last_backup',{d:bdi(new Date(S.lastBackup).toLocaleDateString(lang()==='en'?'en-GB':'fr-FR'))}):t('never_backup')}</b></p>
+    <div class="row"><button class="btn pri" onclick="exportFile()">${t('export_file')}</button>
+      <label class="btn" for="impF" style="cursor:pointer">${t('import_file')}</label><input id="impF" type="file" accept="application/json,.json" hidden onchange="importFile(this)">
+      <button class="btn" onclick="exportData()">${t('copy_backup')}</button></div>
     <textarea id="impT" class="in num" rows="3" placeholder="${t('paste_ph')}"></textarea>
     <div class="row"><button class="btn" onclick="importData()">${t('import')}</button><span id="impMsg" class="hint"></span></div>
+    <div class="row" style="border-top:1px solid var(--line);padding-top:12px"><button class="btn danger" onclick="resetAll()">${delArm==='all'?t('reset_confirm'):t('reset_all')}</button></div>
   </section></div>`;
 }
 function setP(id,v){const x=parseFloat(v);if(isNaN(x))delete S.prices[id];else S.prices[id]=Math.max(0,x);save();render()}
+let editingCustom=null;
 function addCustom(){
   const g=id=>document.getElementById(id).value; const n=g('cN').trim(); const u=g('cU');
   const nums=['cP','cK','cPr','cC','cF'].map(i=>parseFloat(g(i)));
-  if(!n||nums.some(isNaN)){document.getElementById('cErr').textContent=t('custom_err');return}
-  const f={id:'c_'+uid(),n,cat:g('cCat'),u,ul:'7ba',d:u==='g'?100:1,s:u==='g'?25:1,m:nums.slice(1),b:u==='g'?'kg':'u',bl:'7ba',f:u==='g'?.001:1,p:nums[0]};
-  S.custom.push(f);save();render();toast(t('toast_custom',{n}))}
-function exportData(){const s=JSON.stringify(S);const el=document.getElementById('impT');
+  if(!n||nums.some(x=>isNaN(x)||x<0)){document.getElementById('cErr').textContent=t('custom_err');return}
+  const fields={n,cat:g('cCat'),u,ul:'7ba',d:u==='g'?100:1,s:u==='g'?25:1,m:nums.slice(1),b:u==='g'?'kg':'u',bl:'7ba',f:u==='g'?.001:1,p:nums[0]};
+  if(editingCustom){const f=food(editingCustom);
+    if(f.u!==u){/* unit changed: convert stored quantities so the meals keep a sensible size */
+      const conv=q=>u==='g'?q*100:Math.max(1,r1(q/100));
+      eachItem((it)=>{if(it[0]===f.id)it[1]=conv(it[1])});}
+    Object.assign(f,fields);delete S.prices[f.id];editingCustom=null;save();render();toast(t('toast_saved'));return}
+  S.custom.push(Object.assign({id:'c_'+uid()},fields));save();render();toast(t('toast_custom',{n}))}
+function eachItem(fn){const all=S.profiles.flatMap(p=>p.days).concat(H().days);all.forEach(d=>MEAL_KEYS.forEach(k=>(d.meals[k]||[]).forEach((it,i,arr)=>fn(it,i,arr))))}
+function editCustom(id){editingCustom=id;render();const f=food(id);
+  const set=(i,v)=>{const el=document.getElementById(i);if(el)el.value=v};
+  set('cN',f.n);set('cCat',f.cat);set('cU',f.u);set('cP',price(f));set('cK',f.m[0]);set('cPr',f.m[1]);set('cC',f.m[2]);set('cF',f.m[3]);
+  const el=document.getElementById('customForm');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})}
+function delCustom(id){if(delArm!=='c_'+id){delArm='c_'+id;render();return}
+  S.custom=S.custom.filter(f=>f.id!==id);delete S.prices[id];delete S.checked[id];
+  const all=S.profiles.flatMap(p=>p.days).concat(H().days);all.forEach(d=>MEAL_KEYS.forEach(k=>{d.meals[k]=(d.meals[k]||[]).filter(it=>it[0]!==id)}));
+  if(editingCustom===id)editingCustom=null;delArm=null;save();render();toast(t('toast_deleted'))}
+function resetAll(){if(delArm!=='all'){delArm='all';render();return}
+  const keep={lang:S.lang,theme:S.theme};try{localStorage.removeItem(KEY)}catch(e){}
+  load();Object.assign(S,keep);save();delArm=null;curDay=null;curHDay=null;tab='profil';render();toast(t('toast_reset_all'))}
+function backupNag(){const old=!S.lastBackup||(Date.now()-S.lastBackup>30*864e5);
+  return old?`<div class="warn row" style="justify-content:space-between"><span>${S.lastBackup?t('backup_old'):t('never_backup')}</span><button class="btn sm" onclick="go('prix');setTimeout(()=>{const e=document.getElementById('impF');e&&e.closest('section').scrollIntoView({behavior:'smooth'})},50)">${t('go_backup')}</button></div>`:''}
+function exportFile(){
+  S.lastBackup=Date.now();save();
+  const s=JSON.stringify(S,null,1); const d=new Date().toISOString().slice(0,10);
+  try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([s],{type:'application/json'}));a.download='makla-mizan-'+d+'.json';
+    document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
+    render();toast(t('toast_saved'))}catch(e){exportData()}}
+function importFile(inp){const f=inp.files&&inp.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{document.getElementById('impT').value=r.result;importData()};r.readAsText(f)}
+function exportData(){S.lastBackup=Date.now();save();const s=JSON.stringify(S);const el=document.getElementById('impT');
   const ok=()=>toast(t('toast_copied'));const fb=()=>{el.value=s;el.select();toast(t('toast_select'))};
   try{navigator.clipboard.writeText(s).then(ok,fb)}catch(e){fb()}}
 function importData(){try{const o=JSON.parse(document.getElementById('impT').value);if(!o.profiles||!o.profiles.length)throw 0;S=o;normalize();save();applyTheme();curDay=null;curHDay=null;render();toast(t('toast_import'))}catch(e){document.getElementById('impMsg').textContent=t('import_err')}}
@@ -969,6 +1083,7 @@ function setTheme(th){S.theme=th;save();applyTheme()}
 try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applyTheme)}catch(e){}
 
 load();render();applyTheme();
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persisted().then(ok=>{if(!ok)navigator.storage.persist()})}catch(e){}
 
 /* ---------- PWA ---------- */
 let deferredPrompt=null;
