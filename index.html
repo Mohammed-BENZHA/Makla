@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <title>Makla & Mizan</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
 <style>
 /* Soft UI (neumorphism): surfaces share the page colour and are lifted or pressed with paired light/dark shadows; one deep-teal accent */
 :root{
@@ -213,6 +213,20 @@ nav.tabs button{padding:9px 10px}
 .themesw button{border:0;background:transparent;border-radius:999px;padding:5px 11px;font-weight:700;font-size:13px;color:var(--muted)}
 .themesw button[aria-checked="true"]{background:var(--bg);color:var(--accent);box-shadow:var(--raise-sm)}
 .who{flex-wrap:wrap}
+
+/* ---- Languages / RTL ---- */
+.ctrls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.langsel{border:0;background:var(--bg);box-shadow:var(--raise-sm);border-radius:999px;padding:7px 12px;font-weight:600}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+html[dir=rtl] body,html[dir=rtl] button,html[dir=rtl] input,html[dir=rtl] select,html[dir=rtl] textarea{font-family:"IBM Plex Sans Arabic","Noto Sans Arabic",var(--body)}
+html[dir=rtl] h2,html[dir=rtl] h3{font-family:"IBM Plex Sans Arabic","Noto Sans Arabic",var(--display);font-weight:700}
+html[dir=rtl] .num{font-family:"IBM Plex Sans Arabic","Noto Sans Arabic",sans-serif;font-variant-numeric:tabular-nums}
+.note{border-left:0;border-inline-start:3px solid var(--accent)}
+.warn{border-left:0;border-inline-start:3px solid var(--money)}
+.price,.li .pr{text-align:end}
+.fopt{text-align:start}
+bdi{unicode-bidi:isolate}
+.qty input{direction:ltr}
 </style>
 </head>
 <body>
@@ -221,16 +235,20 @@ nav.tabs button{padding:9px 10px}
   <header class="top">
     <div class="brand">
       <h1>Makla & Mizan</h1>
-      <p>Macros, planning dyal simana w lista dyal t9edya b dirham</p>
+      <p id="tagline"></p>
     </div>
-    <div class="themesw" role="radiogroup" aria-label="Mode" id="themeSw">
-      <button role="radio" data-t="light" onclick="setTheme('light')" aria-label="Fat7">☀</button>
-      <button role="radio" data-t="auto" onclick="setTheme('auto')" aria-label="3la 7sab telephone">Auto</button>
-      <button role="radio" data-t="dark" onclick="setTheme('dark')" aria-label="Ghamej">☾</button>
+    <div class="ctrls">
+      <div class="themesw" role="radiogroup" id="themeSw">
+        <button role="radio" data-t="light" onclick="setTheme('light')">☀</button>
+        <button role="radio" data-t="auto" onclick="setTheme('auto')">Auto</button>
+        <button role="radio" data-t="dark" onclick="setTheme('dark')">☾</button>
+      </div>
+      <label class="lbl sr" id="langLbl" for="langSel">Lougha</label>
+      <select id="langSel" class="langsel" onchange="setLang(this.value)"></select>
     </div>
     <div class="who">
-      <button id="installBtn" class="btn sm pri" hidden onclick="doInstall()">Installi l'app</button>
-      <label class="lbl" for="profSel" style="margin:0">Profil</label>
+      <button id="installBtn" class="btn sm pri" hidden onclick="doInstall()"></button>
+      <label class="lbl" id="profLbl" for="profSel" style="margin:0">Profil</label>
       <select id="profSel" onchange="setActive(this.value)"></select>
     </div>
   </header>
@@ -241,57 +259,327 @@ nav.tabs button{padding:9px 10px}
 <div id="toastRoot"></div>
 
 <script>
+/* ---------- Languages ----------
+ dj = Darija (Latin, default) · da = Darija (Arabic script) · fr · ar · en
+ Any key missing in a language falls back to Darija (dj). */
+const LANGS=[['dj','Darija'],['da','الدارجة'],['fr','Français'],['ar','العربية'],['en','English']];
+const RTL={da:1,ar:1};
+const I18N={
+dj:{
+ tagline:'Macros, planning dyal simana w lista dyal t9edya b dirham',profile:'Profil',install:"Installi l'app",lang:'Lougha',
+ theme:'Mode',theme_light:'Fat7',theme_auto:'Auto',theme_auto_aria:'3la 7sab telephone',theme_dark:'Ghamej',
+ tab_profil:'Profil',tab_ayyam:'Ayyam',tab_simana:'Simana',tab_dar:'Dar',tab_t9edya:'T9edya',tab_prix:'Prix',
+ ex_profile:"Hada profil <b>mital</b>. Beddel smiya, l'wazn, tol w lhadaf dyalek, wla zid profil jdid. Kolchi kaytsjel f had l'telephone.",
+ info:'M3loumat',new_profile:'+ Profil jdid',del_profile:'Mse7 profil',confirm_del:'Mta2ked? Mse7',name:'Smiya',sex:'Jins',male:'Rajel',female:'Mra',
+ age:'3mer (3am)',weight:'Lwazn (kg)',height:'Tol (cm)',activity:'Nachat',goal:'Lhadaf',prot_kg:'Protein (g/kg)',fat_kg:'Dhoun (g/kg)',
+ budget_month:'Budget dyal chhar (DH, ikhtiyari)',
+ prot_hint:"Ila khwiti l'protein, kayt7seb automatique 3la 7sab lhadaf ({g} g/kg). Ila 3endek ra9m m7edded (b7al 180 g), 9semo 3la lwazn dyalek w dirou hna.",
+ day_target:'Lhadaf dyal nhar',kcal:'Calories',prot:'Protein',carbs:'Karb',fat:'Dhoun',
+ target_hint:"BMR (Mifflin-St Jeor): {bmr} kcal · Maintenance (TDEE): {tdee} kcal · Lhadaf = TDEE × {x}. Had l'ar9am ta9ribiya (±10%). Tbe3 lwazn dyalek 2–3 simanat w beddel 3la 7sab chno w9e3.",
+ toast_profile_new:'Profil jdid tzad',toast_profile_del:'Profil tmse7',new_profile_name:'Profil {n}',
+ no_day:'Ma kayn 7ta nhar.',new_day:'+ Nhar jdid',new_house_day:'+ Makla jdida',day_prefix:'Nhar',house_day_prefix:'Makla',
+ hint_eats_house:"Nta katakol m3a dar: 7et hna ghir <b>l'extras dyalek</b> (whey, djaj zayd…). L'makla mechtarka kayna f l'onglet \"Dar\".",
+ hint_days:"Sawb 2–3 d les ayyam \"template\" (b7al nhar training w nhar raha), w men ba3d 3tihom l ayyam simana f l'onglet \"Simana\".",
+ dup:'Nsakh',del:'Mse7',add_house_calc:"Zid f l'7sab makla dyal dar:",none:'— walo',cost_extras:"Taman dyal l'extras dyalek",cost_day:'Taman dyal had nhar',
+ house_whole:'Dar kamla:',per_person:'L wa7ed:',house_cost:'Dar:',add_food:'+ Zid makla',empty_meal:'Khawya. Brk 3la "Zid makla".',
+ dec:'N9es',inc:'Zid',qty:'Kmiya',remove:'7ayed',copy_suffix:' (nouskha)',toast_dup:'Tnsakh',
+ sheet_title:'Zid l {meal}',sheet_house:' (dar)',close:'Sali',search_ph:'9elleb: bid, sardine, 3des…',all:'Kolchi',
+ no_result:"Ma l9it walo. Zid makla dyalek f l'onglet \"Prix\".",toast_added:'{n} tzad',
+ week_of:'Simana dyal {n}',pick_template:"Khtar l'template dyal kol nhar",avg_day:'Moyenne dyal nhar',avg_with_house:" (m3a l'makla dyal dar ×{x})",
+ extras_week:'Extras dyalek f simana',cost_week:'Taman dyal simana',simana_hint:"Lista dyal t9edya kayna f l'onglet \"T9edya\", w katjme3 ga3 nass dyal dar.",
+ ex_house:"Hadchi <b>mital</b>. Beddel nass dyal dar w l'makla dyalkom.",house_people:'Nass dyal dar',house_eq:'Dar = {x} portions d wa7ed kbir',
+ portion_hint:"Kol wa7ed 3ando \"portion\": ch7al kayakol m9arna m3a rajel kbir (1). Hadchi ta9ribi 3la 7sab l'7ajat dyal l'ta9a; beddlou ila bghiti.",
+ profile_eats:'profil · kayakol m3a dar',portion:'Portion',type:'No3',add_member:'+ Zid wa7ed (bla profil)',new_member:'Wa7ed jdid',
+ house_food:'Makla dyal dar',house_food_hint:"Hna l'makla mechtarka (tajine, couscous, ftour dyal l3a2ila). 7et <b>l'kmiya dyal wa7ed kbir</b>, w l'app katdreb f {x} bach t3tik ch7al khassek tayb. L'extras dyal kol wa7ed 3ando profil kayt7etto f \"Ayyam\".",
+ per_adult:'L wa7ed kbir',house_day_cost:'Taman dyal nhar l dar kamla (×{x})',house_week:'Simana dyal dar',
+ who_in:'Chkoun dakhel f t9edya?',extras:' (extras)',pick_someone:'Khtar chi wa7ed.',week_list:'Lista dyal simana',restart:'Bda men jdid',
+ list_hint:"Lkmiyat m7soubin b ma katchri: l'9tani w rouz b l'wazn nay, l7out w djaj b l3dem dyalhom. Dowwer 3la lfou9 (sakhra w ghiyab).",
+ list_empty:"Ma kayn walo. 3mmer l'ayyam w l'makla dyal dar.",week:'Simana',month:'Chhar (~30 yom)',house_budget:'Budget dyal dar',house_budget_in:'Budget dyal dar f chhar (DH)',
+ price_warn:"Les prix li kaynin m9eddrin. Beddelhom b dyal l'7anout w souk dyalek bach l'7sab ykoun s7i7. Kayt3emlou 3la ga3 les profils.",
+ prices:'Prix',reset_prices:'Rje3 l les prix l9dam',toast_reset:'Rje3 les prix l9dam',add_custom:'Zid makla dyalek',custom_ph:'Jben beldi',
+ category:'Categorie',calc_by:'Kat7seb b',by_gram:'Gram (macros l 100 g, prix l kg)',by_unit:'7ba (macros w prix l 7ba)',price_dh:'Prix (DH)',
+ prot_g:'Protein g',carbs_g:'Karb g',fat_g:'Dhoun g',add:'Zid',custom_err:"3mmer smiya w ga3 l'ar9am.",toast_custom:'{n} tzadet',
+ backup:'Sauvegarde',backup_hint:"Data katsjel ghir f had l'telephone. Bach tdiha l telephone akhor, nsakh l'code w lsa9o temma.",copy_backup:'Nsakh sauvegarde',
+ paste_ph:'Lsa9 sauvegarde hna…',import:'Importer',toast_copied:'Tnsakh',toast_select:'Selectionni w nsakh',toast_import:'Importa mzyan',import_err:"Had l'code machi s7i7.",
+ toast_installed:"L'app tinstallat",
+ u_g:'g',u_kg:'kg',u_L:'L',u_ml:'ml',dh:'DH',kcal_u:'kcal',mP:'P',mC:'K',mF:'D',
+ un:{bida:'bida',khobza:'khobza','7ba':'7ba',kas:'kas','7ok':'7ok',scoop:'scoop',banana:'banana',mo3al9a:'mo3al9a'},
+ cats:['Ftour & snack','L7em & 7out','Nachawiyat & 9tani','Khodra & fakiya','Zit & louz'],
+ meals:['Ftour','Ghda','Kaskrout','3cha'],
+ week_days:['Tnin','Tlat','Larb3','Lkhmis','Jjem3a','Ssebt','L7ed'],
+ goals:['Tnchif (n9es chhem)','Recomp (3dalat + n9es chhem)','7afed 3la lwazn','Zid 3dalat (b chwiya)','Zid lwazn (bzzerba)'],
+ acts:['Bureau, 9lil l7araka','Khfif (1–3 d les séances f simana)','Mtwasset (3–5 f simana)','3ali (6–7 f simana)','Khdma te9ila + sport kol nhar'],
+ types:['Rajel kbir','Mra kbira','Mrahe9 (12–17)','Drri (7–11)','Sghir (3–6)','Bebe (<3)'],
+ notes:{bone:"L3dem ~25% men l'wazn",sardine:'Katakol ~60% men li katchri',merla:'Filet ~50% men l7out kamel',dry:'Prix dyal kg nay',oil:'Zid lzit li katdir f tayb, 7it hiya li kat-khrej l7sab'},
+ sugar:'Sokar (dyal atay)',
+ foods:["Bid roumi","Bid beldi","Khobz kamel (khobza ~200g)","Khobz byed (khobza ~200g)","Msemen","Harcha","Choufan (flocons d'avoine)","7lib (kas 200 ml)","Perly / yaourt (7ok)","Fromage mtellat","Whey (scoop 30g)","Atay b sokar (kas)","Sder djaj (nay)","Fkhad djaj bla jeld (nay)","Sardine (nay, li katakol)","Merla / 7out byed (nay, filet)","L7em bgri habra (nay)","Kefta bgri (nay)","Kefta dinde (nay)","Kebda djaj (nay)","Ton (7ok, ~80g msfi)","Rouz (tayeb)","Ma9arouna (tayba)","3des (tayeb)","Loubia (tayba)","7mes (tayeb)","Batata (nay)","Batata 7lowa (nay)","Khodra (maticha, khyar, bsla…)","Banan","Tfa7a / limouna","Tmer","Avoka","Zit dyal tayb (mo3al9a kbira)","Zit zitoun (mo3al9a kbira)","Louz","Kawkaw","Amlou (mo3al9a 20g)"]
+},
+da:{
+ tagline:'الماكروز، البرنامج ديال السيمانة واللائحة ديال التقضية بالدرهم',profile:'البروفيل',install:'إنستالي الأپليكاسيون',lang:'اللغة',
+ theme:'الموض',theme_light:'فاتح',theme_auto:'أوطو',theme_auto_aria:'على حساب التيليفون',theme_dark:'غامق',
+ tab_profil:'البروفيل',tab_ayyam:'الأيام',tab_simana:'السيمانة',tab_dar:'الدار',tab_t9edya:'التقضية',tab_prix:'الأثمنة',
+ ex_profile:'هادا بروفيل <b>مثال</b>. بدل السمية، الوزن، الطول والهدف ديالك، ولا زيد بروفيل جديد. كلشي كيتسجل فهاد التيليفون.',
+ info:'المعلومات',new_profile:'+ بروفيل جديد',del_profile:'مسح البروفيل',confirm_del:'متأكد؟ مسح',name:'السمية',sex:'الجنس',male:'راجل',female:'مرا',
+ age:'العمر (عام)',weight:'الوزن (كيلو)',height:'الطول (سم)',activity:'النشاط',goal:'الهدف',prot_kg:'البروتين (غ/كيلو)',fat_kg:'الدهون (غ/كيلو)',
+ budget_month:'البودجي ديال الشهر (درهم، اختياري)',
+ prot_hint:'إلا خليتي البروتين خاوي، كيتحسب أوطوماتيك على حساب الهدف ({g} غ/كيلو). إلا عندك رقم محدد (بحال 180 غ)، قسمو على الوزن ديالك وديرو هنا.',
+ day_target:'الهدف ديال النهار',kcal:'الكالوري',prot:'البروتين',carbs:'الكارب',fat:'الدهون',
+ target_hint:'BMR (Mifflin-St Jeor): {bmr} كالوري · الصيانة (TDEE): {tdee} كالوري · الهدف = TDEE × {x}. هاد الأرقام تقريبية (±10%). تبع الوزن ديالك 2–3 سيمانات وبدل على حساب شنو وقع.',
+ toast_profile_new:'تزاد بروفيل جديد',toast_profile_del:'تمسح البروفيل',new_profile_name:'بروفيل {n}',
+ no_day:'ما كاين حتى نهار.',new_day:'+ نهار جديد',new_house_day:'+ ماكلة جديدة',day_prefix:'نهار',house_day_prefix:'ماكلة',
+ hint_eats_house:'نتا كتاكل مع الدار: حط هنا غير <b>الزيادات ديالك</b> (واي، دجاج زايد…). الماكلة المشتركة كاينة فـ"الدار".',
+ hint_days:'صاوب 2–3 ديال الأيام "نموذج" (بحال نهار التمرين ونهار الراحة)، ومن بعد عطيهم لأيام السيمانة فـ"السيمانة".',
+ dup:'نسخ',del:'مسح',add_house_calc:'زيد فالحساب الماكلة ديال الدار:',none:'— والو',cost_extras:'الثمن ديال الزيادات ديالك',cost_day:'الثمن ديال هاد النهار',
+ house_whole:'الدار كاملة:',per_person:'لواحد:',house_cost:'الدار:',add_food:'+ زيد ماكلة',empty_meal:'خاوية. بركـ على "زيد ماكلة".',
+ dec:'نقص',inc:'زيد',qty:'الكمية',remove:'حيد',copy_suffix:' (نسخة)',toast_dup:'تنسخ',
+ sheet_title:'زيد لـ{meal}',sheet_house:' (الدار)',close:'سالي',search_ph:'قلب: بيض، سردين، عدس…',all:'كلشي',
+ no_result:'ما لقيت والو. زيد ماكلة ديالك فـ"الأثمنة".',toast_added:'تزاد {n}',
+ week_of:'السيمانة ديال {n}',pick_template:'ختار النموذج ديال كل نهار',avg_day:'المعدل ديال النهار',avg_with_house:' (مع الماكلة ديال الدار ×{x})',
+ extras_week:'الزيادات ديالك فالسيمانة',cost_week:'الثمن ديال السيمانة',simana_hint:'اللائحة ديال التقضية كاينة فـ"التقضية"، وكتجمع ناس الدار كاملين.',
+ ex_house:'هادشي <b>مثال</b>. بدل ناس الدار والماكلة ديالكم.',house_people:'ناس الدار',house_eq:'الدار = {x} حصص ديال واحد كبير',
+ portion_hint:'كل واحد عندو "حصة": شحال كياكل مقارنة مع راجل كبير (1). هادشي تقريبي على حساب الطاقة لي كيحتاج؛ بدلو إلا بغيتي.',
+ profile_eats:'بروفيل · كياكل مع الدار',portion:'الحصة',type:'النوع',add_member:'+ زيد واحد (بلا بروفيل)',new_member:'واحد جديد',
+ house_food:'الماكلة ديال الدار',house_food_hint:'هنا الماكلة المشتركة (طاجين، كسكسو، فطور العائلة). حط <b>الكمية ديال واحد كبير</b>، والأپليكاسيون كتضرب فـ{x} باش تعطيك شحال خاصك تطيب. الزيادات ديال كل واحد عندو بروفيل كتتحط فـ"الأيام".',
+ per_adult:'لواحد كبير',house_day_cost:'الثمن ديال النهار للدار كاملة (×{x})',house_week:'السيمانة ديال الدار',
+ who_in:'شكون داخل فالتقضية؟',extras:' (زيادات)',pick_someone:'ختار شي واحد.',week_list:'اللائحة ديال السيمانة',restart:'بدا من جديد',
+ list_hint:'الكميات محسوبين بما كتشري: القطاني والروز بالوزن ناي، الحوت والدجاج بالعظم ديالهم. دوّر على الفوق.',
+ list_empty:'ما كاين والو. عمّر الأيام والماكلة ديال الدار.',week:'السيمانة',month:'الشهر (~30 يوم)',house_budget:'البودجي ديال الدار',house_budget_in:'البودجي ديال الدار فالشهر (درهم)',
+ price_warn:'الأثمنة لي كاينين مقدرين. بدلهم بديال الحانوت والسوق ديالك باش يكون الحساب صحيح. كيتعملو على البروفيلات كاملين.',
+ prices:'الأثمنة',reset_prices:'رجع للأثمنة القدام',toast_reset:'رجعو الأثمنة القدام',add_custom:'زيد ماكلة ديالك',custom_ph:'جبن بلدي',
+ category:'النوع',calc_by:'كتحسب بـ',by_gram:'الغرام (الماكروز لـ100 غ، الثمن للكيلو)',by_unit:'الحبة (الماكروز والثمن للحبة)',price_dh:'الثمن (درهم)',
+ prot_g:'بروتين غ',carbs_g:'كارب غ',fat_g:'دهون غ',add:'زيد',custom_err:'عمّر السمية وكاع الأرقام.',toast_custom:'تزادت {n}',
+ backup:'السوفگارد',backup_hint:'الداتا كتتسجل غير فهاد التيليفون. باش تديها لتيليفون آخر، نسخ الكود ولصقو تما.',copy_backup:'نسخ السوفگارد',
+ paste_ph:'لصق السوفگارد هنا…',import:'إمپورطي',toast_copied:'تنسخ',toast_select:'سيليكسيوني ونسخ',toast_import:'تإمپورطا مزيان',import_err:'هاد الكود ماشي صحيح.',
+ toast_installed:'الأپليكاسيون تإنستالات',
+ u_g:'غ',u_kg:'كيلو',u_L:'لتر',u_ml:'مل',dh:'درهم',kcal_u:'كالوري',mP:'ب',mC:'ك',mF:'د',
+ un:{bida:'بيضة',khobza:'خبزة','7ba':'حبة',kas:'كاس','7ok':'حك',scoop:'سكوب',banana:'بنانة',mo3al9a:'معيلقة'},
+ cats:['الفطور والكاسكروط','اللحم والحوت','النشويات والقطاني','الخضرة والفاكية','الزيت واللوز'],
+ meals:['الفطور','الغدا','الكاسكروط','العشا'],
+ week_days:['التنين','التلات','لاربع','الخميس','الجمعة','السبت','الحد'],
+ goals:['تنشيف (نقص الشحم)','ريكومپ (عضلات + نقص الشحم)','حافظ على الوزن','زيد العضلات بشوية','زيد الوزن بالزربة'],
+ acts:['بيرو، قليل الحركة','خفيف (1–3 ديال السيونسات فالسيمانة)','متوسط (3–5 فالسيمانة)','عالي (6–7 فالسيمانة)','خدمة تقيلة + سبور كل نهار'],
+ types:['راجل كبير','مرا كبيرة','مراهق (12–17)','دري (7–11)','صغير (3–6)','بيبي (<3)'],
+ notes:{bone:'العظم ~25% من الوزن',sardine:'كتاكل ~60% من لي كتشري',merla:'الفيلي ~50% من الحوت كامل',dry:'الثمن ديال الكيلو ناي',oil:'زيد الزيت لي كدير فالطيب، حيت هي لي كتخرج الحساب'},
+ sugar:'السكر (ديال أتاي)',
+ foods:['بيض رومي','بيض بلدي','خبز كامل (خبزة ~200 غ)','خبز أبيض (خبزة ~200 غ)','مسمن','حرشة','الشوفان','حليب (كاس 200 مل)','بيرلي / ياغورت (حك)','فرماج مثلث','واي (سكوب 30 غ)','أتاي بالسكر (كاس)','صدر الدجاج (ناي)','فخاد الدجاج بلا جلد (ناي)','سردين (ناي، لي كتاكل)','ميرلا / حوت بيض (ناي، فيلي)','لحم بگري هبرة (ناي)','كفتة بگري (ناية)','كفتة الداند (ناية)','كبدة الدجاج (ناية)','طون (حك، ~80 غ مصفي)','روز (طايب)','مقارونة (طايبة)','عدس (طايب)','لوبيا (طايبة)','حمص (طايب)','بطاطا (ناية)','بطاطا حلوة (ناية)','خضرة (ماطيشة، خيار، بصلة…)','بنان','تفاحة / ليمونة','تمر','أفوكا','زيت ديال الطيب (معيلقة كبيرة)','زيت الزيتون (معيلقة كبيرة)','لوز','كاوكاو','أملو (معيلقة 20 غ)']
+},
+fr:{
+ tagline:'Macros, planning de la semaine et liste de courses en dirhams',profile:'Profil',install:"Installer l'app",lang:'Langue',
+ theme:'Mode',theme_light:'Clair',theme_auto:'Auto',theme_auto_aria:'Selon le téléphone',theme_dark:'Sombre',
+ tab_profil:'Profil',tab_ayyam:'Jours',tab_simana:'Semaine',tab_dar:'Foyer',tab_t9edya:'Courses',tab_prix:'Prix',
+ ex_profile:"Ceci est un profil <b>d'exemple</b>. Modifiez le nom, le poids, la taille et l'objectif, ou ajoutez un nouveau profil. Tout est enregistré sur ce téléphone.",
+ info:'Informations',new_profile:'+ Nouveau profil',del_profile:'Supprimer le profil',confirm_del:'Sûr ? Supprimer',name:'Nom',sex:'Sexe',male:'Homme',female:'Femme',
+ age:'Âge (ans)',weight:'Poids (kg)',height:'Taille (cm)',activity:'Activité',goal:'Objectif',prot_kg:'Protéines (g/kg)',fat_kg:'Lipides (g/kg)',
+ budget_month:'Budget mensuel (DH, facultatif)',
+ prot_hint:"Laissé vide, l'apport en protéines suit l'objectif ({g} g/kg). Si vous visez un chiffre précis (ex. 180 g), divisez-le par votre poids et saisissez-le ici.",
+ day_target:'Objectif journalier',kcal:'Calories',prot:'Protéines',carbs:'Glucides',fat:'Lipides',
+ target_hint:"BMR (Mifflin-St Jeor) : {bmr} kcal · Maintien (TDEE) : {tdee} kcal · Objectif = TDEE × {x}. Ces valeurs sont approximatives (±10 %). Suivez votre poids 2 à 3 semaines et ajustez.",
+ toast_profile_new:'Profil ajouté',toast_profile_del:'Profil supprimé',new_profile_name:'Profil {n}',
+ no_day:'Aucun jour.',new_day:'+ Nouveau jour',new_house_day:'+ Nouveau menu',day_prefix:'Jour',house_day_prefix:'Menu',
+ hint_eats_house:"Vous mangez avec le foyer : mettez ici seulement <b>vos extras</b> (whey, poulet en plus…). Le repas commun est dans l'onglet « Foyer ».",
+ hint_days:"Créez 2 ou 3 journées types (entraînement, repos), puis attribuez-les aux jours de la semaine dans l'onglet « Semaine ».",
+ dup:'Dupliquer',del:'Supprimer',add_house_calc:'Inclure le repas du foyer :',none:'— aucun',cost_extras:'Coût de vos extras',cost_day:'Coût de la journée',
+ house_whole:'Tout le foyer :',per_person:'Par personne :',house_cost:'Foyer :',add_food:'+ Ajouter',empty_meal:'Vide. Appuyez sur « Ajouter ».',
+ dec:'Moins',inc:'Plus',qty:'Quantité',remove:'Retirer',copy_suffix:' (copie)',toast_dup:'Dupliqué',
+ sheet_title:'Ajouter au {meal}',sheet_house:' (foyer)',close:'Fermer',search_ph:'Rechercher : œuf, sardine, lentilles…',all:'Tout',
+ no_result:"Aucun résultat. Ajoutez votre aliment dans l'onglet « Prix ».",toast_added:'{n} ajouté',
+ week_of:'Semaine de {n}',pick_template:'Choisissez la journée type de chaque jour',avg_day:'Moyenne journalière',avg_with_house:' (avec le repas du foyer ×{x})',
+ extras_week:'Vos extras sur la semaine',cost_week:'Coût de la semaine',simana_hint:"La liste de courses se trouve dans l'onglet « Courses » et regroupe tout le foyer.",
+ ex_house:"Ceci est un <b>exemple</b>. Modifiez les membres du foyer et vos repas.",house_people:'Membres du foyer',house_eq:'Foyer = {x} portions adulte',
+ portion_hint:"Chaque personne a une « portion » : ce qu'elle mange par rapport à un homme adulte (1). Valeurs approximatives selon les besoins énergétiques ; modifiez-les si besoin.",
+ profile_eats:'profil · mange avec le foyer',portion:'Portion',type:'Type',add_member:'+ Ajouter une personne (sans profil)',new_member:'Nouvelle personne',
+ house_food:'Repas du foyer',house_food_hint:"Les repas partagés (tajine, couscous, petit-déj familial). Saisissez <b>la quantité pour un adulte</b> : l'app multiplie par {x} pour vous dire combien cuisiner. Les extras de chaque profil vont dans « Jours ».",
+ per_adult:'Par adulte',house_day_cost:'Coût du jour pour tout le foyer (×{x})',house_week:'Semaine du foyer',
+ who_in:'Qui est inclus dans les courses ?',extras:' (extras)',pick_someone:'Choisissez au moins une personne.',week_list:'Liste de la semaine',restart:'Tout décocher',
+ list_hint:"Quantités telles qu'achetées : légumineuses et riz en poids sec, poisson et poulet avec les arêtes et os. Arrondissez un peu au-dessus (pertes).",
+ list_empty:'Rien pour le moment. Remplissez vos jours et les repas du foyer.',week:'Semaine',month:'Mois (~30 jours)',house_budget:'Budget du foyer',house_budget_in:'Budget mensuel du foyer (DH)',
+ price_warn:'Les prix affichés sont estimés. Remplacez-les par ceux de votre épicier ou marché pour un calcul juste. Ils valent pour tous les profils.',
+ prices:'Prix',reset_prices:'Prix par défaut',toast_reset:'Prix par défaut rétablis',add_custom:'Ajouter un aliment',custom_ph:'Fromage frais (jben)',
+ category:'Catégorie',calc_by:'Mesuré en',by_gram:'Grammes (macros pour 100 g, prix au kg)',by_unit:'Unités (macros et prix par unité)',price_dh:'Prix (DH)',
+ prot_g:'Protéines g',carbs_g:'Glucides g',fat_g:'Lipides g',add:'Ajouter',custom_err:'Renseignez le nom et toutes les valeurs.',toast_custom:'{n} ajouté',
+ backup:'Sauvegarde',backup_hint:'Les données restent sur ce téléphone. Pour les transférer, copiez le code et collez-le sur l’autre appareil.',copy_backup:'Copier la sauvegarde',
+ paste_ph:'Collez la sauvegarde ici…',import:'Importer',toast_copied:'Copié',toast_select:'Sélectionnez puis copiez',toast_import:'Import réussi',import_err:'Ce code est invalide.',
+ toast_installed:'Application installée',
+ u_g:'g',u_kg:'kg',u_L:'L',u_ml:'ml',dh:'DH',kcal_u:'kcal',mP:'P',mC:'G',mF:'L',
+ un:{bida:'œuf',khobza:'pain','7ba':'pièce',kas:'verre','7ok':'pot',scoop:'dose',banana:'banane',mo3al9a:'c. à s.'},
+ cats:['Petit-déj & collations','Viandes & poissons','Féculents & légumineuses','Légumes & fruits','Huiles & fruits secs'],
+ meals:['Petit-déjeuner','Déjeuner','Goûter','Dîner'],
+ week_days:['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'],
+ goals:['Sèche (perte de gras)','Recomposition (muscle + perte de gras)','Maintien du poids','Prise de muscle (légère)','Prise de masse (rapide)'],
+ acts:['Sédentaire (bureau)','Léger (1–3 séances/sem.)','Modéré (3–5 séances/sem.)','Élevé (6–7 séances/sem.)','Travail physique + sport quotidien'],
+ types:['Homme adulte','Femme adulte','Ado (12–17)','Enfant (7–11)','Petit (3–6)','Bébé (<3)'],
+ notes:{bone:'Os ≈ 25 % du poids',sardine:'Partie comestible ≈ 60 % du poids acheté',merla:'Filet ≈ 50 % du poisson entier',dry:'Prix du kg cru (sec)',oil:"Comptez l'huile de cuisson : c'est elle qui fausse le plus le calcul"},
+ sugar:'Sucre (thé)',
+ foods:["Œufs","Œufs beldi","Pain complet (~200 g)","Pain blanc (~200 g)","Msemen","Harcha","Flocons d'avoine","Lait (verre 200 ml)","Yaourt / Perly (pot)","Fromage portion","Whey (dose 30 g)","Thé sucré (verre)","Blanc de poulet (cru)","Cuisse de poulet sans peau (crue)","Sardine (crue, partie comestible)","Merlan / poisson blanc (filet cru)","Bœuf maigre (cru)","Kefta de bœuf (crue)","Kefta de dinde (crue)","Foie de poulet (cru)","Thon (boîte, ~80 g égoutté)","Riz (cuit)","Pâtes (cuites)","Lentilles (cuites)","Haricots blancs (cuits)","Pois chiches (cuits)","Pomme de terre (crue)","Patate douce (crue)","Légumes (tomate, concombre, oignon…)","Banane","Pomme / orange","Dattes","Avocat","Huile de cuisson (c. à soupe)","Huile d'olive (c. à soupe)","Amandes","Cacahuètes","Amlou (c. à soupe 20 g)"]
+},
+ar:{
+ tagline:'الماكروز، برنامج الأسبوع ولائحة المشتريات بالدرهم',profile:'الملف',install:'تثبيت التطبيق',lang:'اللغة',
+ theme:'الوضع',theme_light:'فاتح',theme_auto:'تلقائي',theme_auto_aria:'حسب الهاتف',theme_dark:'داكن',
+ tab_profil:'الملف',tab_ayyam:'الأيام',tab_simana:'الأسبوع',tab_dar:'الأسرة',tab_t9edya:'المشتريات',tab_prix:'الأسعار',
+ ex_profile:'هذا ملف <b>تجريبي</b>. غيّر الاسم والوزن والطول والهدف، أو أضف ملفًا جديدًا. تُحفظ جميع البيانات على هذا الهاتف.',
+ info:'المعلومات',new_profile:'+ ملف جديد',del_profile:'حذف الملف',confirm_del:'متأكد؟ احذف',name:'الاسم',sex:'الجنس',male:'ذكر',female:'أنثى',
+ age:'العمر (سنة)',weight:'الوزن (كغ)',height:'الطول (سم)',activity:'النشاط',goal:'الهدف',prot_kg:'البروتين (غ/كغ)',fat_kg:'الدهون (غ/كغ)',
+ budget_month:'الميزانية الشهرية (درهم، اختياري)',
+ prot_hint:'إذا تُرك فارغًا، يُحسب البروتين تلقائيًا حسب الهدف ({g} غ/كغ). إن كان لديك رقم محدد (مثل 180 غ)، اقسمه على وزنك وأدخله هنا.',
+ day_target:'الهدف اليومي',kcal:'السعرات',prot:'البروتين',carbs:'النشويات',fat:'الدهون',
+ target_hint:'معدل الأيض الأساسي (Mifflin-St Jeor): {bmr} سعرة · سعرات الثبات (TDEE): {tdee} سعرة · الهدف = TDEE × {x}. هذه القيم تقريبية (±10%). تابع وزنك 2–3 أسابيع وعدّل حسب النتيجة.',
+ toast_profile_new:'أُضيف ملف جديد',toast_profile_del:'حُذف الملف',new_profile_name:'ملف {n}',
+ no_day:'لا يوجد أي يوم.',new_day:'+ يوم جديد',new_house_day:'+ وجبة جديدة',day_prefix:'يوم',house_day_prefix:'وجبة',
+ hint_eats_house:'أنت تأكل مع الأسرة: ضع هنا <b>إضافاتك الخاصة</b> فقط (واي، دجاج إضافي…). الوجبة المشتركة في خانة "الأسرة".',
+ hint_days:'أنشئ يومين أو ثلاثة نموذجية (يوم تمرين ويوم راحة)، ثم وزّعها على أيام الأسبوع في خانة "الأسبوع".',
+ dup:'نسخ',del:'حذف',add_house_calc:'احتساب وجبة الأسرة:',none:'— لا شيء',cost_extras:'تكلفة إضافاتك',cost_day:'تكلفة هذا اليوم',
+ house_whole:'الأسرة كاملة:',per_person:'للفرد:',house_cost:'الأسرة:',add_food:'+ أضف طعامًا',empty_meal:'فارغة. اضغط على "أضف طعامًا".',
+ dec:'إنقاص',inc:'زيادة',qty:'الكمية',remove:'إزالة',copy_suffix:' (نسخة)',toast_dup:'تم النسخ',
+ sheet_title:'أضف إلى {meal}',sheet_house:' (الأسرة)',close:'إغلاق',search_ph:'ابحث: بيض، سردين، عدس…',all:'الكل',
+ no_result:'لا توجد نتائج. أضف طعامك في خانة "الأسعار".',toast_added:'أُضيف {n}',
+ week_of:'أسبوع {n}',pick_template:'اختر اليوم النموذجي لكل يوم',avg_day:'المعدل اليومي',avg_with_house:' (مع وجبة الأسرة ×{x})',
+ extras_week:'إضافاتك خلال الأسبوع',cost_week:'تكلفة الأسبوع',simana_hint:'لائحة المشتريات في خانة "المشتريات"، وتجمع كل أفراد الأسرة.',
+ ex_house:'هذه بيانات <b>تجريبية</b>. غيّر أفراد الأسرة ووجباتكم.',house_people:'أفراد الأسرة',house_eq:'الأسرة = {x} حصة بالغ',
+ portion_hint:'لكل فرد "حصة": ما يأكله مقارنة برجل بالغ (1). القيم تقريبية حسب الاحتياجات من الطاقة؛ عدّلها إن شئت.',
+ profile_eats:'ملف · يأكل مع الأسرة',portion:'الحصة',type:'الفئة',add_member:'+ أضف فردًا (بدون ملف)',new_member:'فرد جديد',
+ house_food:'وجبات الأسرة',house_food_hint:'الوجبات المشتركة (طاجين، كسكس، فطور العائلة). أدخل <b>كمية شخص بالغ واحد</b>، ويضربها التطبيق في {x} ليخبرك بكمية الطبخ. إضافات كل صاحب ملف توضع في "الأيام".',
+ per_adult:'للبالغ',house_day_cost:'تكلفة اليوم للأسرة كاملة (×{x})',house_week:'أسبوع الأسرة',
+ who_in:'من يدخل في المشتريات؟',extras:' (إضافات)',pick_someone:'اختر شخصًا واحدًا على الأقل.',week_list:'لائحة الأسبوع',restart:'إلغاء التحديد',
+ list_hint:'الكميات كما تُشترى: القطاني والأرز بالوزن الجاف، والسمك والدجاج مع العظم. قرّب إلى الأعلى قليلًا (الضياع).',
+ list_empty:'لا شيء بعد. املأ الأيام ووجبات الأسرة.',week:'الأسبوع',month:'الشهر (~30 يومًا)',house_budget:'ميزانية الأسرة',house_budget_in:'ميزانية الأسرة الشهرية (درهم)',
+ price_warn:'الأسعار المعروضة تقديرية. استبدلها بأسعار البقال أو السوق القريب منك ليكون الحساب دقيقًا. تُطبّق على جميع الملفات.',
+ prices:'الأسعار',reset_prices:'الأسعار الافتراضية',toast_reset:'أُعيدت الأسعار الافتراضية',add_custom:'أضف طعامًا',custom_ph:'جبن بلدي',
+ category:'الفئة',calc_by:'وحدة القياس',by_gram:'بالغرام (الماكروز لكل 100 غ، السعر للكيلو)',by_unit:'بالحبة (الماكروز والسعر للحبة)',price_dh:'السعر (درهم)',
+ prot_g:'بروتين غ',carbs_g:'نشويات غ',fat_g:'دهون غ',add:'أضف',custom_err:'أدخل الاسم وجميع القيم.',toast_custom:'أُضيف {n}',
+ backup:'النسخ الاحتياطي',backup_hint:'تُحفظ البيانات على هذا الهاتف فقط. لنقلها، انسخ الرمز والصقه في الجهاز الآخر.',copy_backup:'نسخ البيانات',
+ paste_ph:'الصق النسخة الاحتياطية هنا…',import:'استيراد',toast_copied:'تم النسخ',toast_select:'حدّد ثم انسخ',toast_import:'تم الاستيراد',import_err:'هذا الرمز غير صالح.',
+ toast_installed:'تم تثبيت التطبيق',
+ u_g:'غ',u_kg:'كغ',u_L:'ل',u_ml:'مل',dh:'درهم',kcal_u:'سعرة',mP:'ب',mC:'ن',mF:'د',
+ un:{bida:'بيضة',khobza:'رغيف','7ba':'حبة',kas:'كأس','7ok':'علبة',scoop:'مغرفة',banana:'موزة',mo3al9a:'ملعقة'},
+ cats:['الفطور والوجبات الخفيفة','اللحوم والأسماك','النشويات والقطاني','الخضر والفواكه','الزيوت والمكسرات'],
+ meals:['الفطور','الغداء','اللمجة','العشاء'],
+ week_days:['الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت','الأحد'],
+ goals:['تنشيف (خسارة الدهون)','إعادة تشكيل الجسم (عضلات + خسارة دهون)','الحفاظ على الوزن','زيادة عضلية خفيفة','زيادة سريعة في الوزن'],
+ acts:['خامل (عمل مكتبي)','خفيف (1–3 حصص أسبوعيًا)','متوسط (3–5 حصص أسبوعيًا)','مرتفع (6–7 حصص أسبوعيًا)','عمل بدني + رياضة يومية'],
+ types:['رجل بالغ','امرأة بالغة','مراهق (12–17)','طفل (7–11)','طفل صغير (3–6)','رضيع (<3)'],
+ notes:{bone:'العظم ≈ 25% من الوزن',sardine:'الجزء المأكول ≈ 60% مما تشتريه',merla:'الفيليه ≈ 50% من السمكة الكاملة',dry:'سعر الكيلو نيئًا (جافًّا)',oil:'احسب زيت الطبخ، فهو أكبر مصدر خفي للسعرات'},
+ sugar:'السكر (للشاي)',
+ foods:['بيض عادي','بيض بلدي','خبز كامل (رغيف ~200 غ)','خبز أبيض (رغيف ~200 غ)','مسمن','حرشة','رقائق الشوفان','حليب (كأس 200 مل)','ياغورت (علبة)','جبن مثلث','واي بروتين (مغرفة 30 غ)','شاي بالسكر (كأس)','صدر دجاج (نيء)','فخذ دجاج بدون جلد (نيء)','سردين (نيء، الجزء المأكول)','سمك أبيض (فيليه نيء)','لحم بقري هبرة (نيء)','كفتة بقري (نيئة)','كفتة ديك رومي (نيئة)','كبد دجاج (نيء)','تونة (علبة، ~80 غ مصفاة)','أرز (مطبوخ)','معكرونة (مطبوخة)','عدس (مطبوخ)','لوبيا بيضاء (مطبوخة)','حمص (مطبوخ)','بطاطس (نيئة)','بطاطا حلوة (نيئة)','خضر (طماطم، خيار، بصل…)','موز','تفاح / برتقال','تمر','أفوكادو','زيت الطبخ (ملعقة كبيرة)','زيت الزيتون (ملعقة كبيرة)','لوز','فول سوداني','أملو (ملعقة 20 غ)']
+},
+en:{
+ tagline:'Macros, weekly meal plan and shopping list in dirhams',profile:'Profile',install:'Install app',lang:'Language',
+ theme:'Mode',theme_light:'Light',theme_auto:'Auto',theme_auto_aria:'Follow phone',theme_dark:'Dark',
+ tab_profil:'Profile',tab_ayyam:'Days',tab_simana:'Week',tab_dar:'Household',tab_t9edya:'Shopping',tab_prix:'Prices',
+ ex_profile:'This is an <b>example</b> profile. Change the name, weight, height and goal, or add a new profile. Everything is saved on this phone.',
+ info:'Details',new_profile:'+ New profile',del_profile:'Delete profile',confirm_del:'Sure? Delete',name:'Name',sex:'Sex',male:'Male',female:'Female',
+ age:'Age (years)',weight:'Weight (kg)',height:'Height (cm)',activity:'Activity',goal:'Goal',prot_kg:'Protein (g/kg)',fat_kg:'Fat (g/kg)',
+ budget_month:'Monthly budget (DH, optional)',
+ prot_hint:'Leave empty to set protein from your goal ({g} g/kg). If you have a fixed target (e.g. 180 g), divide it by your weight and enter it here.',
+ day_target:'Daily target',kcal:'Calories',prot:'Protein',carbs:'Carbs',fat:'Fat',
+ target_hint:'BMR (Mifflin-St Jeor): {bmr} kcal · Maintenance (TDEE): {tdee} kcal · Target = TDEE × {x}. These are estimates (±10%). Track your weight for 2–3 weeks and adjust.',
+ toast_profile_new:'Profile added',toast_profile_del:'Profile deleted',new_profile_name:'Profile {n}',
+ no_day:'No days yet.',new_day:'+ New day',new_house_day:'+ New menu',day_prefix:'Day',house_day_prefix:'Menu',
+ hint_eats_house:'You eat with the household: put only <b>your extras</b> here (whey, extra chicken…). Shared meals live in the "Household" tab.',
+ hint_days:'Build 2–3 template days (training day, rest day), then assign them to weekdays in the "Week" tab.',
+ dup:'Duplicate',del:'Delete',add_house_calc:'Include household meal:',none:'— none',cost_extras:'Cost of your extras',cost_day:'Cost of this day',
+ house_whole:'Whole household:',per_person:'Per person:',house_cost:'Household:',add_food:'+ Add food',empty_meal:'Empty. Tap "Add food".',
+ dec:'Less',inc:'More',qty:'Quantity',remove:'Remove',copy_suffix:' (copy)',toast_dup:'Duplicated',
+ sheet_title:'Add to {meal}',sheet_house:' (household)',close:'Close',search_ph:'Search: eggs, sardine, lentils…',all:'All',
+ no_result:'No match. Add your own food in the "Prices" tab.',toast_added:'{n} added',
+ week_of:"{n}'s week",pick_template:'Pick the template for each day',avg_day:'Daily average',avg_with_house:' (incl. household meal ×{x})',
+ extras_week:'Your extras this week',cost_week:'Cost of the week',simana_hint:'The shopping list is in the "Shopping" tab and covers the whole household.',
+ ex_house:'This is <b>example</b> data. Change the household members and your meals.',house_people:'Household members',house_eq:'Household = {x} adult portions',
+ portion_hint:'Each person has a "portion": how much they eat compared with an adult man (1). Rough values based on energy needs; change them if you like.',
+ profile_eats:'profile · eats with household',portion:'Portion',type:'Type',add_member:'+ Add person (no profile)',new_member:'New person',
+ house_food:'Household meals',house_food_hint:'Shared meals (tagine, couscous, family breakfast). Enter <b>the amount for one adult</b>; the app multiplies by {x} to tell you how much to cook. Each profile’s extras go in "Days".',
+ per_adult:'Per adult',house_day_cost:'Daily cost for the whole household (×{x})',house_week:'Household week',
+ who_in:'Who is included in the shopping?',extras:' (extras)',pick_someone:'Pick at least one.',week_list:'Weekly list',restart:'Uncheck all',
+ list_hint:'Amounts as bought: legumes and rice by dry weight, fish and chicken with bones. Round up a little for waste.',
+ list_empty:'Nothing yet. Fill in your days and the household meals.',week:'Week',month:'Month (~30 days)',house_budget:'Household budget',house_budget_in:'Household monthly budget (DH)',
+ price_warn:'Prices shown are estimates. Replace them with your local shop or market prices for an accurate total. They apply to every profile.',
+ prices:'Prices',reset_prices:'Reset to defaults',toast_reset:'Default prices restored',add_custom:'Add your own food',custom_ph:'Fresh cheese (jben)',
+ category:'Category',calc_by:'Measured in',by_gram:'Grams (macros per 100 g, price per kg)',by_unit:'Units (macros and price per unit)',price_dh:'Price (DH)',
+ prot_g:'Protein g',carbs_g:'Carbs g',fat_g:'Fat g',add:'Add',custom_err:'Fill in the name and every number.',toast_custom:'{n} added',
+ backup:'Backup',backup_hint:'Data is stored on this phone only. To move it, copy the code and paste it on the other device.',copy_backup:'Copy backup',
+ paste_ph:'Paste a backup here…',import:'Import',toast_copied:'Copied',toast_select:'Select and copy',toast_import:'Imported',import_err:'This code is not valid.',
+ toast_installed:'App installed',
+ u_g:'g',u_kg:'kg',u_L:'L',u_ml:'ml',dh:'DH',kcal_u:'kcal',mP:'P',mC:'C',mF:'F',
+ un:{bida:'egg',khobza:'loaf','7ba':'piece',kas:'glass','7ok':'cup',scoop:'scoop',banana:'banana',mo3al9a:'tbsp'},
+ cats:['Breakfast & snacks','Meat & fish','Starches & legumes','Vegetables & fruit','Oils & nuts'],
+ meals:['Breakfast','Lunch','Snack','Dinner'],
+ week_days:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+ goals:['Cut (lose fat)','Recomp (muscle + fat loss)','Maintain weight','Lean bulk','Bulk'],
+ acts:['Sedentary (desk job)','Light (1–3 sessions/week)','Moderate (3–5/week)','High (6–7/week)','Physical job + daily training'],
+ types:['Adult man','Adult woman','Teen (12–17)','Child (7–11)','Young child (3–6)','Toddler (<3)'],
+ notes:{bone:'Bone ≈ 25% of weight',sardine:'Edible part ≈ 60% of what you buy',merla:'Fillet ≈ 50% of the whole fish',dry:'Price per kg, dry (uncooked)',oil:'Count your cooking oil: it is the biggest hidden source of calories'},
+ sugar:'Sugar (for tea)',
+ foods:['Eggs','Free-range eggs (beldi)','Whole-wheat bread (~200 g loaf)','White bread (~200 g loaf)','Msemen','Harcha','Rolled oats','Milk (200 ml glass)','Yogurt / Perly (cup)','Cheese wedge','Whey (30 g scoop)','Sweet mint tea (glass)','Chicken breast (raw)','Skinless chicken thigh (raw)','Sardine (raw, edible part)','Whiting / white fish (raw fillet)','Lean beef (raw)','Beef kefta (raw)','Turkey kefta (raw)','Chicken liver (raw)','Tuna (can, ~80 g drained)','Rice (cooked)','Pasta (cooked)','Lentils (cooked)','White beans (cooked)','Chickpeas (cooked)','Potato (raw)','Sweet potato (raw)','Vegetables (tomato, cucumber, onion…)','Banana','Apple / orange','Dates','Avocado','Cooking oil (tbsp)','Olive oil (tbsp)','Almonds','Peanuts','Amlou (20 g tbsp)']
+}};
+
 /* ---------- Food data ----------
  u:'g' => macros per 100 g of what you eat; u:'u' => per unit.
  b = buy unit (kg | L | u); f = buy units needed per 1 g (or per 1 unit) eaten,
- including waste (bones, peel) and dry→cooked conversion. p = default price per buy unit (DH). */
-const CATS={ftour:'Ftour & snack',prot:'L7em & 7out',carb:'Nachawiyat & 9tani',veg:'Khodra & fakiya',fat:'Zit & louz'};
+ including waste (bones, peel) and dry→cooked conversion. p = default price per buy unit (DH).
+ Names live in I18N[lang].foods (same order as this list); ul/bl are unit keys; nt is a note key. */
+const CAT_KEYS=['ftour','prot','carb','veg','fat'];
 const FOODS=[
- {id:'bid',n:'Bid roumi',cat:'ftour',u:'u',ul:'bida',d:3,s:1,m:[72,6.3,.4,4.8],b:'u',bl:'bida',f:1,p:1.4},
- {id:'bid_beldi',n:'Bid beldi',cat:'ftour',u:'u',ul:'bida',d:2,s:1,m:[68,6,.4,4.5],b:'u',bl:'bida',f:1,p:2.5},
- {id:'khobz',n:'Khobz kamel (khobza ~200g)',cat:'ftour',u:'u',ul:'khobza',d:.5,s:.25,m:[494,19,86,6.4],b:'u',bl:'khobza',f:1,p:2.5},
- {id:'khobz_b',n:'Khobz byed (khobza ~200g)',cat:'ftour',u:'u',ul:'khobza',d:.5,s:.25,m:[530,17,100,5],b:'u',bl:'khobza',f:1,p:1.2},
- {id:'msemen',n:'Msemen',cat:'ftour',u:'u',ul:'7ba',d:1,s:.5,m:[310,6.5,42,13],b:'u',bl:'7ba',f:1,p:2.5},
- {id:'harcha',n:'Harcha',cat:'ftour',u:'u',ul:'7ba',d:1,s:.5,m:[325,6,48,12],b:'u',bl:'7ba',f:1,p:2.5},
- {id:'choufan',n:'Choufan (flocons d\'avoine)',cat:'ftour',u:'g',d:60,s:10,m:[379,13.2,67,6.5],b:'kg',f:.001,p:30},
- {id:'hlib',n:'7lib (kas 200 ml)',cat:'ftour',u:'u',ul:'kas',d:1,s:.5,m:[96,6.6,9.8,3.2],b:'L',f:.2,p:7.5},
- {id:'perly',n:'Perly / yaourt (7ok)',cat:'ftour',u:'u',ul:'7ok',d:1,s:1,m:[92,6.5,7.5,3.8],b:'u',bl:'7ok',f:1,p:3.5},
- {id:'fromage',n:'Fromage mtellat',cat:'ftour',u:'u',ul:'7ba',d:2,s:1,m:[42,2,.8,3.5],b:'u',bl:'7ba',f:1,p:1.5},
- {id:'whey',n:'Whey (scoop 30g)',cat:'ftour',u:'u',ul:'scoop',d:1,s:.5,m:[120,24,3,1.5],b:'kg',f:.03,p:350},
- {id:'atay',n:'Atay b sokar (kas)',cat:'ftour',u:'u',ul:'kas',d:1,s:1,m:[60,0,15,0],b:'kg',f:.015,p:10,sn:'Sokar (dyal atay)'},
- {id:'sder',n:'Sder djaj (nay)',cat:'prot',u:'g',d:200,s:25,m:[120,23,0,2.6],b:'kg',f:.001,p:70},
- {id:'fkhad',n:'Fkhad djaj bla jeld (nay)',cat:'prot',u:'g',d:200,s:25,m:[119,19.7,0,4.1],b:'kg',f:.001/.75,p:38,nt:'L3dem ~25% men l\'wazn'},
- {id:'sardine',n:'Sardine (nay, li katakol)',cat:'prot',u:'g',d:200,s:25,m:[170,20,0,10],b:'kg',f:.001/.6,p:25,nt:'Katakol ~60% men li katchri'},
- {id:'merla',n:'Merla / 7out byed (nay, filet)',cat:'prot',u:'g',d:200,s:25,m:[90,18.3,0,1.3],b:'kg',f:.001/.5,p:45,nt:'Filet ~50% men l7out kamel'},
- {id:'lhem',n:'L7em bgri habra (nay)',cat:'prot',u:'g',d:150,s:25,m:[150,21,0,7],b:'kg',f:.001,p:115},
- {id:'kefta',n:'Kefta bgri (nay)',cat:'prot',u:'g',d:150,s:25,m:[215,19,0,15],b:'kg',f:.001,p:110},
- {id:'kefta_d',n:'Kefta dinde (nay)',cat:'prot',u:'g',d:150,s:25,m:[145,20.5,0,6.5],b:'kg',f:.001,p:75},
- {id:'kebda',n:'Kebda djaj (nay)',cat:'prot',u:'g',d:150,s:25,m:[119,17,.7,4.8],b:'kg',f:.001,p:40},
- {id:'ton',n:'Ton (7ok, ~80g msfi)',cat:'prot',u:'u',ul:'7ok',d:1,s:1,m:[135,21,0,5.5],b:'u',bl:'7ok',f:1,p:12},
- {id:'rouz',n:'Rouz (tayeb)',cat:'carb',u:'g',d:200,s:25,m:[130,2.7,28,.3],b:'kg',f:.00035,p:16,nt:'Prix dyal kg nay'},
- {id:'makarona',n:'Ma9arouna (tayba)',cat:'carb',u:'g',d:200,s:25,m:[158,5.8,31,.9],b:'kg',f:.0004,p:12,nt:'Prix dyal kg nay'},
- {id:'3des',n:'3des (tayeb)',cat:'carb',u:'g',d:250,s:25,m:[116,9,20,.4],b:'kg',f:.0004,p:22,nt:'Prix dyal kg nay'},
- {id:'loubia',n:'Loubia (tayba)',cat:'carb',u:'g',d:250,s:25,m:[127,8.7,22.8,.5],b:'kg',f:.00045,p:24,nt:'Prix dyal kg nay'},
- {id:'7mes',n:'7mes (tayeb)',cat:'carb',u:'g',d:150,s:25,m:[164,8.9,27.4,2.6],b:'kg',f:.00045,p:26,nt:'Prix dyal kg nay'},
- {id:'batata',n:'Batata (nay)',cat:'carb',u:'g',d:250,s:50,m:[77,2,17,.1],b:'kg',f:.001,p:6},
- {id:'batata7',n:'Batata 7lowa (nay)',cat:'carb',u:'g',d:200,s:50,m:[86,1.6,20,.1],b:'kg',f:.001,p:12},
- {id:'khodra',n:'Khodra (maticha, khyar, bsla…)',cat:'veg',u:'g',d:200,s:50,m:[25,1,5,.2],b:'kg',f:.001,p:8},
- {id:'banan',n:'Banan',cat:'veg',u:'u',ul:'banana',d:1,s:1,m:[105,1.3,27,.4],b:'kg',f:.17,p:14},
- {id:'tfa7',n:'Tfa7a / limouna',cat:'veg',u:'u',ul:'7ba',d:1,s:1,m:[85,.5,22,.2],b:'kg',f:.18,p:12},
- {id:'tmer',n:'Tmer',cat:'veg',u:'g',d:45,s:15,m:[280,2,75,.2],b:'kg',f:.001,p:60},
- {id:'avoka',n:'Avoka',cat:'veg',u:'g',d:100,s:50,m:[160,2,8.5,14.7],b:'kg',f:.001/.7,p:30},
- {id:'zit_t',n:'Zit dyal tayb (mo3al9a kbira)',cat:'fat',u:'u',ul:'mo3al9a',d:1,s:.5,m:[124,0,0,14],b:'L',f:.015,p:20,nt:'Zid lzit li katdir f tayb, 7it hiya li kat-khrej l7sab'},
- {id:'zit_z',n:'Zit zitoun (mo3al9a kbira)',cat:'fat',u:'u',ul:'mo3al9a',d:1,s:.5,m:[119,0,0,13.5],b:'L',f:.015,p:100},
- {id:'louz',n:'Louz',cat:'fat',u:'g',d:30,s:10,m:[579,21.2,21.6,49.9],b:'kg',f:.001,p:120},
- {id:'kawkaw',n:'Kawkaw',cat:'fat',u:'g',d:30,s:10,m:[567,25.8,16,49],b:'kg',f:.001,p:30},
- {id:'amlou',n:'Amlou (mo3al9a 20g)',cat:'fat',u:'u',ul:'mo3al9a',d:1,s:1,m:[125,3.8,4.5,10.5],b:'kg',f:.02,p:180}
+ {id:'bid',cat:'ftour',u:'u',ul:'bida',d:3,s:1,m:[72,6.3,.4,4.8],b:'u',bl:'bida',f:1,p:1.4},
+ {id:'bid_beldi',cat:'ftour',u:'u',ul:'bida',d:2,s:1,m:[68,6,.4,4.5],b:'u',bl:'bida',f:1,p:2.5},
+ {id:'khobz',cat:'ftour',u:'u',ul:'khobza',d:.5,s:.25,m:[494,19,86,6.4],b:'u',bl:'khobza',f:1,p:2.5},
+ {id:'khobz_b',cat:'ftour',u:'u',ul:'khobza',d:.5,s:.25,m:[530,17,100,5],b:'u',bl:'khobza',f:1,p:1.2},
+ {id:'msemen',cat:'ftour',u:'u',ul:'7ba',d:1,s:.5,m:[310,6.5,42,13],b:'u',bl:'7ba',f:1,p:2.5},
+ {id:'harcha',cat:'ftour',u:'u',ul:'7ba',d:1,s:.5,m:[325,6,48,12],b:'u',bl:'7ba',f:1,p:2.5},
+ {id:'choufan',cat:'ftour',u:'g',d:60,s:10,m:[379,13.2,67,6.5],b:'kg',f:.001,p:30},
+ {id:'hlib',cat:'ftour',u:'u',ul:'kas',d:1,s:.5,m:[96,6.6,9.8,3.2],b:'L',f:.2,p:7.5},
+ {id:'perly',cat:'ftour',u:'u',ul:'7ok',d:1,s:1,m:[92,6.5,7.5,3.8],b:'u',bl:'7ok',f:1,p:3.5},
+ {id:'fromage',cat:'ftour',u:'u',ul:'7ba',d:2,s:1,m:[42,2,.8,3.5],b:'u',bl:'7ba',f:1,p:1.5},
+ {id:'whey',cat:'ftour',u:'u',ul:'scoop',d:1,s:.5,m:[120,24,3,1.5],b:'kg',f:.03,p:350},
+ {id:'atay',cat:'ftour',u:'u',ul:'kas',d:1,s:1,m:[60,0,15,0],b:'kg',f:.015,p:10,sn:1},
+ {id:'sder',cat:'prot',u:'g',d:200,s:25,m:[120,23,0,2.6],b:'kg',f:.001,p:70},
+ {id:'fkhad',cat:'prot',u:'g',d:200,s:25,m:[119,19.7,0,4.1],b:'kg',f:.001/.75,p:38,nt:'bone'},
+ {id:'sardine',cat:'prot',u:'g',d:200,s:25,m:[170,20,0,10],b:'kg',f:.001/.6,p:25,nt:'sardine'},
+ {id:'merla',cat:'prot',u:'g',d:200,s:25,m:[90,18.3,0,1.3],b:'kg',f:.001/.5,p:45,nt:'merla'},
+ {id:'lhem',cat:'prot',u:'g',d:150,s:25,m:[150,21,0,7],b:'kg',f:.001,p:115},
+ {id:'kefta',cat:'prot',u:'g',d:150,s:25,m:[215,19,0,15],b:'kg',f:.001,p:110},
+ {id:'kefta_d',cat:'prot',u:'g',d:150,s:25,m:[145,20.5,0,6.5],b:'kg',f:.001,p:75},
+ {id:'kebda',cat:'prot',u:'g',d:150,s:25,m:[119,17,.7,4.8],b:'kg',f:.001,p:40},
+ {id:'ton',cat:'prot',u:'u',ul:'7ok',d:1,s:1,m:[135,21,0,5.5],b:'u',bl:'7ok',f:1,p:12},
+ {id:'rouz',cat:'carb',u:'g',d:200,s:25,m:[130,2.7,28,.3],b:'kg',f:.00035,p:16,nt:'dry'},
+ {id:'makarona',cat:'carb',u:'g',d:200,s:25,m:[158,5.8,31,.9],b:'kg',f:.0004,p:12,nt:'dry'},
+ {id:'3des',cat:'carb',u:'g',d:250,s:25,m:[116,9,20,.4],b:'kg',f:.0004,p:22,nt:'dry'},
+ {id:'loubia',cat:'carb',u:'g',d:250,s:25,m:[127,8.7,22.8,.5],b:'kg',f:.00045,p:24,nt:'dry'},
+ {id:'7mes',cat:'carb',u:'g',d:150,s:25,m:[164,8.9,27.4,2.6],b:'kg',f:.00045,p:26,nt:'dry'},
+ {id:'batata',cat:'carb',u:'g',d:250,s:50,m:[77,2,17,.1],b:'kg',f:.001,p:6},
+ {id:'batata7',cat:'carb',u:'g',d:200,s:50,m:[86,1.6,20,.1],b:'kg',f:.001,p:12},
+ {id:'khodra',cat:'veg',u:'g',d:200,s:50,m:[25,1,5,.2],b:'kg',f:.001,p:8},
+ {id:'banan',cat:'veg',u:'u',ul:'banana',d:1,s:1,m:[105,1.3,27,.4],b:'kg',f:.17,p:14},
+ {id:'tfa7',cat:'veg',u:'u',ul:'7ba',d:1,s:1,m:[85,.5,22,.2],b:'kg',f:.18,p:12},
+ {id:'tmer',cat:'veg',u:'g',d:45,s:15,m:[280,2,75,.2],b:'kg',f:.001,p:60},
+ {id:'avoka',cat:'veg',u:'g',d:100,s:50,m:[160,2,8.5,14.7],b:'kg',f:.001/.7,p:30},
+ {id:'zit_t',cat:'fat',u:'u',ul:'mo3al9a',d:1,s:.5,m:[124,0,0,14],b:'L',f:.015,p:20,nt:'oil'},
+ {id:'zit_z',cat:'fat',u:'u',ul:'mo3al9a',d:1,s:.5,m:[119,0,0,13.5],b:'L',f:.015,p:100},
+ {id:'louz',cat:'fat',u:'g',d:30,s:10,m:[579,21.2,21.6,49.9],b:'kg',f:.001,p:120},
+ {id:'kawkaw',cat:'fat',u:'g',d:30,s:10,m:[567,25.8,16,49],b:'kg',f:.001,p:30},
+ {id:'amlou',cat:'fat',u:'u',ul:'mo3al9a',d:1,s:1,m:[125,3.8,4.5,10.5],b:'kg',f:.02,p:180}
 ];
-const MEALS=[['ftour','Ftour'],['ghda','Ghda'],['kaskrout','Kaskrout'],['3cha','3cha']];
-const WEEK=['Tnin','Tlat','Larb3','Lkhmis','Jjem3a','Ssebt','L7ed'];
-const GOALS={cut:['Tnchif (n9es chhem)',.8,2.2],recomp:['Recomp (3dalat + n9es chhem)',.92,2.2],maintain:['7afed 3la lwazn',1,1.8],leanbulk:['Zid 3dalat (b chwiya)',1.1,1.8],bulk:['Zid lwazn (bzzerba)',1.15,1.8]};
-const ACTS=[[1.2,'Bureau, 9lil l7araka'],[1.375,'Khfif (1–3 d les séances f simana)'],[1.55,'Mtwasset (3–5 f simana)'],[1.725,'3ali (6–7 f simana)'],[1.9,'Khdma te9ila + sport kol nhar']];
+const FOOD_IDX={};FOODS.forEach((f,i)=>FOOD_IDX[f.id]=i);
+const MEAL_KEYS=['ftour','ghda','kaskrout','3cha'];
+const GOAL_KEYS=['cut','recomp','maintain','leanbulk','bulk'];
+const GOALS={cut:[.8,2.2],recomp:[.92,2.2],maintain:[1,1.8],leanbulk:[1.1,1.8],bulk:[1.15,1.8]};
+const ACTS=[1.2,1.375,1.55,1.725,1.9];
 /* Portion of one adult-man serving, roughly following energy needs by age and sex */
-const TYPES=[['rajel','Rajel kbir',1],['mra','Mra kbira',.85],['mrahe9','Mrahe9 (12–17)',1],['drri','Drri (7–11)',.7],['sghir','Sghir (3–6)',.5],['bebe','Bebe (<3)',.25]];
+const TYPES=[['rajel',1],['mra',.85],['mrahe9',1],['drri',.7],['sghir',.5],['bebe',.25]];
+
+/* ---------- i18n helpers ---------- */
+const lang=()=>(S&&I18N[S.lang])?S.lang:'dj';
+function t(k,v){let s=I18N[lang()][k];if(s==null)s=I18N.dj[k];if(s==null)return k;
+  if(v&&typeof s==='string')for(const x in v)s=s.split('{'+x+'}').join(v[x]);return s;}
+const tl=(k,i)=>{const a=I18N[lang()][k]||I18N.dj[k];return (a&&a[i]!=null)?a[i]:I18N.dj[k][i]};
+const fname=f=>f.n!=null?f.n:tl('foods',FOOD_IDX[f.id]);
+const unitName=k=>{const u=I18N[lang()].un||I18N.dj.un;return u[k]||I18N.dj.un[k]||k};
+const noteOf=f=>f.nt?((I18N[lang()].notes||{})[f.nt]||I18N.dj.notes[f.nt]):'';
+const catName=k=>tl('cats',CAT_KEYS.indexOf(k));
+const mealName=k=>tl('meals',MEAL_KEYS.indexOf(k));
+const bdi=s=>`<bdi>${s}</bdi>`;
+const nu=(v,u)=>`<bdi class="num">${v} ${u}</bdi>`;
+const kc=v=>nu(v,t('kcal_u'));
+const gr=v=>nu(v,t('u_g'));
+const macro=m=>`<span class="k">${kc(r0(m.k))}</span> · <span class="p">${bdi(t('mP')+' '+r1(m.p))}</span> · <span class="c">${bdi(t('mC')+' '+r1(m.c))}</span> · <span class="f">${bdi(t('mF')+' '+r1(m.f))}</span>`;
 
 /* ---------- State ---------- */
 const KEY='makla_mizan_v2';
@@ -309,7 +597,9 @@ function sampleHouse(){
   return {members:[{id:uid(),name:'Mra',type:'mra',f:.85},{id:uid(),name:'Weld (8 snin)',type:'drri',f:.7}],days:[a,b],week:[a.id,b.id,a.id,b.id,a.id,a.id,b.id],budget:'',example:true};
 }
 function normalize(){
-  S.theme=S.theme||'auto'; S.prices=S.prices||{}; S.custom=S.custom||[]; S.checked=S.checked||{};
+  S.theme=S.theme||'auto'; S.lang=I18N[S.lang]?S.lang:'dj';
+  S.prices=S.prices||{}; S.custom=S.custom||[]; S.checked=S.checked||{};
+  S.custom.forEach(f=>{if(typeof f.n!=='string')f.n='?';if(f.ul==='7ba'||!f.ul)f.ul='7ba';if(!f.bl)f.bl='7ba';delete f.nt});
   if(!S.house) S.house=sampleHouse();
   if(!S.shop) S.shop={house:true};
   S.profiles.forEach(p=>{if(p.eatsHouse==null)p.eatsHouse=false;if(p.hf==null)p.hf=p.sex==='f'?.85:1;if(S.shop[p.id]==null)S.shop[p.id]=true;delete p.checked});
@@ -325,16 +615,15 @@ const allFoods=()=>FOODS.concat(S.custom||[]);
 const food=id=>allFoods().find(f=>f.id===id);
 const price=f=>S.prices[f.id]!=null?S.prices[f.id]:f.p;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const r1=x=>Math.round(x*10)/10, r0=x=>Math.round(x);
-const r2=x=>Math.round(x*100)/100;
-const dh=x=>x.toFixed(2)+' DH';
+const r1=x=>Math.round(x*10)/10, r0=x=>Math.round(x), r2=x=>Math.round(x*100)/100;
+const dh=x=>nu(x.toFixed(2),t('dh'));
 
 /* ---------- Maths ---------- */
 function targets(p){
   const bmr=10*p.w+6.25*p.h-5*p.age+(p.sex==='m'?5:-161);
   const tdee=bmr*p.act; const g=GOALS[p.goal];
-  const kcal=Math.round(tdee*g[1]);
-  const pk=p.protKg||g[2]; const prot=Math.round(p.w*pk);
+  const kcal=Math.round(tdee*g[0]);
+  const pk=p.protKg||g[1]; const prot=Math.round(p.w*pk);
   const fat=Math.round(p.w*(p.fatKg||.9));
   const carbs=Math.max(0,Math.round((kcal-prot*4-fat*9)/4));
   return {bmr:Math.round(bmr),tdee:Math.round(tdee),kcal,prot,fat,carbs,pk};
@@ -344,136 +633,149 @@ function itemM(fid,q){
   const mul=f.u==='g'?q/100:q;
   return {k:f.m[0]*mul,p:f.m[1]*mul,c:f.m[2]*mul,f:f.m[3]*mul,cost:q*f.f*price(f)};
 }
-function sum(list){const t={k:0,p:0,c:0,f:0,cost:0};list.forEach(([id,q])=>{const m=itemM(id,q);for(const k in t)t[k]+=m[k]});return t;}
-const dayTot=d=>d?sum(MEALS.flatMap(([k])=>d.meals[k]||[])):{k:0,p:0,c:0,f:0,cost:0};
-const addT=(a,b,x=1)=>{const t={};for(const k in a)t[k]=a[k]+b[k]*x;return t;};
+function sum(list){const tt={k:0,p:0,c:0,f:0,cost:0};list.forEach(([id,q])=>{const m=itemM(id,q);for(const k in tt)tt[k]+=m[k]});return tt;}
+const dayTot=d=>d?sum(MEAL_KEYS.flatMap(k=>d.meals[k]||[])):{k:0,p:0,c:0,f:0,cost:0};
+const addT=(a,b,x=1)=>{const o={};for(const k in a)o[k]=a[k]+b[k]*x;return o;};
 /* How many adult-man portions of the shared food the household cooks */
 function houseFactor(){
   return r2(H().members.reduce((s,m)=>s+(+m.f||0),0)+S.profiles.filter(p=>p.eatsHouse).reduce((s,p)=>s+(+p.hf||0),0));
 }
 const hDay=id=>H().days.find(d=>d.id===id);
 
-/* ---------- Editing context: the Ayyam tab edits the profile, the Dar tab edits the household ---------- */
+/* ---------- Editing context: the Days tab edits the profile, the Household tab edits the household ---------- */
 const ctxHouse=()=>tab==='dar';
 const box=()=>ctxHouse()?H():P();
 const D=()=>box().days.find(x=>x.id===(ctxHouse()?curHDay:curDay));
 function setCur(id){if(ctxHouse())curHDay=id;else curDay=id}
 
 /* ---------- Render ---------- */
+function renderHeader(){
+  const h=document.documentElement; h.lang=lang()==='dj'?'ary-Latn':lang()==='da'?'ary':lang(); h.dir=RTL[lang()]?'rtl':'ltr';
+  document.getElementById('tagline').textContent=t('tagline');
+  document.getElementById('profLbl').textContent=t('profile');
+  document.getElementById('installBtn').textContent=t('install');
+  document.getElementById('langLbl').textContent=t('lang');
+  document.getElementById('langSel').innerHTML=LANGS.map(([k,l])=>`<option value="${k}" ${lang()===k?'selected':''}>${l}</option>`).join('');
+  const sw=document.getElementById('themeSw'); sw.setAttribute('aria-label',t('theme'));
+  sw.querySelector('[data-t=light]').setAttribute('aria-label',t('theme_light'));
+  const au=sw.querySelector('[data-t=auto]'); au.textContent=t('theme_auto'); au.setAttribute('aria-label',t('theme_auto_aria'));
+  sw.querySelector('[data-t=dark]').setAttribute('aria-label',t('theme_dark'));
+}
 function render(){
+  renderHeader();
   const p=P();
   document.getElementById('profSel').innerHTML=S.profiles.map(x=>`<option value="${x.id}" ${x.id===p.id?'selected':''}>${esc(x.name)}</option>`).join('');
-  const T=[['profil','Profil'],['ayyam','Ayyam'],['simana','Simana'],['dar','Dar'],['t9edya','T9edya'],['prix','Prix']];
-  document.getElementById('tabs').innerHTML=T.map(([k,l])=>`<button role="tab" aria-selected="${tab===k}" onclick="go('${k}')">${l}</button>`).join('');
+  const T=['profil','ayyam','simana','dar','t9edya','prix'];
+  document.getElementById('tabs').innerHTML=T.map(k=>`<button role="tab" aria-selected="${tab===k}" onclick="go('${k}')">${t('tab_'+k)}</button>`).join('');
   if(!p.days.find(d=>d.id===curDay)) curDay=p.days[0]&&p.days[0].id;
   if(!H().days.find(d=>d.id===curHDay)) curHDay=H().days[0]&&H().days[0].id;
-  const v=document.getElementById('view');
-  v.innerHTML=({profil:vProfil,ayyam:vAyyam,simana:vSimana,dar:vDar,t9edya:vT9edya,prix:vPrix}[tab])(p);
+  document.getElementById('view').innerHTML=({profil:vProfil,ayyam:vAyyam,simana:vSimana,dar:vDar,t9edya:vT9edya,prix:vPrix}[tab])(p);
+  if(sheetMeal) renderSheet();
 }
-function go(t){tab=t;delArm=null;render();window.scrollTo(0,0)}
+function go(k){tab=k;delArm=null;render();window.scrollTo(0,0)}
 function setActive(id){S.active=id;curDay=null;save();render()}
+function setLang(l){S.lang=l;save();render()}
 
 function vProfil(p){
-  const t=targets(p);
+  const tg=targets(p);
   const o=(v,l,cur)=>`<option value="${v}" ${String(cur)===String(v)?'selected':''}>${l}</option>`;
   return `<div class="stack">
-  ${p.example?`<div class="note">Hada profil <b>mital</b>. Beddel smiya, l'wazn, tol w lhadaf dyalek, wla zid profil jdid. Kolchi kaytsjel f had l'telephone.</div>`:''}
+  ${p.example?`<div class="note">${t('ex_profile')}</div>`:''}
   <section class="panel stack">
-    <div class="sec-h"><h2>M3loumat</h2>
-      <div class="row"><button class="btn sm" onclick="newProfile()">+ Profil jdid</button>
-      ${S.profiles.length>1?`<button class="btn sm danger" onclick="delProfile()">${delArm==='p'?'Mta2ked? Mse7':'Mse7 profil'}</button>`:''}</div></div>
+    <div class="sec-h"><h2>${t('info')}</h2>
+      <div class="row"><button class="btn sm" onclick="newProfile()">${t('new_profile')}</button>
+      ${S.profiles.length>1?`<button class="btn sm danger" onclick="delProfile()">${delArm==='p'?t('confirm_del'):t('del_profile')}</button>`:''}</div></div>
     <div class="grid">
-      <div><label class="lbl" for="pName">Smiya</label><input id="pName" class="in" value="${esc(p.name)}" onchange="upd('name',this.value)"></div>
-      <div><label class="lbl" for="pSex">Jins</label><select id="pSex" class="in" onchange="upd('sex',this.value)">${o('m','Rajel',p.sex)}${o('f','Mra',p.sex)}</select></div>
-      <div><label class="lbl" for="pAge">3mer (3am)</label><input id="pAge" class="in num" type="number" min="14" max="90" value="${p.age}" onchange="upd('age',+this.value)"></div>
-      <div><label class="lbl" for="pW">Lwazn (kg)</label><input id="pW" class="in num" type="number" step="0.5" min="35" max="250" value="${p.w}" onchange="upd('w',+this.value)"></div>
-      <div><label class="lbl" for="pH">Tol (cm)</label><input id="pH" class="in num" type="number" min="120" max="230" value="${p.h}" onchange="upd('h',+this.value)"></div>
+      <div><label class="lbl" for="pName">${t('name')}</label><input id="pName" class="in" value="${esc(p.name)}" onchange="upd('name',this.value)"></div>
+      <div><label class="lbl" for="pSex">${t('sex')}</label><select id="pSex" class="in" onchange="upd('sex',this.value)">${o('m',t('male'),p.sex)}${o('f',t('female'),p.sex)}</select></div>
+      <div><label class="lbl" for="pAge">${t('age')}</label><input id="pAge" class="in num" type="number" min="14" max="90" value="${p.age}" onchange="upd('age',+this.value)"></div>
+      <div><label class="lbl" for="pW">${t('weight')}</label><input id="pW" class="in num" type="number" step="0.5" min="35" max="250" value="${p.w}" onchange="upd('w',+this.value)"></div>
+      <div><label class="lbl" for="pH">${t('height')}</label><input id="pH" class="in num" type="number" min="120" max="230" value="${p.h}" onchange="upd('h',+this.value)"></div>
     </div>
     <div class="grid">
-      <div><label class="lbl" for="pAct">Nachat</label><select id="pAct" class="in" onchange="upd('act',+this.value)">${ACTS.map(([v,l])=>o(v,l,p.act)).join('')}</select></div>
-      <div><label class="lbl" for="pGoal">Lhadaf</label><select id="pGoal" class="in" onchange="upd('goal',this.value)">${Object.entries(GOALS).map(([k,g])=>o(k,g[0],p.goal)).join('')}</select></div>
+      <div><label class="lbl" for="pAct">${t('activity')}</label><select id="pAct" class="in" onchange="upd('act',+this.value)">${ACTS.map((v,i)=>o(v,tl('acts',i),p.act)).join('')}</select></div>
+      <div><label class="lbl" for="pGoal">${t('goal')}</label><select id="pGoal" class="in" onchange="upd('goal',this.value)">${GOAL_KEYS.map((k,i)=>o(k,tl('goals',i),p.goal)).join('')}</select></div>
     </div>
     <div class="grid">
-      <div><label class="lbl" for="pPk">Protein (g/kg)</label><input id="pPk" class="in num" type="number" step="0.1" min="1" max="3.3" placeholder="${GOALS[p.goal][2]}" value="${p.protKg??''}" onchange="upd('protKg',this.value?+this.value:null)"></div>
-      <div><label class="lbl" for="pFk">Dhoun (g/kg)</label><input id="pFk" class="in num" type="number" step="0.1" min="0.5" max="1.5" value="${p.fatKg}" onchange="upd('fatKg',+this.value||.9)"></div>
-      <div><label class="lbl" for="pBud">Budget dyal chhar (DH, ikhtiyari)</label><input id="pBud" class="in num" type="number" min="0" value="${p.budget}" onchange="upd('budget',this.value)"></div>
+      <div><label class="lbl" for="pPk">${t('prot_kg')}</label><input id="pPk" class="in num" type="number" step="0.1" min="1" max="3.3" placeholder="${GOALS[p.goal][1]}" value="${p.protKg??''}" onchange="upd('protKg',this.value?+this.value:null)"></div>
+      <div><label class="lbl" for="pFk">${t('fat_kg')}</label><input id="pFk" class="in num" type="number" step="0.1" min="0.5" max="1.5" value="${p.fatKg}" onchange="upd('fatKg',+this.value||.9)"></div>
+      <div><label class="lbl" for="pBud">${t('budget_month')}</label><input id="pBud" class="in num" type="number" min="0" value="${p.budget}" onchange="upd('budget',this.value)"></div>
     </div>
-    <p class="hint">Ila khwiti l'protein, kayt7seb automatique 3la 7sab lhadaf (${GOALS[p.goal][2]} g/kg). Ila 3endek ra9m m7edded (b7al 180 g), 9semo 3la lwazn dyalek w dirou hna.</p>
+    <p class="hint">${t('prot_hint',{g:GOALS[p.goal][1]})}</p>
   </section>
   <section class="panel stack">
-    <h2 style="font-size:19px">Lhadaf dyal nhar</h2>
+    <h2 style="font-size:19px">${t('day_target')}</h2>
     <div class="target">
-      <div class="tbox"><span>Calories</span><b style="color:var(--kcal)">${t.kcal}</b><span>kcal</span></div>
-      <div class="tbox"><span>Protein</span><b style="color:var(--p)">${t.prot}</b><span>g · ${t.pk} g/kg</span></div>
-      <div class="tbox"><span>Karb</span><b style="color:var(--c)">${t.carbs}</b><span>g</span></div>
-      <div class="tbox"><span>Dhoun</span><b style="color:var(--f)">${t.fat}</b><span>g</span></div>
+      <div class="tbox"><span>${t('kcal')}</span><b style="color:var(--kcal)">${tg.kcal}</b><span>${t('kcal_u')}</span></div>
+      <div class="tbox"><span>${t('prot')}</span><b style="color:var(--p)">${tg.prot}</b><span>${bdi(t('u_g'))} · ${bdi(tg.pk+' '+t('u_g')+'/'+t('u_kg'))}</span></div>
+      <div class="tbox"><span>${t('carbs')}</span><b style="color:var(--c)">${tg.carbs}</b><span>${t('u_g')}</span></div>
+      <div class="tbox"><span>${t('fat')}</span><b style="color:var(--f)">${tg.fat}</b><span>${t('u_g')}</span></div>
     </div>
-    <p class="hint">BMR (Mifflin-St Jeor): <span class="num">${t.bmr}</span> kcal · Maintenance (TDEE): <span class="num">${t.tdee}</span> kcal · Lhadaf = TDEE × ${GOALS[p.goal][1]}. Had l'ar9am ta9ribiya (±10%). Tbe3 lwazn dyalek 2–3 simanat w beddel 3la 7sab chno w9e3.</p>
+    <p class="hint">${t('target_hint',{bmr:bdi(tg.bmr),tdee:bdi(tg.tdee),x:bdi(GOALS[p.goal][0])})}</p>
   </section></div>`;
 }
 function upd(k,v){const p=P();p[k]=v;if(['w','h','age','sex','act','goal','name'].includes(k))p.example=false;save();render()}
-function newProfile(){const d={id:uid(),name:'Nhar A',meals:emptyMeals()};
-  const p={id:uid(),name:'Profil '+(S.profiles.length+1),sex:'m',age:25,w:70,h:175,act:1.55,goal:'maintain',protKg:null,fatKg:.9,budget:'',days:[d],week:Array(7).fill(d.id),eatsHouse:false,hf:1};
-  S.profiles.push(p);S.active=p.id;S.shop[p.id]=true;save();render();toast('Profil jdid tzad')}
-function delProfile(){if(delArm!=='p'){delArm='p';render();return}delete S.shop[S.active];S.profiles=S.profiles.filter(x=>x.id!==S.active);S.active=S.profiles[0].id;delArm=null;save();render();toast('Profil tmse7')}
+function newProfile(){const d={id:uid(),name:t('day_prefix')+' A',meals:emptyMeals()};
+  const p={id:uid(),name:t('new_profile_name',{n:S.profiles.length+1}),sex:'m',age:25,w:70,h:175,act:1.55,goal:'maintain',protKg:null,fatKg:.9,budget:'',days:[d],week:Array(7).fill(d.id),eatsHouse:false,hf:1};
+  S.profiles.push(p);S.active=p.id;S.shop[p.id]=true;save();render();toast(t('toast_profile_new'))}
+function delProfile(){if(delArm!=='p'){delArm='p';render();return}delete S.shop[S.active];S.profiles=S.profiles.filter(x=>x.id!==S.active);S.active=S.profiles[0].id;delArm=null;save();render();toast(t('toast_profile_del'))}
 
-function bar(lbl,v,t,col,warnOver=true){const pct=t?Math.min(100,v/t*100):0;const over=warnOver&&v>t*1.05;
-  return `<div class="bar ${over?'over':''}"><div class="t"><span>${lbl}</span><span class="num">${r0(v)} / ${t}</span></div><div class="track"><div class="fill" style="width:${pct}%;background:${col}"></div></div></div>`}
-function bars4(tot,t,suffix=''){return bar('Calories'+suffix,tot.k,t.kcal,'var(--kcal)')+bar('Protein'+suffix,tot.p,t.prot,'var(--p)',false)+bar('Karb',tot.c,t.carbs,'var(--c)')+bar('Dhoun',tot.f,t.fat,'var(--f)')}
+function bar(lbl,v,tgt,col,warnOver=true){const pct=tgt?Math.min(100,v/tgt*100):0;const over=warnOver&&v>tgt*1.05;
+  return `<div class="bar ${over?'over':''}"><div class="t"><span>${lbl}</span><bdi class="num">${r0(v)} / ${tgt}</bdi></div><div class="track"><div class="fill" style="width:${pct}%;background:${col}"></div></div></div>`}
+function bars4(tot,tg){return bar(t('kcal'),tot.k,tg.kcal,'var(--kcal)')+bar(t('prot'),tot.p,tg.prot,'var(--p)',false)+bar(t('carbs'),tot.c,tg.carbs,'var(--c)')+bar(t('fat'),tot.f,tg.fat,'var(--f)')}
 
-function dayHeader(container,cur,label){
+function dayHeader(container,cur,newLabel){
   const chips=container.days.map(x=>`<button class="chip" aria-pressed="${x.id===cur}" onclick="setCur('${x.id}');delArm=null;render()">${esc(x.name)}</button>`).join('');
   const d=container.days.find(x=>x.id===cur);
-  return `<div class="row" style="justify-content:space-between"><div class="chips">${chips}</div><button class="btn sm" onclick="newDay()">+ ${label} jdid</button></div>
+  return `<div class="row" style="justify-content:space-between"><div class="chips">${chips}</div><button class="btn sm" onclick="newDay()">${newLabel}</button></div>
   ${d?`<div class="row">
-    <input id="dName_${ctxHouse()?'h':'p'}" class="in" style="flex:1;min-width:160px" value="${esc(d.name)}" aria-label="Smiya" onchange="renameDay(this.value)">
-    <button class="btn sm" onclick="dupDay()">Nsakh</button>
-    ${container.days.length>1?`<button class="btn sm danger" onclick="delDay()">${delArm==='d'?'Mta2ked? Mse7':'Mse7'}</button>`:''}
+    <input id="dName_${ctxHouse()?'h':'p'}" class="in" style="flex:1;min-width:160px" value="${esc(d.name)}" aria-label="${t('name')}" onchange="renameDay(this.value)">
+    <button class="btn sm" onclick="dupDay()">${t('dup')}</button>
+    ${container.days.length>1?`<button class="btn sm danger" onclick="delDay()">${delArm==='d'?t('confirm_del'):t('del')}</button>`:''}
   </div>`:''}`;
 }
 
 function vAyyam(p){
-  const t=targets(p); const d=D();
-  if(!d) return `<div class="panel"><p>Ma kayn 7ta nhar.</p><button class="btn pri" onclick="newDay()">+ Nhar jdid</button></div>`;
+  const tg=targets(p); const d=D();
+  if(!d) return `<div class="panel"><p>${t('no_day')}</p><button class="btn pri" onclick="newDay()">${t('new_day')}</button></div>`;
   let tot=dayTot(d); const hd=p.eatsHouse?hDay(d.hp):null;
   if(hd) tot=addT(tot,dayTot(hd),p.hf);
-  const ownCost=dayTot(d).cost;
   return `<div class="stack">
-  <p class="hint">${p.eatsHouse?'Nta katakol m3a dar: 7et hna ghir <b>l\'extras dyalek</b> (whey, djaj zayd…). L\'makla mechtarka kayna f l\'onglet "Dar".':'Sawb 2–3 d les ayyam "template" (b7al nhar training w nhar raha), w men ba3d 3tihom l ayyam simana f l\'onglet "Simana".'}</p>
-  ${dayHeader(p,curDay,'Nhar')}
-  ${p.eatsHouse&&H().days.length?`<div class="row"><label class="lbl" for="hpSel" style="margin:0">Zid f l'7sab makla dyal dar:</label>
-    <select id="hpSel" class="in" style="flex:1;min-width:150px" onchange="D().hp=this.value||null;save();render()"><option value="">— walo</option>${H().days.map(x=>`<option value="${x.id}" ${d.hp===x.id?'selected':''}>${esc(x.name)} (×${p.hf})</option>`).join('')}</select></div>`:''}
+  <p class="hint">${p.eatsHouse?t('hint_eats_house'):t('hint_days')}</p>
+  ${dayHeader(p,curDay,t('new_day'))}
+  ${p.eatsHouse&&H().days.length?`<div class="row"><label class="lbl" for="hpSel" style="margin:0">${t('add_house_calc')}</label>
+    <select id="hpSel" class="in" style="flex:1;min-width:150px" onchange="D().hp=this.value||null;save();render()"><option value="">${t('none')}</option>${H().days.map(x=>`<option value="${x.id}" ${d.hp===x.id?'selected':''}>${esc(x.name)} (×${p.hf})</option>`).join('')}</select></div>`:''}
   <div class="bars">
-    ${bars4(tot,t)}
-    <div class="cost"><span>${p.eatsHouse?'Taman dyal l\'extras dyalek':'Taman dyal had nhar'}</span><b class="num">${dh(ownCost)}</b></div>
+    ${bars4(tot,tg)}
+    <div class="cost"><span>${p.eatsHouse?t('cost_extras'):t('cost_day')}</span><b>${dh(dayTot(d).cost)}</b></div>
   </div>
-  ${MEALS.map(([k,l])=>vMeal(d,k,l,1)).join('')}
+  ${MEAL_KEYS.map(k=>vMeal(d,k,1)).join('')}
   </div>`;
 }
-function vMeal(d,k,l,mult){
-  const list=d.meals[k]||[]; const t=sum(list); const fam=mult!==1;
+function vMeal(d,k,mult){
+  const list=d.meals[k]||[]; const tot=sum(list); const fam=mult!==1;
   const rows=list.map(([id,q],i)=>{const f=food(id); if(!f) return ''; const m=itemM(id,q);
-    const famQ=fam?`<div class="mm">Dar kamla: <b class="num">${f.u==='g'?r0(q*mult)+' g':r1(q*mult)+' '+esc(f.ul)}</b></div>`:'';
+    const famQ=fam?`<div class="mm">${t('house_whole')} <b>${f.u==='g'?gr(r0(q*mult)):nu(r1(q*mult),unitName(f.ul))}</b></div>`:'';
     return `<div class="item">
-      <div style="min-width:0"><div class="nm">${esc(f.n)}</div>
-      <div class="mm num"><span class="k">${r0(m.k)} kcal</span> · <span class="p">P ${r1(m.p)}</span> · <span class="c">K ${r1(m.c)}</span> · <span class="f">D ${r1(m.f)}</span></div>${famQ}</div>
-      <div class="qty"><button aria-label="N9es" onclick="step('${k}',${i},-1)">−</button>
-        <input id="q_${fam?'h':'p'}_${k}_${i}" type="number" inputmode="decimal" min="0" step="${f.s}" value="${q}" aria-label="Kmiya" onchange="setQ('${k}',${i},this.value)">
-        <small>${f.u==='g'?'g':esc(f.ul)}</small><button aria-label="Zid" onclick="step('${k}',${i},1)">+</button></div>
+      <div style="min-width:0"><div class="nm">${esc(fname(f))}</div>
+      <div class="mm">${macro(m)}</div>${famQ}</div>
+      <div class="qty"><button aria-label="${t('dec')}" onclick="step('${k}',${i},-1)">−</button>
+        <input id="q_${fam?'h':'p'}_${k}_${i}" type="number" inputmode="decimal" min="0" step="${f.s}" value="${q}" aria-label="${t('qty')}" onchange="setQ('${k}',${i},this.value)">
+        <small>${f.u==='g'?t('u_g'):esc(unitName(f.ul))}</small><button aria-label="${t('inc')}" onclick="step('${k}',${i},1)">+</button></div>
       <div class="price">${dh(m.cost*mult)}</div>
-      <button class="x" aria-label="7ayed" onclick="rmItem('${k}',${i})">✕</button>
+      <button class="x" aria-label="${t('remove')}" onclick="rmItem('${k}',${i})">✕</button>
     </div>`}).join('');
-  return `<section class="meal"><div class="meal-h"><div><h3>${l}</h3><div class="m num">${fam?'L wa7ed: ':''}${r0(t.k)} kcal · P ${r0(t.p)} g · ${fam?'Dar: ':''}${dh(t.cost*mult)}</div></div>
-    <button class="btn sm pri" onclick="openSheet('${k}')">+ Zid makla</button></div>
-    <div class="items">${rows||`<div class="empty">Khawya. Brk 3la "Zid makla".</div>`}</div></section>`;
+  return `<section class="meal"><div class="meal-h"><div><h3>${mealName(k)}</h3><div class="m">${fam?t('per_person')+' ':''}${kc(r0(tot.k))} · ${bdi(t('mP')+' '+r0(tot.p)+' '+t('u_g'))} · ${fam?t('house_cost')+' ':''}${dh(tot.cost*mult)}</div></div>
+    <button class="btn sm pri" onclick="openSheet('${k}')">${t('add_food')}</button></div>
+    <div class="items">${rows||`<div class="empty">${t('empty_meal')}</div>`}</div></section>`;
 }
 function setQ(k,i,v){D().meals[k][i][1]=Math.max(0,parseFloat(v)||0);clearEx();save();render()}
 function step(k,i,dir){const it=D().meals[k][i];const f=food(it[0]);it[1]=Math.max(0,r1(it[1]+dir*f.s));clearEx();save();render()}
 function rmItem(k,i){D().meals[k].splice(i,1);clearEx();save();render()}
 function clearEx(){if(ctxHouse())H().example=false}
-function newDay(){const c=box();const d={id:uid(),name:(ctxHouse()?'Makla ':'Nhar ')+String.fromCharCode(65+c.days.length),meals:emptyMeals()};c.days.push(d);setCur(d.id);save();render()}
-function dupDay(){const c=box();const d=JSON.parse(JSON.stringify(D()));d.id=uid();d.name+=' (nouskha)';c.days.push(d);setCur(d.id);save();render();toast('Tnsakh')}
-function renameDay(v){D().name=v||'Nhar';save();render()}
+function newDay(){const c=box();const d={id:uid(),name:t(ctxHouse()?'house_day_prefix':'day_prefix')+' '+String.fromCharCode(65+c.days.length),meals:emptyMeals()};c.days.push(d);setCur(d.id);save();render()}
+function dupDay(){const c=box();const d=JSON.parse(JSON.stringify(D()));d.id=uid();d.name+=t('copy_suffix');c.days.push(d);setCur(d.id);save();render();toast(t('toast_dup'))}
+function renameDay(v){D().name=v||t('day_prefix');save();render()}
 function delDay(){if(delArm!=='d'){delArm='d';render();return}const c=box();const id=D().id;c.days=c.days.filter(x=>x.id!==id);c.week=c.week.map(w=>w===id?(c.days[0]?c.days[0].id:null):w);
   if(ctxHouse())S.profiles.forEach(p=>p.days.forEach(d=>{if(d.hp===id)d.hp=null}));
   delArm=null;setCur(c.days[0]&&c.days[0].id);save();render()}
@@ -483,192 +785,193 @@ function openSheet(k){sheetMeal=k;sheetQ='';sheetCat='all';renderSheet();setTime
 function closeSheet(){sheetMeal=null;document.getElementById('sheetRoot').innerHTML=''}
 function renderSheet(){
   if(!sheetMeal) return;
-  const ml=MEALS.find(m=>m[0]===sheetMeal)[1];
   document.getElementById('sheetRoot').innerHTML=`<div class="sheet-bg" onclick="closeSheet()"></div>
-  <div class="sheet" role="dialog" aria-label="Zid makla">
-    <div class="sec-h"><h2 style="font-size:18px">Zid l ${ml}${ctxHouse()?' (dar)':''}</h2><button class="btn sm" onclick="closeSheet()">Sali</button></div>
-    <input id="sQ" class="in" style="margin-top:10px" placeholder="9elleb: bid, sardine, 3des…" value="${esc(sheetQ)}" oninput="sheetQ=this.value;renderSheetList()">
-    <div class="chips" style="margin-top:10px">${[['all','Kolchi']].concat(Object.entries(CATS)).map(([k,l])=>`<button class="chip" aria-pressed="${sheetCat===k}" onclick="sheetCat='${k}';renderSheet()">${l}</button>`).join('')}</div>
+  <div class="sheet" role="dialog" aria-label="${t('add_food')}">
+    <div class="sec-h"><h2 style="font-size:18px">${t('sheet_title',{meal:mealName(sheetMeal)})}${ctxHouse()?t('sheet_house'):''}</h2><button class="btn sm" onclick="closeSheet()">${t('close')}</button></div>
+    <input id="sQ" class="in" style="margin-top:10px" placeholder="${t('search_ph')}" value="${esc(sheetQ)}" oninput="sheetQ=this.value;renderSheetList()">
+    <div class="chips" style="margin-top:10px">${[['all',t('all')]].concat(CAT_KEYS.map(k=>[k,catName(k)])).map(([k,l])=>`<button class="chip" aria-pressed="${sheetCat===k}" onclick="sheetCat='${k}';renderSheet()">${l}</button>`).join('')}</div>
     <div class="list" id="sList"></div></div>`;
   renderSheetList();
 }
+/* Search matches the food name in every language, so a French word still finds the item while the app is in Darija */
+function searchable(f){if(f.n!=null)return f.n.toLowerCase();return Object.keys(I18N).map(l=>(I18N[l].foods||[])[FOOD_IDX[f.id]]||'').join(' ').toLowerCase()}
 function renderSheetList(){
   const q=sheetQ.toLowerCase().trim();
-  const list=allFoods().filter(f=>(sheetCat==='all'||f.cat===sheetCat)&&(!q||f.n.toLowerCase().includes(q)));
+  const list=allFoods().filter(f=>(sheetCat==='all'||f.cat===sheetCat)&&(!q||searchable(f).includes(q)));
   document.getElementById('sList').innerHTML=list.length?list.map(f=>`<button class="fopt" onclick="addFood('${f.id}')">
-    <span><span class="nm">${esc(f.n)}</span><br><span class="mm num" style="font-size:12px;color:var(--muted)">${f.u==='g'?'100 g':'1 '+esc(f.ul)}: ${f.m[0]} kcal · P ${f.m[1]} · K ${f.m[2]} · D ${f.m[3]}</span></span>
-    <span class="add">+</span></button>`).join(''):`<p class="hint" style="padding:12px 0">Ma l9it walo. Zid makla dyalek f l'onglet "Prix".</p>`;
+    <span><span class="nm">${esc(fname(f))}</span><br><span class="mm">${f.u==='g'?gr(100):nu(1,esc(unitName(f.ul)))}: ${macro({k:f.m[0],p:f.m[1],c:f.m[2],f:f.m[3]})}</span></span>
+    <span class="add">+</span></button>`).join(''):`<p class="hint" style="padding:12px 0">${t('no_result')}</p>`;
 }
 function addFood(id){const f=food(id);const arr=D().meals[sheetMeal];const ex=arr.find(x=>x[0]===id);
-  if(ex) ex[1]=r1(ex[1]+f.s); else arr.push([id,f.d]); clearEx(); save();render();toast(f.n+' tzad')}
+  if(ex) ex[1]=r1(ex[1]+f.s); else arr.push([id,f.d]); clearEx(); save();render();toast(t('toast_added',{n:fname(f)}))}
 
-/* ---------- Simana (one profile) ---------- */
+/* ---------- Week (one profile) ---------- */
 function weekSelect(c,setter){
-  return `<div class="week">${WEEK.map((w,i)=>`<div class="wd"><b>${w}</b><select id="${setter}${i}" aria-label="${w}" onchange="${setter}(${i},this.value)">${c.days.map(d=>`<option value="${d.id}" ${c.week[i]===d.id?'selected':''}>${esc(d.name)}</option>`).join('')}<option value="" ${!c.week[i]?'selected':''}>— walo</option></select></div>`).join('')}</div>`;
+  return `<div class="week">${[0,1,2,3,4,5,6].map(i=>{const w=tl('week_days',i);return `<div class="wd"><b>${w}</b><select id="${setter}${i}" aria-label="${w}" onchange="${setter}(${i},this.value)">${c.days.map(d=>`<option value="${d.id}" ${c.week[i]===d.id?'selected':''}>${esc(d.name)}</option>`).join('')}<option value="" ${!c.week[i]?'selected':''}>${t('none')}</option></select></div>`}).join('')}</div>`;
 }
 function vSimana(p){
-  const t=targets(p); const avg={k:0,p:0,c:0,f:0}; let own=0;
-  WEEK.forEach((_,i)=>{const d=p.days.find(x=>x.id===p.week[i]);const dt=dayTot(d);own+=dt.cost;
+  const tg=targets(p); const avg={k:0,p:0,c:0,f:0}; let own=0;
+  [0,1,2,3,4,5,6].forEach(i=>{const d=p.days.find(x=>x.id===p.week[i]);const dt=dayTot(d);own+=dt.cost;
     let tt=dt; if(p.eatsHouse) tt=addT(tt,dayTot(hDay(H().week[i])),p.hf);
     for(const k in avg)avg[k]+=tt[k]/7});
   return `<div class="stack">
-  <section class="panel stack"><div class="sec-h"><h2>Simana dyal ${esc(p.name)}</h2><span class="hint">Khtar l'template dyal kol nhar</span></div>
+  <section class="panel stack"><div class="sec-h"><h2>${t('week_of',{n:esc(p.name)})}</h2><span class="hint">${t('pick_template')}</span></div>
     ${weekSelect(p,'setW')}
-    <h3 style="font-size:15px">Moyenne dyal nhar${p.eatsHouse?' (m3a l\'makla dyal dar ×'+p.hf+')':''}</h3>
-    <div class="bars" style="position:static">${bars4(avg,t,'')}
-      <div class="cost"><span>${p.eatsHouse?'Extras dyalek f simana':'Taman dyal simana'}</span><b class="num">${dh(own)}</b></div></div>
-    <p class="hint">Lista dyal t9edya kayna f l'onglet "T9edya", w katjme3 ga3 nass dyal dar.</p>
+    <h3 style="font-size:15px">${t('avg_day')}${p.eatsHouse?t('avg_with_house',{x:p.hf}):''}</h3>
+    <div class="bars" style="position:static">${bars4(avg,tg)}
+      <div class="cost"><span>${p.eatsHouse?t('extras_week'):t('cost_week')}</span><b>${dh(own)}</b></div></div>
+    <p class="hint">${t('simana_hint')}</p>
   </section></div>`;
 }
 function setW(i,v){P().week[i]=v||null;save();render()}
 
-/* ---------- Dar (household) ---------- */
+/* ---------- Household ---------- */
 function vDar(){
   const h=H(); const tf=houseFactor(); const d=D();
-  const typeOpts=cur=>TYPES.map(([k,l,f])=>`<option value="${k}" ${cur===k?'selected':''}>${l} (×${f})</option>`).join('');
+  const typeOpts=cur=>TYPES.map(([k,f],i)=>`<option value="${k}" ${cur===k?'selected':''}>${tl('types',i)} (×${f})</option>`).join('');
   const dt=d?dayTot(d):null;
   return `<div class="stack">
-  ${h.example?`<div class="note">Hadchi <b>mital</b>. Beddel nass dyal dar w l'makla dyalkom.</div>`:''}
+  ${h.example?`<div class="note">${t('ex_house')}</div>`:''}
   <section class="panel stack">
-    <div class="sec-h"><h2>Nass dyal dar</h2><span class="hint num">Dar = ${tf} portions d wa7ed kbir</span></div>
-    <p class="hint">Kol wa7ed 3ando "portion": ch7al kayakol m9arna m3a rajel kbir (1). Hadchi ta9ribi 3la 7sab l'7ajat dyal l'ta9a; beddlou ila bghiti.</p>
+    <div class="sec-h"><h2>${t('house_people')}</h2><span class="hint">${t('house_eq',{x:bdi(tf)})}</span></div>
+    <p class="hint">${t('portion_hint')}</p>
     <div class="mems">
       ${S.profiles.map(p=>`<div class="mem">
-        <label class="mem-n"><input type="checkbox" ${p.eatsHouse?'checked':''} onchange="setPH('${p.id}','eatsHouse',this.checked)"> <span><b>${esc(p.name)}</b><small>profil · kayakol m3a dar</small></span></label>
-        <div class="mem-f"><label class="lbl" for="hf_${p.id}">Portion</label><input id="hf_${p.id}" class="in num" type="number" step="0.05" min="0" max="2" value="${p.hf}" ${p.eatsHouse?'':'disabled'} onchange="setPH('${p.id}','hf',+this.value)"></div>
+        <label class="mem-n"><input type="checkbox" ${p.eatsHouse?'checked':''} onchange="setPH('${p.id}','eatsHouse',this.checked)"> <span><b>${esc(p.name)}</b><small>${t('profile_eats')}</small></span></label>
+        <div class="mem-f"><label class="lbl" for="hf_${p.id}">${t('portion')}</label><input id="hf_${p.id}" class="in num" type="number" step="0.05" min="0" max="2" value="${p.hf}" ${p.eatsHouse?'':'disabled'} onchange="setPH('${p.id}','hf',+this.value)"></div>
       </div>`).join('')}
       ${h.members.map(m=>`<div class="mem">
-        <div class="mem-n" style="flex-wrap:wrap"><input id="mn_${m.id}" class="in" style="flex:1;min-width:110px" value="${esc(m.name)}" aria-label="Smiya" onchange="setM('${m.id}','name',this.value)">
-          <select id="mt_${m.id}" class="in" style="flex:1;min-width:130px" aria-label="No3" onchange="setM('${m.id}','type',this.value)">${typeOpts(m.type)}</select></div>
-        <div class="mem-f"><label class="lbl" for="mf_${m.id}">Portion</label><input id="mf_${m.id}" class="in num" type="number" step="0.05" min="0" max="2" value="${m.f}" onchange="setM('${m.id}','f',+this.value)"></div>
-        <button class="x" aria-label="7ayed ${esc(m.name)}" onclick="rmM('${m.id}')">✕</button>
+        <div class="mem-n" style="flex-wrap:wrap"><input id="mn_${m.id}" class="in" style="flex:1;min-width:110px" value="${esc(m.name)}" aria-label="${t('name')}" onchange="setM('${m.id}','name',this.value)">
+          <select id="mt_${m.id}" class="in" style="flex:1;min-width:130px" aria-label="${t('type')}" onchange="setM('${m.id}','type',this.value)">${typeOpts(m.type)}</select></div>
+        <div class="mem-f"><label class="lbl" for="mf_${m.id}">${t('portion')}</label><input id="mf_${m.id}" class="in num" type="number" step="0.05" min="0" max="2" value="${m.f}" onchange="setM('${m.id}','f',+this.value)"></div>
+        <button class="x" aria-label="${t('remove')} ${esc(m.name)}" onclick="rmM('${m.id}')">✕</button>
       </div>`).join('')}
     </div>
-    <div class="row"><button class="btn sm" onclick="addM()">+ Zid wa7ed (bla profil)</button></div>
+    <div class="row"><button class="btn sm" onclick="addM()">${t('add_member')}</button></div>
   </section>
 
   <section class="stack">
-    <div class="sec-h"><h2>Makla dyal dar</h2></div>
-    <p class="hint">Hna l'makla mechtarka (tajine, couscous, ftour dyal l3a2ila). 7et <b>l'kmiya dyal wa7ed kbir</b>, w l'app katdreb f ${tf} bach t3tik ch7al khassek tayb. L'extras dyal kol wa7ed 3ando profil kayt7etto f "Ayyam".</p>
-    ${dayHeader(h,curHDay,'Makla')}
+    <div class="sec-h"><h2>${t('house_food')}</h2></div>
+    <p class="hint">${t('house_food_hint',{x:bdi(tf)})}</p>
+    ${dayHeader(h,curHDay,t('new_house_day'))}
     ${d?`<div class="bars" style="position:static">
-      <div class="bar"><div class="t"><span>L wa7ed kbir</span><span class="num">${r0(dt.k)} kcal</span></div></div>
-      <div class="bar"><div class="t"><span>Protein</span><span class="num">${r0(dt.p)} g</span></div></div>
-      <div class="cost"><span>Taman dyal nhar l dar kamla (×${tf})</span><b class="num">${dh(dt.cost*tf)}</b></div></div>
-    ${MEALS.map(([k,l])=>vMeal(d,k,l,tf)).join('')}`:''}
+      <div class="bar"><div class="t"><span>${t('per_adult')}</span>${kc(r0(dt.k))}</div></div>
+      <div class="bar"><div class="t"><span>${t('prot')}</span>${gr(r0(dt.p))}</div></div>
+      <div class="cost"><span>${t('house_day_cost',{x:tf})}</span><b>${dh(dt.cost*tf)}</b></div></div>
+    ${MEAL_KEYS.map(k=>vMeal(d,k,tf)).join('')}`:''}
   </section>
 
-  <section class="panel stack"><div class="sec-h"><h2>Simana dyal dar</h2></div>
+  <section class="panel stack"><div class="sec-h"><h2>${t('house_week')}</h2></div>
     ${weekSelect(h,'setHW')}
   </section></div>`;
 }
 function setHW(i,v){H().week[i]=v||null;save();render()}
 function setPH(id,k,v){const p=S.profiles.find(x=>x.id===id);p[k]=v;save();render()}
-function setM(id,k,v){const m=H().members.find(x=>x.id===id);m[k]=v;if(k==='type')m.f=TYPES.find(t=>t[0]===v)[2];H().example=false;save();render()}
-function addM(){H().members.push({id:uid(),name:'Wa7ed jdid',type:'rajel',f:1});H().example=false;save();render()}
+function setM(id,k,v){const m=H().members.find(x=>x.id===id);m[k]=v;if(k==='type')m.f=TYPES.find(x=>x[0]===v)[1];H().example=false;save();render()}
+function addM(){H().members.push({id:uid(),name:t('new_member'),type:'rajel',f:1});H().example=false;save();render()}
 function rmM(id){H().members=H().members.filter(m=>m.id!==id);save();render()}
 
-/* ---------- T9edya (whole household) ---------- */
+/* ---------- Shopping (whole household) ---------- */
 function fmtAmt(f,x){
-  if(f.b==='kg') return x>=1?r1(x)+' kg':Math.ceil(x*1000/10)*10+' g';
-  if(f.b==='L') return x>=1?r1(x)+' L':Math.ceil(x*1000/10)*10+' ml';
-  return Math.ceil(x-1e-9)+' '+(f.bl||'7ba');
+  if(f.b==='kg') return x>=1?nu(r1(x),t('u_kg')):gr(Math.ceil(x*1000/10)*10);
+  if(f.b==='L') return x>=1?nu(r1(x),t('u_L')):nu(Math.ceil(x*1000/10)*10,t('u_ml'));
+  return nu(Math.ceil(x-1e-9),esc(unitName(f.bl||'7ba')));
 }
 function vT9edya(){
   const agg={}; const parts=[];
-  const addDay=(d,mult)=>{let c=0;if(!d)return 0;MEALS.forEach(([k])=>(d.meals[k]||[]).forEach(([id,q])=>{const f=food(id);if(!f)return;agg[id]=(agg[id]||0)+q*f.f*mult;c+=q*f.f*price(f)*mult}));return c};
-  S.profiles.forEach(p=>{if(!S.shop[p.id])return;let c=0;p.week.forEach(id=>{c+=addDay(p.days.find(d=>d.id===id),1)});parts.push([p.eatsHouse?esc(p.name)+' (extras)':esc(p.name),c])});
+  const addDay=(d,mult)=>{let c=0;if(!d)return 0;MEAL_KEYS.forEach(k=>(d.meals[k]||[]).forEach(([id,q])=>{const f=food(id);if(!f)return;agg[id]=(agg[id]||0)+q*f.f*mult;c+=q*f.f*price(f)*mult}));return c};
+  S.profiles.forEach(p=>{if(!S.shop[p.id])return;let c=0;p.week.forEach(id=>{c+=addDay(p.days.find(d=>d.id===id),1)});parts.push([esc(p.name)+(p.eatsHouse?t('extras'):''),c])});
   const tf=houseFactor();
-  if(S.shop.house){let c=0;H().week.forEach(id=>{c+=addDay(hDay(id),tf)});parts.push(['Makla dyal dar (×'+tf+')',c])}
+  if(S.shop.house){let c=0;H().week.forEach(id=>{c+=addDay(hDay(id),tf)});parts.push([t('house_food')+' (×'+tf+')',c])}
   const cost=parts.reduce((s,x)=>s+x[1],0); const month=cost*30/7; const bud=parseFloat(H().budget);
-  const groups=Object.keys(CATS).map(c=>{const ids=Object.keys(agg).filter(id=>food(id)&&food(id).cat===c&&agg[id]>0);if(!ids.length)return '';
-    return `<div class="grp">${CATS[c]}</div>`+ids.map(id=>{const f=food(id);const x=agg[id];const done=S.checked[id];
-      return `<label class="li ${done?'done':''}"><input type="checkbox" ${done?'checked':''} onchange="chk('${id}',this.checked)"><span class="nm">${esc(f.sn||f.n.replace(/\s*\((nay|tayeb|tayba)[^)]*\)/,''))}</span><span class="amt">${fmtAmt(f,x)}</span><span class="pr">${dh(x*price(f))}</span></label>`}).join('')}).join('');
+  const groups=CAT_KEYS.map(c=>{const ids=Object.keys(agg).filter(id=>food(id)&&food(id).cat===c&&agg[id]>0);if(!ids.length)return '';
+    return `<div class="grp">${catName(c)}</div>`+ids.map(id=>{const f=food(id);const x=agg[id];const done=S.checked[id];
+      return `<label class="li ${done?'done':''}"><input type="checkbox" ${done?'checked':''} onchange="chk('${id}',this.checked)"><span class="nm">${esc(f.sn?t('sugar'):fname(f))}</span><span class="amt">${fmtAmt(f,x)}</span><span class="pr">${dh(x*price(f))}</span></label>`}).join('')}).join('');
   return `<div class="stack">
-  <section class="panel stack"><div class="sec-h"><h2>Chkoun dakhel f t9edya?</h2></div>
+  <section class="panel stack"><div class="sec-h"><h2>${t('who_in')}</h2></div>
     <div class="chips">
       ${S.profiles.map(p=>`<button class="chip" aria-pressed="${!!S.shop[p.id]}" onclick="S.shop['${p.id}']=!S.shop['${p.id}'];save();render()">${esc(p.name)}</button>`).join('')}
-      <button class="chip" aria-pressed="${!!S.shop.house}" onclick="S.shop.house=!S.shop.house;save();render()">Makla dyal dar</button>
+      <button class="chip" aria-pressed="${!!S.shop.house}" onclick="S.shop.house=!S.shop.house;save();render()">${t('house_food')}</button>
     </div>
-    <div class="split">${parts.map(([n,c])=>`<div><span>${n}</span><b class="num">${dh(c)}</b></div>`).join('')||'<p class="hint">Khtar chi wa7ed.</p>'}</div>
+    <div class="split">${parts.map(([n,c])=>`<div><span>${n}</span><b>${dh(c)}</b></div>`).join('')||`<p class="hint">${t('pick_someone')}</p>`}</div>
   </section>
-  <section class="stack"><div class="sec-h"><h2>Lista dyal simana</h2><button class="btn sm ghost" onclick="S.checked={};save();render()">Bda men jdid</button></div>
-    <p class="hint">Lkmiyat m7soubin b ma katchri: l'9tani w rouz b l'wazn nay, l7out w djaj b l3dem dyalhom. Dowwer 3la lfou9 (sakhra w ghiyab).</p>
-    <div class="receipt">${groups||`<div class="empty">Ma kayn walo. 3mmer l'ayyam w l'makla dyal dar.</div>`}
-      <div class="tot"><div><span>Simana</span><b>${dh(cost)}</b></div><div><span>Chhar (~30 yom)</span><b>${dh(month)}</b></div>
-      ${bud?`<div><span>Budget dyal dar</span><b style="color:${month>bud?'var(--danger)':'var(--p)'}">${month>bud?'+':'−'}${Math.abs(month-bud).toFixed(0)} DH</b></div>`:''}</div>
+  <section class="stack"><div class="sec-h"><h2>${t('week_list')}</h2><button class="btn sm ghost" onclick="S.checked={};save();render()">${t('restart')}</button></div>
+    <p class="hint">${t('list_hint')}</p>
+    <div class="receipt">${groups||`<div class="empty">${t('list_empty')}</div>`}
+      <div class="tot"><div><span>${t('week')}</span><b>${dh(cost)}</b></div><div><span>${t('month')}</span><b>${dh(month)}</b></div>
+      ${bud?`<div><span>${t('house_budget')}</span><b style="color:${month>bud?'var(--danger)':'var(--p)'}">${bdi((month>bud?'+':'−')+Math.abs(month-bud).toFixed(0)+' '+t('dh'))}</b></div>`:''}</div>
     </div>
-    <div style="max-width:260px"><label class="lbl" for="hBud">Budget dyal dar f chhar (DH)</label><input id="hBud" class="in num" type="number" min="0" value="${H().budget}" onchange="H().budget=this.value;save();render()"></div>
+    <div style="max-width:260px"><label class="lbl" for="hBud">${t('house_budget_in')}</label><input id="hBud" class="in num" type="number" min="0" value="${H().budget}" onchange="H().budget=this.value;save();render()"></div>
   </section></div>`;
 }
 function chk(id,v){S.checked[id]=v;save();render()}
 
 /* ---------- Prices ---------- */
 function vPrix(){
-  const unitL=f=>f.b==='kg'?'DH/kg':f.b==='L'?'DH/L':'DH/'+(f.bl||'7ba');
+  const unitL=f=>t('dh')+'/'+(f.b==='kg'?t('u_kg'):f.b==='L'?t('u_L'):unitName(f.bl||'7ba'));
   return `<div class="stack">
-  <div class="warn">Les prix li kaynin m9eddrin. Beddelhom b dyal l'7anout w souk dyalek bach l'7sab ykoun s7i7. Kayt3emlou 3la ga3 les profils.</div>
-  <section class="panel"><div class="sec-h"><h2>Prix</h2><button class="btn sm ghost" onclick="S.prices={};save();render();toast('Rje3 les prix l9dam')">Rje3 l les prix l9dam</button></div>
-  ${Object.entries(CATS).map(([c,l])=>`<h3 style="font-size:14px;margin-top:14px;color:var(--muted)">${l}</h3><div class="ptable">${allFoods().filter(f=>f.cat===c).map(f=>`
-    <div class="prow"><div style="min-width:0"><div style="font-weight:600">${esc(f.n)}</div>${f.nt?`<small>${esc(f.nt)}</small>`:''}</div>
-    <div class="pi"><input id="pr_${f.id}" class="in" type="number" step="0.1" min="0" value="${price(f)}" onchange="setP('${f.id}',this.value)"><small>${unitL(f)}</small></div></div>`).join('')}</div>`).join('')}
+  <div class="warn">${t('price_warn')}</div>
+  <section class="panel"><div class="sec-h"><h2>${t('prices')}</h2><button class="btn sm ghost" onclick="S.prices={};save();render();toast(t('toast_reset'))">${t('reset_prices')}</button></div>
+  ${CAT_KEYS.map(c=>`<h3 style="font-size:14px;margin-top:14px;color:var(--muted)">${catName(c)}</h3><div class="ptable">${allFoods().filter(f=>f.cat===c).map(f=>`
+    <div class="prow"><div style="min-width:0"><div style="font-weight:600">${esc(fname(f))}</div>${f.nt?`<small>${esc(noteOf(f))}</small>`:''}</div>
+    <div class="pi"><input id="pr_${f.id}" class="in" type="number" step="0.1" min="0" value="${price(f)}" onchange="setP('${f.id}',this.value)"><small>${esc(unitL(f))}</small></div></div>`).join('')}</div>`).join('')}
   </section>
-  <section class="panel stack"><h2 style="font-size:19px">Zid makla dyalek</h2>
+  <section class="panel stack"><h2 style="font-size:19px">${t('add_custom')}</h2>
     <div class="grid">
-      <div><label class="lbl" for="cN">Smiya</label><input id="cN" class="in" placeholder="Jben beldi"></div>
-      <div><label class="lbl" for="cCat">Categorie</label><select id="cCat" class="in">${Object.entries(CATS).map(([k,l])=>`<option value="${k}">${l}</option>`).join('')}</select></div>
-      <div><label class="lbl" for="cU">Kat7seb b</label><select id="cU" class="in"><option value="g">Gram (macros l 100 g, prix l kg)</option><option value="u">7ba (macros w prix l 7ba)</option></select></div>
-      <div><label class="lbl" for="cP">Prix (DH)</label><input id="cP" class="in num" type="number" step="0.1" min="0"></div>
+      <div><label class="lbl" for="cN">${t('name')}</label><input id="cN" class="in" placeholder="${t('custom_ph')}"></div>
+      <div><label class="lbl" for="cCat">${t('category')}</label><select id="cCat" class="in">${CAT_KEYS.map(k=>`<option value="${k}">${catName(k)}</option>`).join('')}</select></div>
+      <div><label class="lbl" for="cU">${t('calc_by')}</label><select id="cU" class="in"><option value="g">${t('by_gram')}</option><option value="u">${t('by_unit')}</option></select></div>
+      <div><label class="lbl" for="cP">${t('price_dh')}</label><input id="cP" class="in num" type="number" step="0.1" min="0"></div>
     </div>
     <div class="grid">
-      <div><label class="lbl" for="cK">kcal</label><input id="cK" class="in num" type="number" min="0"></div>
-      <div><label class="lbl" for="cPr">Protein g</label><input id="cPr" class="in num" type="number" step="0.1" min="0"></div>
-      <div><label class="lbl" for="cC">Karb g</label><input id="cC" class="in num" type="number" step="0.1" min="0"></div>
-      <div><label class="lbl" for="cF">Dhoun g</label><input id="cF" class="in num" type="number" step="0.1" min="0"></div>
+      <div><label class="lbl" for="cK">${t('kcal_u')}</label><input id="cK" class="in num" type="number" min="0"></div>
+      <div><label class="lbl" for="cPr">${t('prot_g')}</label><input id="cPr" class="in num" type="number" step="0.1" min="0"></div>
+      <div><label class="lbl" for="cC">${t('carbs_g')}</label><input id="cC" class="in num" type="number" step="0.1" min="0"></div>
+      <div><label class="lbl" for="cF">${t('fat_g')}</label><input id="cF" class="in num" type="number" step="0.1" min="0"></div>
     </div>
-    <div class="row"><button class="btn pri" onclick="addCustom()">Zid</button><span id="cErr" class="hint" style="color:var(--danger)"></span></div>
+    <div class="row"><button class="btn pri" onclick="addCustom()">${t('add')}</button><span id="cErr" class="hint" style="color:var(--danger)"></span></div>
   </section>
-  <section class="panel stack"><h2 style="font-size:19px">Sauvegarde</h2>
-    <p class="hint">Data katsjel ghir f had l'telephone. Bach tdiha l telephone akhor, nsakh l'code w lsa9o temma.</p>
-    <div class="row"><button class="btn" onclick="exportData()">Nsakh sauvegarde</button></div>
-    <textarea id="impT" class="in num" rows="3" placeholder="Lsa9 sauvegarde hna…"></textarea>
-    <div class="row"><button class="btn" onclick="importData()">Importer</button><span id="impMsg" class="hint"></span></div>
+  <section class="panel stack"><h2 style="font-size:19px">${t('backup')}</h2>
+    <p class="hint">${t('backup_hint')}</p>
+    <div class="row"><button class="btn" onclick="exportData()">${t('copy_backup')}</button></div>
+    <textarea id="impT" class="in num" rows="3" placeholder="${t('paste_ph')}"></textarea>
+    <div class="row"><button class="btn" onclick="importData()">${t('import')}</button><span id="impMsg" class="hint"></span></div>
   </section></div>`;
 }
 function setP(id,v){const x=parseFloat(v);if(isNaN(x))delete S.prices[id];else S.prices[id]=Math.max(0,x);save();render()}
 function addCustom(){
   const g=id=>document.getElementById(id).value; const n=g('cN').trim(); const u=g('cU');
   const nums=['cP','cK','cPr','cC','cF'].map(i=>parseFloat(g(i)));
-  if(!n||nums.some(isNaN)){document.getElementById('cErr').textContent='3mmer smiya w ga3 l\'ar9am.';return}
+  if(!n||nums.some(isNaN)){document.getElementById('cErr').textContent=t('custom_err');return}
   const f={id:'c_'+uid(),n,cat:g('cCat'),u,ul:'7ba',d:u==='g'?100:1,s:u==='g'?25:1,m:nums.slice(1),b:u==='g'?'kg':'u',bl:'7ba',f:u==='g'?.001:1,p:nums[0]};
-  S.custom.push(f);save();render();toast(n+' tzadet')}
-function exportData(){const t=JSON.stringify(S);const el=document.getElementById('impT');
-  const ok=()=>toast('Tnsakh');const fb=()=>{el.value=t;el.select();toast('Selectionni w nsakh')};
-  try{navigator.clipboard.writeText(t).then(ok,fb)}catch(e){fb()}}
-function importData(){try{const o=JSON.parse(document.getElementById('impT').value);if(!o.profiles||!o.profiles.length)throw 0;S=o;normalize();save();applyTheme();curDay=null;curHDay=null;render();toast('Importa mzyan')}catch(e){document.getElementById('impMsg').textContent='Had l\'code machi s7i7.'}}
+  S.custom.push(f);save();render();toast(t('toast_custom',{n}))}
+function exportData(){const s=JSON.stringify(S);const el=document.getElementById('impT');
+  const ok=()=>toast(t('toast_copied'));const fb=()=>{el.value=s;el.select();toast(t('toast_select'))};
+  try{navigator.clipboard.writeText(s).then(ok,fb)}catch(e){fb()}}
+function importData(){try{const o=JSON.parse(document.getElementById('impT').value);if(!o.profiles||!o.profiles.length)throw 0;S=o;normalize();save();applyTheme();curDay=null;curHDay=null;render();toast(t('toast_import'))}catch(e){document.getElementById('impMsg').textContent=t('import_err')}}
 
 /* ---------- Toast ---------- */
 let tt;function toast(m){const r=document.getElementById('toastRoot');r.innerHTML=`<div class="toast">${esc(m)}</div>`;clearTimeout(tt);tt=setTimeout(()=>r.innerHTML='',1800)}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
 
-load();render();
 /* ---------- Theme: light / dark / follow phone ---------- */
 function applyTheme(){
-  const t=(S&&S.theme)||'auto'; const root=document.documentElement;
-  if(t==='auto') root.removeAttribute('data-theme'); else root.setAttribute('data-theme',t);
-  document.querySelectorAll('#themeSw button').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.t===t)));
-  const dark=t==='dark'||(t==='auto'&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches);
+  const th=(S&&S.theme)||'auto'; const root=document.documentElement;
+  if(th==='auto') root.removeAttribute('data-theme'); else root.setAttribute('data-theme',th);
+  document.querySelectorAll('#themeSw button').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.t===th)));
+  const dark=th==='dark'||(th==='auto'&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches);
   const m=document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute('content',dark?'#252a2c':'#ece5da');
 }
-function setTheme(t){S.theme=t;save();applyTheme()}
+function setTheme(th){S.theme=th;save();applyTheme()}
 try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applyTheme)}catch(e){}
-applyTheme();
+
+load();render();applyTheme();
 
 /* ---------- PWA ---------- */
 let deferredPrompt=null;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('installBtn').hidden=false});
 function doInstall(){if(!deferredPrompt)return;deferredPrompt.prompt();deferredPrompt.userChoice.finally(()=>{deferredPrompt=null;document.getElementById('installBtn').hidden=true})}
-window.addEventListener('appinstalled',()=>{document.getElementById('installBtn').hidden=true;toast('L\'app tinstallat')});
+window.addEventListener('appinstalled',()=>{document.getElementById('installBtn').hidden=true;toast(t('toast_installed'))});
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
 
 </script>
