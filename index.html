@@ -230,6 +230,16 @@ html[dir=rtl] .num{font-family:"IBM Plex Sans Arabic","Noto Sans Arabic",sans-se
 .fopt{text-align:start}
 bdi{unicode-bidi:isolate}
 .qty input{direction:ltr}
+
+.li{grid-template-columns:auto 1fr auto auto auto}
+.li .nm{cursor:pointer;min-width:0}
+.li .need{display:block;font-size:11.5px;color:var(--muted);font-weight:400}
+.home-btn{border:0;background:var(--bg);box-shadow:var(--raise-sm);border-radius:10px;width:32px;height:32px;font-size:16px;color:var(--muted)}
+.home-btn[aria-pressed="true"]{box-shadow:var(--press);color:var(--accent)}
+.grp-hint{padding:4px 14px 8px;font-size:12px;color:var(--muted);background:var(--sunk)}
+a.btn{text-decoration:none;display:inline-flex;align-items:center}
+.btn:disabled{opacity:.4}
+@media (max-width:480px){.li{grid-template-columns:auto 1fr auto auto;row-gap:2px}.li .pr{grid-column:2/4;grid-row:2;text-align:start;font-size:12px}.li .home-btn{grid-column:4;grid-row:1/3}}
 </style>
 </head>
 <body>
@@ -269,6 +279,14 @@ const LANGS=[['dj','Darija'],['da','الدارجة'],['fr','Français'],['ar','�
 const RTL={da:1,ar:1};
 const I18N={
 dj:{
+ recipes:'Recettes',recipe_hint:"Dkhel l'9edra kamla kima katteyybha, w ch7al d portions dyal wa7ed kbir katkhrej. L'app kat7seb l'portion, w t9der tzidha f ay wjba.",
+ dry_hint:"L'9tani w rouz: khtar l'version \"nay\" w dkhel l'wazn 9bel tayb.",new_recipe:'+ Recette jdida',recipe_name:'Smiya dyal recette',servings:'Portions',
+ add_ingredient:'+ Zid ingrédient',per_portion:'L portion:',whole_pot:'L9edra kamla:',recipe_empty:'Mazal ma kayn 7ta ingrédient.',recipe_default:'Recette jdida',done:'Sali',cat_rec:'Recettes',sheet_recipe:'Zid l recette',
+ weekly_items:'Kol simana',monthly_items:'Merra f chhar',monthly_hint:"Kmiya dyal chhar kamel, mdowra l l'format li katchri.",need:'khassek {x}',have_home:'3endi f dar',
+ at_home:'{n} 7wayej 3endek f dar',show:'Werri',hide:'Khbi',this_trip:'Had t9edya',share_wa:'Sifet f WhatsApp',copy_list:"Nsakh l'lista",list_title:'Lista dyal t9edya',
+ edit_meals:'Beddel les wjbat',meals_title:'Les wjbat',add_meal:'+ Zid wjba',new_meal:'Wjba jdida',ramadan:'Ramadan',normal_meals:"Rje3 l'3adi",
+ meals_hint:"Les wjbat nafshom l ga3 les profils w dar. Ila 7ayedti wjba, l'makla dyalha ma katmse7ch w katrje3 ila rje3ti l'wjba.",up:'Tle3',down:'Hbet',
+ meals_extra:{s7our:'S7our',pre:"9bel l'entraînement"},
  fat_pct:'Dhoun (% men calories)',
  ref_note:"L'protein m7soub 3la lwazn l'marja3i: {w} kg (BMI 25), 7it BMI dyalek {bmi}. L'7ajat dyal l'protein kaymchiw m3a l'3dalat, machi m3a chhem. Ila 3ndek ra9m dyalek, dirou f \"Protein (g/kg)\".",
  floor_note:"Lhadaf t-rfe3 l {k} kcal: hada l7ed l'adna bla tbib. Ila bghiti tn9es ktar, chouf tbib wla diététicien.",
@@ -316,18 +334,26 @@ dj:{
  paste_ph:'Lsa9 sauvegarde hna…',import:'Importer',toast_copied:'Tnsakh',toast_select:'Selectionni w nsakh',toast_import:'Importa mzyan',import_err:"Had l'code machi s7i7.",
  toast_installed:"L'app tinstallat",
  u_g:'g',u_kg:'kg',u_L:'L',u_ml:'ml',dh:'DH',kcal_u:'kcal',mP:'P',mC:'K',mF:'D',
- un:{bida:'bida',khobza:'khobza','7ba':'7ba',kas:'kas','7ok':'7ok',scoop:'scoop',banana:'banana',mo3al9a:'mo3al9a'},
+ un:{bida:'bida',khobza:'khobza','7ba':'7ba',kas:'kas','7ok':'7ok',scoop:'scoop',banana:'banana',mo3al9a:'mo3al9a',portion:'portion'},
  cats:['Ftour & snack','L7em & 7out','Nachawiyat & 9tani','Khodra & fakiya','Zit & louz'],
  meals:['Ftour','Ghda','Kaskrout','3cha'],
  week_days:['Tnin','Tlat','Larb3','Lkhmis','Jjem3a','Ssebt','L7ed'],
  goals:['Tnchif (n9es chhem)','Recomp (3dalat + n9es chhem)','7afed 3la lwazn','Zid 3dalat (b chwiya)','Zid lwazn (bzzerba)'],
  acts:['Bureau, 9lil l7araka','Khfif (1–3 d les séances f simana)','Mtwasset (3–5 f simana)','3ali (6–7 f simana)','Khdma te9ila + sport kol nhar'],
  types:['Rajel kbir','Mra kbira','Mrahe9 (12–17)','Drri (7–11)','Sghir (3–6)','Bebe (<3)'],
- notes:{bone:"L3dem ~25% men l'wazn",sardine:'Katakol ~60% men li katchri',merla:'Filet ~50% men l7out kamel',dry:'Prix dyal kg nay',oil:'Zid lzit li katdir f tayb, 7it hiya li kat-khrej l7sab'},
+ notes:{bone:"L3dem ~25% men l'wazn",sardine:'Katakol ~60% men li katchri',merla:'Filet ~50% men l7out kamel',dry:'Prix dyal kg nay',oil:'Zid lzit li katdir f tayb, 7it hiya li kat-khrej l7sab',whole:'Dkhel l\'wazn kima chritiha (b l3dem). L\'macros m7soubin 3la ~65% li katakol.'},
  sugar:'Sokar (dyal atay)',
- foods:["Bid roumi","Bid beldi","Khobz kamel (khobza ~200g)","Khobz byed (khobza ~200g)","Msemen","Harcha","Choufan (flocons d'avoine)","7lib (kas 200 ml)","Perly / yaourt (7ok)","Fromage mtellat","Whey (scoop 30g)","Atay b sokar (kas)","Sder djaj (nay)","Fkhad djaj bla jeld (nay)","Sardine (nay, li katakol)","Merla / 7out byed (nay, filet)","L7em bgri habra (nay)","Kefta bgri (nay)","Kefta dinde (nay)","Kebda djaj (nay)","Ton (7ok, ~80g msfi)","Rouz (tayeb)","Ma9arouna (tayba)","3des (tayeb)","Loubia (tayba)","7mes (tayeb)","Batata (nay)","Batata 7lowa (nay)","Khodra (maticha, khyar, bsla…)","Banan","Tfa7a / limouna","Tmer","Avoka","Zit dyal tayb (mo3al9a kbira)","Zit zitoun (mo3al9a kbira)","Louz","Kawkaw","Amlou (mo3al9a 20g)"]
+ foods:["Bid roumi","Bid beldi","Khobz kamel (khobza ~200g)","Khobz byed (khobza ~200g)","Msemen","Harcha","Choufan (flocons d'avoine)","7lib (kas 200 ml)","Perly / yaourt (7ok)","Fromage mtellat","Whey (scoop 30g)","Atay b sokar (kas)","Sder djaj (nay)","Fkhad djaj bla jeld (nay)","Sardine (nay, li katakol)","Merla / 7out byed (nay, filet)","L7em bgri habra (nay)","Kefta bgri (nay)","Kefta dinde (nay)","Kebda djaj (nay)","Ton (7ok, ~80g msfi)","Rouz (tayeb)","Ma9arouna (tayba)","3des (tayeb)","Loubia (tayba)","7mes (tayeb)","Batata (nay)","Batata 7lowa (nay)","Khodra (maticha, khyar, bsla…)","Banan","Tfa7a / limouna","Tmer","Avoka","Zit dyal tayb (mo3al9a kbira)","Zit zitoun (mo3al9a kbira)","Louz","Kawkaw","Amlou (mo3al9a 20g)",'Rouz (nay)','Ma9arouna (nay)','3des (nay)','Loubia (nay)','7mes (nay)','Maticha','Bsla','Khizzou','9ar3a','Zitoun','Djaja kamla (b l3dem)']
 },
 da:{
+ recipes:'الوصفات',recipe_hint:'دخل القدرة كاملة كيما كتطيبها، وشحال ديال الحصص ديال واحد كبير كتخرج. الأپليكاسيون كتحسب الحصة، وتقدر تزيدها فأي وجبة.',
+ dry_hint:'القطاني والروز: ختار "ناي" ودخل الوزن قبل الطيب.',new_recipe:'+ وصفة جديدة',recipe_name:'سمية الوصفة',servings:'الحصص',
+ add_ingredient:'+ زيد مكون',per_portion:'للحصة:',whole_pot:'القدرة كاملة:',recipe_empty:'مازال ما كاين حتى مكون.',recipe_default:'وصفة جديدة',done:'سالي',cat_rec:'الوصفات',sheet_recipe:'زيد للوصفة',
+ weekly_items:'كل سيمانة',monthly_items:'مرة فالشهر',monthly_hint:'الكمية ديال الشهر كامل، مدورة للفورما لي كتشري.',need:'خاصك {x}',have_home:'عندي فالدار',
+ at_home:'{n} حوايج عندك فالدار',show:'وري',hide:'خبي',this_trip:'هاد التقضية',share_wa:'صيفط فـWhatsApp',copy_list:'نسخ اللائحة',list_title:'اللائحة ديال التقضية',
+ edit_meals:'بدل الوجبات',meals_title:'الوجبات',add_meal:'+ زيد وجبة',new_meal:'وجبة جديدة',ramadan:'رمضان',normal_meals:'رجع للعادي',
+ meals_hint:'الوجبات نفسهم لكاع البروفيلات والدار. إلا حيدتي وجبة، الماكلة ديالها ما كتمسحش وكترجع إلا رجعتي الوجبة.',up:'طلع',down:'هبط',
+ meals_extra:{s7our:'السحور',pre:'قبل التمرين'},
  fat_pct:'الدهون (% من الكالوري)',
  ref_note:'البروتين محسوب على الوزن المرجعي: {w} كيلو (BMI 25)، حيت BMI ديالك {bmi}. الحاجة ديال البروتين كتمشي مع العضلات، ماشي مع الشحم. إلا عندك رقم ديالك، ديرو فـ"البروتين (غ/كيلو)".',
  floor_note:'الهدف ترفع لـ{k} كالوري: هادا الحد الأدنى بلا طبيب. إلا بغيتي تنقص كثر، شوف طبيب ولا ديتيتيسيان.',
@@ -375,18 +401,26 @@ da:{
  paste_ph:'لصق السوفگارد هنا…',import:'إمپورطي',toast_copied:'تنسخ',toast_select:'سيليكسيوني ونسخ',toast_import:'تإمپورطا مزيان',import_err:'هاد الكود ماشي صحيح.',
  toast_installed:'الأپليكاسيون تإنستالات',
  u_g:'غ',u_kg:'كيلو',u_L:'لتر',u_ml:'مل',dh:'درهم',kcal_u:'كالوري',mP:'ب',mC:'ك',mF:'د',
- un:{bida:'بيضة',khobza:'خبزة','7ba':'حبة',kas:'كاس','7ok':'حك',scoop:'سكوب',banana:'بنانة',mo3al9a:'معيلقة'},
+ un:{bida:'بيضة',khobza:'خبزة','7ba':'حبة',kas:'كاس','7ok':'حك',scoop:'سكوب',banana:'بنانة',mo3al9a:'معيلقة',portion:'حصة'},
  cats:['الفطور والكاسكروط','اللحم والحوت','النشويات والقطاني','الخضرة والفاكية','الزيت واللوز'],
  meals:['الفطور','الغدا','الكاسكروط','العشا'],
  week_days:['التنين','التلات','لاربع','الخميس','الجمعة','السبت','الحد'],
  goals:['تنشيف (نقص الشحم)','ريكومپ (عضلات + نقص الشحم)','حافظ على الوزن','زيد العضلات بشوية','زيد الوزن بالزربة'],
  acts:['بيرو، قليل الحركة','خفيف (1–3 ديال السيونسات فالسيمانة)','متوسط (3–5 فالسيمانة)','عالي (6–7 فالسيمانة)','خدمة تقيلة + سبور كل نهار'],
  types:['راجل كبير','مرا كبيرة','مراهق (12–17)','دري (7–11)','صغير (3–6)','بيبي (<3)'],
- notes:{bone:'العظم ~25% من الوزن',sardine:'كتاكل ~60% من لي كتشري',merla:'الفيلي ~50% من الحوت كامل',dry:'الثمن ديال الكيلو ناي',oil:'زيد الزيت لي كدير فالطيب، حيت هي لي كتخرج الحساب'},
+ notes:{bone:'العظم ~25% من الوزن',sardine:'كتاكل ~60% من لي كتشري',merla:'الفيلي ~50% من الحوت كامل',dry:'الثمن ديال الكيلو ناي',oil:'زيد الزيت لي كدير فالطيب، حيت هي لي كتخرج الحساب',whole:'دخل الوزن كيما شريتيها (بالعظم). الماكروز محسوبين على ~65% لي كتاكل.'},
  sugar:'السكر (ديال أتاي)',
- foods:['بيض رومي','بيض بلدي','خبز كامل (خبزة ~200 غ)','خبز أبيض (خبزة ~200 غ)','مسمن','حرشة','الشوفان','حليب (كاس 200 مل)','بيرلي / ياغورت (حك)','فرماج مثلث','واي (سكوب 30 غ)','أتاي بالسكر (كاس)','صدر الدجاج (ناي)','فخاد الدجاج بلا جلد (ناي)','سردين (ناي، لي كتاكل)','ميرلا / حوت بيض (ناي، فيلي)','لحم بگري هبرة (ناي)','كفتة بگري (ناية)','كفتة الداند (ناية)','كبدة الدجاج (ناية)','طون (حك، ~80 غ مصفي)','روز (طايب)','مقارونة (طايبة)','عدس (طايب)','لوبيا (طايبة)','حمص (طايب)','بطاطا (ناية)','بطاطا حلوة (ناية)','خضرة (ماطيشة، خيار، بصلة…)','بنان','تفاحة / ليمونة','تمر','أفوكا','زيت ديال الطيب (معيلقة كبيرة)','زيت الزيتون (معيلقة كبيرة)','لوز','كاوكاو','أملو (معيلقة 20 غ)']
+ foods:['بيض رومي','بيض بلدي','خبز كامل (خبزة ~200 غ)','خبز أبيض (خبزة ~200 غ)','مسمن','حرشة','الشوفان','حليب (كاس 200 مل)','بيرلي / ياغورت (حك)','فرماج مثلث','واي (سكوب 30 غ)','أتاي بالسكر (كاس)','صدر الدجاج (ناي)','فخاد الدجاج بلا جلد (ناي)','سردين (ناي، لي كتاكل)','ميرلا / حوت بيض (ناي، فيلي)','لحم بگري هبرة (ناي)','كفتة بگري (ناية)','كفتة الداند (ناية)','كبدة الدجاج (ناية)','طون (حك، ~80 غ مصفي)','روز (طايب)','مقارونة (طايبة)','عدس (طايب)','لوبيا (طايبة)','حمص (طايب)','بطاطا (ناية)','بطاطا حلوة (ناية)','خضرة (ماطيشة، خيار، بصلة…)','بنان','تفاحة / ليمونة','تمر','أفوكا','زيت ديال الطيب (معيلقة كبيرة)','زيت الزيتون (معيلقة كبيرة)','لوز','كاوكاو','أملو (معيلقة 20 غ)','روز (ناي)','مقارونة (ناية)','عدس (ناي)','لوبيا (ناية)','حمص (ناي)','ماطيشة','بصلة','خيزو','قرعة','زيتون','دجاجة كاملة (بالعظم)']
 },
 fr:{
+ recipes:'Recettes',recipe_hint:"Saisissez la marmite entière comme vous la cuisinez, et le nombre de portions adulte qu'elle donne. L'app calcule la portion, que vous ajoutez à n'importe quel repas.",
+ dry_hint:'Légumineuses et riz : choisissez la version « crue » et saisissez le poids avant cuisson.',new_recipe:'+ Nouvelle recette',recipe_name:'Nom de la recette',servings:'Portions',
+ add_ingredient:'+ Ingrédient',per_portion:'Par portion :',whole_pot:'Marmite entière :',recipe_empty:'Aucun ingrédient pour le moment.',recipe_default:'Nouvelle recette',done:'Fermer',cat_rec:'Recettes',sheet_recipe:'Ajouter à la recette',
+ weekly_items:'Chaque semaine',monthly_items:'Une fois par mois',monthly_hint:'Quantité pour tout le mois, arrondie au format vendu.',need:'besoin : {x}',have_home:"J'en ai à la maison",
+ at_home:'{n} articles déjà à la maison',show:'Afficher',hide:'Masquer',this_trip:'Ces courses',share_wa:'Envoyer sur WhatsApp',copy_list:'Copier la liste',list_title:'Liste de courses',
+ edit_meals:'Modifier les repas',meals_title:'Repas',add_meal:'+ Ajouter un repas',new_meal:'Nouveau repas',ramadan:'Ramadan',normal_meals:'Repas habituels',
+ meals_hint:"Les repas sont communs à tous les profils et au foyer. Retirer un repas n'efface pas son contenu : il revient si vous rajoutez ce repas.",up:'Monter',down:'Descendre',
+ meals_extra:{s7our:'Shour',pre:"Avant l'entraînement"},
  fat_pct:'Lipides (% des calories)',
  ref_note:"Protéines calculées sur un poids de référence de {w} kg (IMC 25), car votre IMC est de {bmi}. Les besoins en protéines suivent la masse musculaire, pas la masse grasse. Si vous avez votre propre chiffre, saisissez-le dans « Protéines (g/kg) ».",
  floor_note:"Objectif relevé à {k} kcal : c'est le minimum sans suivi médical. Pour descendre plus bas, consultez un médecin ou un diététicien.",
@@ -434,18 +468,26 @@ fr:{
  paste_ph:'Collez la sauvegarde ici…',import:'Importer',toast_copied:'Copié',toast_select:'Sélectionnez puis copiez',toast_import:'Import réussi',import_err:'Ce code est invalide.',
  toast_installed:'Application installée',
  u_g:'g',u_kg:'kg',u_L:'L',u_ml:'ml',dh:'DH',kcal_u:'kcal',mP:'P',mC:'G',mF:'L',
- un:{bida:'œuf',khobza:'pain','7ba':'pièce',kas:'verre','7ok':'pot',scoop:'dose',banana:'banane',mo3al9a:'c. à s.'},
+ un:{bida:'œuf',khobza:'pain','7ba':'pièce',kas:'verre','7ok':'pot',scoop:'dose',banana:'banane',mo3al9a:'c. à s.',portion:'portion'},
  cats:['Petit-déj & collations','Viandes & poissons','Féculents & légumineuses','Légumes & fruits','Huiles & fruits secs'],
  meals:['Petit-déjeuner','Déjeuner','Goûter','Dîner'],
  week_days:['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'],
  goals:['Sèche (perte de gras)','Recomposition (muscle + perte de gras)','Maintien du poids','Prise de muscle (légère)','Prise de masse (rapide)'],
  acts:['Sédentaire (bureau)','Léger (1–3 séances/sem.)','Modéré (3–5 séances/sem.)','Élevé (6–7 séances/sem.)','Travail physique + sport quotidien'],
  types:['Homme adulte','Femme adulte','Ado (12–17)','Enfant (7–11)','Petit (3–6)','Bébé (<3)'],
- notes:{bone:'Os ≈ 25 % du poids',sardine:'Partie comestible ≈ 60 % du poids acheté',merla:'Filet ≈ 50 % du poisson entier',dry:'Prix du kg cru (sec)',oil:"Comptez l'huile de cuisson : c'est elle qui fausse le plus le calcul"},
+ notes:{bone:'Os ≈ 25 % du poids',sardine:'Partie comestible ≈ 60 % du poids acheté',merla:'Filet ≈ 50 % du poisson entier',dry:'Prix du kg cru (sec)',oil:"Comptez l'huile de cuisson : c'est elle qui fausse le plus le calcul",whole:'Saisissez le poids acheté (avec os). Macros calculées sur ~65 % comestible.'},
  sugar:'Sucre (thé)',
- foods:["Œufs","Œufs beldi","Pain complet (~200 g)","Pain blanc (~200 g)","Msemen","Harcha","Flocons d'avoine","Lait (verre 200 ml)","Yaourt / Perly (pot)","Fromage portion","Whey (dose 30 g)","Thé sucré (verre)","Blanc de poulet (cru)","Cuisse de poulet sans peau (crue)","Sardine (crue, partie comestible)","Merlan / poisson blanc (filet cru)","Bœuf maigre (cru)","Kefta de bœuf (crue)","Kefta de dinde (crue)","Foie de poulet (cru)","Thon (boîte, ~80 g égoutté)","Riz (cuit)","Pâtes (cuites)","Lentilles (cuites)","Haricots blancs (cuits)","Pois chiches (cuits)","Pomme de terre (crue)","Patate douce (crue)","Légumes (tomate, concombre, oignon…)","Banane","Pomme / orange","Dattes","Avocat","Huile de cuisson (c. à soupe)","Huile d'olive (c. à soupe)","Amandes","Cacahuètes","Amlou (c. à soupe 20 g)"]
+ foods:["Œufs","Œufs beldi","Pain complet (~200 g)","Pain blanc (~200 g)","Msemen","Harcha","Flocons d'avoine","Lait (verre 200 ml)","Yaourt / Perly (pot)","Fromage portion","Whey (dose 30 g)","Thé sucré (verre)","Blanc de poulet (cru)","Cuisse de poulet sans peau (crue)","Sardine (crue, partie comestible)","Merlan / poisson blanc (filet cru)","Bœuf maigre (cru)","Kefta de bœuf (crue)","Kefta de dinde (crue)","Foie de poulet (cru)","Thon (boîte, ~80 g égoutté)","Riz (cuit)","Pâtes (cuites)","Lentilles (cuites)","Haricots blancs (cuits)","Pois chiches (cuits)","Pomme de terre (crue)","Patate douce (crue)","Légumes (tomate, concombre, oignon…)","Banane","Pomme / orange","Dattes","Avocat","Huile de cuisson (c. à soupe)","Huile d'olive (c. à soupe)","Amandes","Cacahuètes","Amlou (c. à soupe 20 g)",'Riz (cru)','Pâtes (crues)','Lentilles (crues)','Haricots blancs (crus)','Pois chiches (crus)','Tomate','Oignon','Carotte','Courgette','Olives','Poulet entier (avec os)']
 },
 ar:{
+ recipes:'الوصفات',recipe_hint:'أدخل القدر كاملًا كما تطبخه، وعدد حصص البالغين التي يعطيها. يحسب التطبيق الحصة، ويمكنك إضافتها إلى أي وجبة.',
+ dry_hint:'القطاني والأرز: اختر النسخة "النيئة" وأدخل الوزن قبل الطبخ.',new_recipe:'+ وصفة جديدة',recipe_name:'اسم الوصفة',servings:'الحصص',
+ add_ingredient:'+ أضف مكونًا',per_portion:'للحصة:',whole_pot:'القدر كاملًا:',recipe_empty:'لا توجد مكونات بعد.',recipe_default:'وصفة جديدة',done:'إغلاق',cat_rec:'الوصفات',sheet_recipe:'أضف إلى الوصفة',
+ weekly_items:'كل أسبوع',monthly_items:'مرة في الشهر',monthly_hint:'كمية الشهر كاملًا، مقرّبة إلى حجم البيع.',need:'المطلوب: {x}',have_home:'متوفر في البيت',
+ at_home:'{n} مواد متوفرة في البيت',show:'إظهار',hide:'إخفاء',this_trip:'هذه المشتريات',share_wa:'إرسال عبر WhatsApp',copy_list:'نسخ اللائحة',list_title:'لائحة المشتريات',
+ edit_meals:'تعديل الوجبات',meals_title:'الوجبات',add_meal:'+ أضف وجبة',new_meal:'وجبة جديدة',ramadan:'رمضان',normal_meals:'الوجبات المعتادة',
+ meals_hint:'الوجبات مشتركة بين كل الملفات والأسرة. حذف وجبة لا يمسح محتواها، ويعود إذا أعدت الوجبة.',up:'أعلى',down:'أسفل',
+ meals_extra:{s7our:'السحور',pre:'قبل التمرين'},
  fat_pct:'الدهون (% من السعرات)',
  ref_note:'البروتين محسوب على وزن مرجعي قدره {w} كغ (مؤشر كتلة 25)، لأن مؤشر كتلة جسمك {bmi}. احتياج البروتين يتبع الكتلة العضلية لا الدهون. إن كان لديك رقمك الخاص، أدخله في "البروتين (غ/كغ)".',
  floor_note:'رُفع الهدف إلى {k} سعرة: هذا هو الحد الأدنى دون إشراف طبي. للنزول أكثر، استشر طبيبًا أو أخصائي تغذية.',
@@ -493,18 +535,26 @@ ar:{
  paste_ph:'الصق النسخة الاحتياطية هنا…',import:'استيراد',toast_copied:'تم النسخ',toast_select:'حدّد ثم انسخ',toast_import:'تم الاستيراد',import_err:'هذا الرمز غير صالح.',
  toast_installed:'تم تثبيت التطبيق',
  u_g:'غ',u_kg:'كغ',u_L:'ل',u_ml:'مل',dh:'درهم',kcal_u:'سعرة',mP:'ب',mC:'ن',mF:'د',
- un:{bida:'بيضة',khobza:'رغيف','7ba':'حبة',kas:'كأس','7ok':'علبة',scoop:'مغرفة',banana:'موزة',mo3al9a:'ملعقة'},
+ un:{bida:'بيضة',khobza:'رغيف','7ba':'حبة',kas:'كأس','7ok':'علبة',scoop:'مغرفة',banana:'موزة',mo3al9a:'ملعقة',portion:'حصة'},
  cats:['الفطور والوجبات الخفيفة','اللحوم والأسماك','النشويات والقطاني','الخضر والفواكه','الزيوت والمكسرات'],
  meals:['الفطور','الغداء','اللمجة','العشاء'],
  week_days:['الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت','الأحد'],
  goals:['تنشيف (خسارة الدهون)','إعادة تشكيل الجسم (عضلات + خسارة دهون)','الحفاظ على الوزن','زيادة عضلية خفيفة','زيادة سريعة في الوزن'],
  acts:['خامل (عمل مكتبي)','خفيف (1–3 حصص أسبوعيًا)','متوسط (3–5 حصص أسبوعيًا)','مرتفع (6–7 حصص أسبوعيًا)','عمل بدني + رياضة يومية'],
  types:['رجل بالغ','امرأة بالغة','مراهق (12–17)','طفل (7–11)','طفل صغير (3–6)','رضيع (<3)'],
- notes:{bone:'العظم ≈ 25% من الوزن',sardine:'الجزء المأكول ≈ 60% مما تشتريه',merla:'الفيليه ≈ 50% من السمكة الكاملة',dry:'سعر الكيلو نيئًا (جافًّا)',oil:'احسب زيت الطبخ، فهو أكبر مصدر خفي للسعرات'},
+ notes:{bone:'العظم ≈ 25% من الوزن',sardine:'الجزء المأكول ≈ 60% مما تشتريه',merla:'الفيليه ≈ 50% من السمكة الكاملة',dry:'سعر الكيلو نيئًا (جافًّا)',oil:'احسب زيت الطبخ، فهو أكبر مصدر خفي للسعرات',whole:'أدخل الوزن كما اشتريته (بالعظم). الماكروز محسوبة على ~65% من الجزء المأكول.'},
  sugar:'السكر (للشاي)',
- foods:['بيض عادي','بيض بلدي','خبز كامل (رغيف ~200 غ)','خبز أبيض (رغيف ~200 غ)','مسمن','حرشة','رقائق الشوفان','حليب (كأس 200 مل)','ياغورت (علبة)','جبن مثلث','واي بروتين (مغرفة 30 غ)','شاي بالسكر (كأس)','صدر دجاج (نيء)','فخذ دجاج بدون جلد (نيء)','سردين (نيء، الجزء المأكول)','سمك أبيض (فيليه نيء)','لحم بقري هبرة (نيء)','كفتة بقري (نيئة)','كفتة ديك رومي (نيئة)','كبد دجاج (نيء)','تونة (علبة، ~80 غ مصفاة)','أرز (مطبوخ)','معكرونة (مطبوخة)','عدس (مطبوخ)','لوبيا بيضاء (مطبوخة)','حمص (مطبوخ)','بطاطس (نيئة)','بطاطا حلوة (نيئة)','خضر (طماطم، خيار، بصل…)','موز','تفاح / برتقال','تمر','أفوكادو','زيت الطبخ (ملعقة كبيرة)','زيت الزيتون (ملعقة كبيرة)','لوز','فول سوداني','أملو (ملعقة 20 غ)']
+ foods:['بيض عادي','بيض بلدي','خبز كامل (رغيف ~200 غ)','خبز أبيض (رغيف ~200 غ)','مسمن','حرشة','رقائق الشوفان','حليب (كأس 200 مل)','ياغورت (علبة)','جبن مثلث','واي بروتين (مغرفة 30 غ)','شاي بالسكر (كأس)','صدر دجاج (نيء)','فخذ دجاج بدون جلد (نيء)','سردين (نيء، الجزء المأكول)','سمك أبيض (فيليه نيء)','لحم بقري هبرة (نيء)','كفتة بقري (نيئة)','كفتة ديك رومي (نيئة)','كبد دجاج (نيء)','تونة (علبة، ~80 غ مصفاة)','أرز (مطبوخ)','معكرونة (مطبوخة)','عدس (مطبوخ)','لوبيا بيضاء (مطبوخة)','حمص (مطبوخ)','بطاطس (نيئة)','بطاطا حلوة (نيئة)','خضر (طماطم، خيار، بصل…)','موز','تفاح / برتقال','تمر','أفوكادو','زيت الطبخ (ملعقة كبيرة)','زيت الزيتون (ملعقة كبيرة)','لوز','فول سوداني','أملو (ملعقة 20 غ)','أرز (نيء)','معكرونة (نيئة)','عدس (نيء)','لوبيا بيضاء (نيئة)','حمص (نيء)','طماطم','بصل','جزر','كوسة','زيتون','دجاجة كاملة (بالعظم)']
 },
 en:{
+ recipes:'Recipes',recipe_hint:'Enter the whole pot the way you cook it, and how many adult portions it makes. The app works out one portion, which you can add to any meal.',
+ dry_hint:'Legumes and rice: pick the "raw" version and enter the weight before cooking.',new_recipe:'+ New recipe',recipe_name:'Recipe name',servings:'Portions',
+ add_ingredient:'+ Add ingredient',per_portion:'Per portion:',whole_pot:'Whole pot:',recipe_empty:'No ingredients yet.',recipe_default:'New recipe',done:'Close',cat_rec:'Recipes',sheet_recipe:'Add to recipe',
+ weekly_items:'Every week',monthly_items:'Once a month',monthly_hint:'Amount for the whole month, rounded to the pack size.',need:'need {x}',have_home:'Already at home',
+ at_home:'{n} items already at home',show:'Show',hide:'Hide',this_trip:'This trip',share_wa:'Send on WhatsApp',copy_list:'Copy list',list_title:'Shopping list',
+ edit_meals:'Edit meals',meals_title:'Meals',add_meal:'+ Add meal',new_meal:'New meal',ramadan:'Ramadan',normal_meals:'Usual meals',
+ meals_hint:'Meals are shared by every profile and the household. Removing a meal keeps its food; it comes back if you add the meal again.',up:'Move up',down:'Move down',
+ meals_extra:{s7our:'Suhoor',pre:'Pre-workout'},
  fat_pct:'Fat (% of calories)',
  ref_note:'Protein is based on a reference weight of {w} kg (BMI 25), because your BMI is {bmi}. Protein needs follow muscle mass, not body fat. If you have your own number, enter it in "Protein (g/kg)".',
  floor_note:'Target raised to {k} kcal: the minimum without medical supervision. To go lower, see a doctor or dietitian.',
@@ -552,16 +602,16 @@ en:{
  paste_ph:'Paste a backup here…',import:'Import',toast_copied:'Copied',toast_select:'Select and copy',toast_import:'Imported',import_err:'This code is not valid.',
  toast_installed:'App installed',
  u_g:'g',u_kg:'kg',u_L:'L',u_ml:'ml',dh:'DH',kcal_u:'kcal',mP:'P',mC:'C',mF:'F',
- un:{bida:'egg',khobza:'loaf','7ba':'piece',kas:'glass','7ok':'cup',scoop:'scoop',banana:'banana',mo3al9a:'tbsp'},
+ un:{bida:'egg',khobza:'loaf','7ba':'piece',kas:'glass','7ok':'cup',scoop:'scoop',banana:'banana',mo3al9a:'tbsp',portion:'portion'},
  cats:['Breakfast & snacks','Meat & fish','Starches & legumes','Vegetables & fruit','Oils & nuts'],
  meals:['Breakfast','Lunch','Snack','Dinner'],
  week_days:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
  goals:['Cut (lose fat)','Recomp (muscle + fat loss)','Maintain weight','Lean bulk','Bulk'],
  acts:['Sedentary (desk job)','Light (1–3 sessions/week)','Moderate (3–5/week)','High (6–7/week)','Physical job + daily training'],
  types:['Adult man','Adult woman','Teen (12–17)','Child (7–11)','Young child (3–6)','Toddler (<3)'],
- notes:{bone:'Bone ≈ 25% of weight',sardine:'Edible part ≈ 60% of what you buy',merla:'Fillet ≈ 50% of the whole fish',dry:'Price per kg, dry (uncooked)',oil:'Count your cooking oil: it is the biggest hidden source of calories'},
+ notes:{bone:'Bone ≈ 25% of weight',sardine:'Edible part ≈ 60% of what you buy',merla:'Fillet ≈ 50% of the whole fish',dry:'Price per kg, dry (uncooked)',oil:'Count your cooking oil: it is the biggest hidden source of calories',whole:'Enter the weight as bought (with bones). Macros assume ~65% is edible.'},
  sugar:'Sugar (for tea)',
- foods:['Eggs','Free-range eggs (beldi)','Whole-wheat bread (~200 g loaf)','White bread (~200 g loaf)','Msemen','Harcha','Rolled oats','Milk (200 ml glass)','Yogurt / Perly (cup)','Cheese wedge','Whey (30 g scoop)','Sweet mint tea (glass)','Chicken breast (raw)','Skinless chicken thigh (raw)','Sardine (raw, edible part)','Whiting / white fish (raw fillet)','Lean beef (raw)','Beef kefta (raw)','Turkey kefta (raw)','Chicken liver (raw)','Tuna (can, ~80 g drained)','Rice (cooked)','Pasta (cooked)','Lentils (cooked)','White beans (cooked)','Chickpeas (cooked)','Potato (raw)','Sweet potato (raw)','Vegetables (tomato, cucumber, onion…)','Banana','Apple / orange','Dates','Avocado','Cooking oil (tbsp)','Olive oil (tbsp)','Almonds','Peanuts','Amlou (20 g tbsp)']
+ foods:['Eggs','Free-range eggs (beldi)','Whole-wheat bread (~200 g loaf)','White bread (~200 g loaf)','Msemen','Harcha','Rolled oats','Milk (200 ml glass)','Yogurt / Perly (cup)','Cheese wedge','Whey (30 g scoop)','Sweet mint tea (glass)','Chicken breast (raw)','Skinless chicken thigh (raw)','Sardine (raw, edible part)','Whiting / white fish (raw fillet)','Lean beef (raw)','Beef kefta (raw)','Turkey kefta (raw)','Chicken liver (raw)','Tuna (can, ~80 g drained)','Rice (cooked)','Pasta (cooked)','Lentils (cooked)','White beans (cooked)','Chickpeas (cooked)','Potato (raw)','Sweet potato (raw)','Vegetables (tomato, cucumber, onion…)','Banana','Apple / orange','Dates','Avocado','Cooking oil (tbsp)','Olive oil (tbsp)','Almonds','Peanuts','Amlou (20 g tbsp)','Rice (raw)','Pasta (raw)','Lentils (raw)','White beans (raw)','Chickpeas (raw)','Tomato','Onion','Carrot','Zucchini','Olives','Whole chicken (with bones)']
 }};
 
 /* ---------- Food data ----------
@@ -608,8 +658,22 @@ const FOODS=[
  {id:'zit_z',cat:'fat',u:'u',ul:'mo3al9a',d:1,s:.5,m:[119,0,0,13.5],b:'L',f:.015,p:100},
  {id:'louz',cat:'fat',u:'g',d:30,s:10,m:[579,21.2,21.6,49.9],b:'kg',f:.001,p:120},
  {id:'kawkaw',cat:'fat',u:'g',d:30,s:10,m:[567,25.8,16,49],b:'kg',f:.001,p:30},
- {id:'amlou',cat:'fat',u:'u',ul:'mo3al9a',d:1,s:1,m:[125,3.8,4.5,10.5],b:'kg',f:.02,p:180}
+ {id:'amlou',cat:'fat',u:'u',ul:'mo3al9a',d:1,s:1,m:[125,3.8,4.5,10.5],b:'kg',f:.02,p:180},
+ {id:'rouz_n',cat:'carb',u:'g',d:70,s:10,m:[360,6.6,79,.6],b:'kg',f:.001,p:16},
+ {id:'makarona_n',cat:'carb',u:'g',d:80,s:10,m:[371,13,75,1.5],b:'kg',f:.001,p:12},
+ {id:'3des_n',cat:'carb',u:'g',d:80,s:10,m:[352,24.6,63,1.1],b:'kg',f:.001,p:22},
+ {id:'loubia_n',cat:'carb',u:'g',d:80,s:10,m:[333,23.4,60,.8],b:'kg',f:.001,p:24},
+ {id:'7mes_n',cat:'carb',u:'g',d:60,s:10,m:[364,19.3,61,6],b:'kg',f:.001,p:26},
+ {id:'maticha',cat:'veg',u:'g',d:100,s:50,m:[18,.9,3.9,.2],b:'kg',f:.001,p:6},
+ {id:'bsla',cat:'veg',u:'g',d:50,s:25,m:[40,1.1,9.3,.1],b:'kg',f:.001,p:5},
+ {id:'khizzou',cat:'veg',u:'g',d:100,s:50,m:[41,.9,9.6,.2],b:'kg',f:.001,p:5},
+ {id:'9ar3a',cat:'veg',u:'g',d:100,s:50,m:[17,1.2,3.1,.3],b:'kg',f:.001,p:6},
+ {id:'zitoun',cat:'fat',u:'g',d:30,s:10,m:[145,1,3.8,15.3],b:'kg',f:.001,p:30},
+ {id:'djaj_kamel',cat:'prot',u:'g',d:300,s:50,m:[140,12.1,0,9.8],b:'kg',f:.001,p:22,nt:'whole'}
 ];
+/* Bought once a month (dry goods that keep) and the pack size they are sold in, in buy units */
+const STAPLE=new Set(['rouz_n','makarona_n','3des_n','loubia_n','7mes_n','rouz','makarona','3des','loubia','7mes','choufan','atay','zit_t','zit_z','whey','louz','kawkaw','tmer','amlou','ton','zitoun']);
+const PACK={rouz_n:1,makarona_n:.5,'3des_n':.5,loubia_n:.5,'7mes_n':.5,rouz:1,makarona:.5,'3des':.5,loubia:.5,'7mes':.5,choufan:.5,atay:1,zit_t:1,zit_z:1,hlib:.5,whey:1,louz:.25,kawkaw:.25,tmer:.5,amlou:.25,zitoun:.25};
 const FOOD_IDX={};FOODS.forEach((f,i)=>FOOD_IDX[f.id]=i);
 const MEAL_KEYS=['ftour','ghda','kaskrout','3cha'];
 const GOAL_KEYS=['cut','recomp','maintain','leanbulk','bulk'];
@@ -626,8 +690,11 @@ const tl=(k,i)=>{const a=I18N[lang()][k]||I18N.dj[k];return (a&&a[i]!=null)?a[i]
 const fname=f=>f.n!=null?f.n:tl('foods',FOOD_IDX[f.id]);
 const unitName=k=>{const u=I18N[lang()].un||I18N.dj.un;return u[k]||I18N.dj.un[k]||k};
 const noteOf=f=>f.nt?((I18N[lang()].notes||{})[f.nt]||I18N.dj.notes[f.nt]):'';
-const catName=k=>tl('cats',CAT_KEYS.indexOf(k));
-const mealName=k=>tl('meals',MEAL_KEYS.indexOf(k));
+const catName=k=>k==='rec'?t('cat_rec'):tl('cats',CAT_KEYS.indexOf(k));
+const DEFAULT_MEALS=()=>[{k:'ftour'},{k:'ghda'},{k:'kaskrout'},{k:'3cha'}];
+const mealKeys=()=>S.meals.map(m=>m.k);
+function mealBase(k){const i=MEAL_KEYS.indexOf(k);if(i>=0)return tl('meals',i);const ex=I18N[lang()].meals_extra||{};return ex[k]||I18N.dj.meals_extra[k]||t('new_meal')}
+function mealName(k){const m=S.meals.find(x=>x.k===k);return (m&&m.n)||mealBase(k)}
 const bdi=s=>`<bdi>${s}</bdi>`;
 const nu=(v,u)=>`<bdi class="num">${v} ${u}</bdi>`;
 const kc=v=>nu(v,t('kcal_u'));
@@ -645,12 +712,12 @@ function sampleProfile(){
   return {id:uid(),name:'Mital (beddlo)',sex:'m',age:28,w:74,h:176,act:1.55,goal:'recomp',protKg:null,fatPct:27,budget:'',days:[a,b],week:[a.id,b.id,a.id,b.id,a.id,b.id,b.id],eatsHouse:false,hf:1,example:true};
 }
 function sampleHouse(){
-  const a={id:uid(),name:'Tajine djaj',meals:{ftour:[['bid',1],['khobz',.25],['zit_z',.5],['atay',1]],ghda:[['fkhad',150],['batata',150],['khodra',150],['zit_t',1],['khobz',.25]],kaskrout:[['atay',1],['msemen',.5]],'3cha':[['3des',250],['khobz',.25]]}};
-  const b={id:uid(),name:'Sardine & rouz',meals:{ftour:[['bid',1],['khobz',.25],['fromage',1],['atay',1]],ghda:[['sardine',150],['rouz',150],['khodra',150],['zit_t',1]],kaskrout:[['atay',1],['tfa7',1]],'3cha':[['loubia',250],['khobz',.25]]}};
+  const a={id:uid(),name:'Tajine djaj',meals:{ftour:[['bid',1],['khobz',.25],['zit_z',.5],['atay',1]],ghda:[['r_tajine',1],['khobz',.25]],kaskrout:[['atay',1],['msemen',.5]],'3cha':[['r_3des',1],['khobz',.25]]}};
+  const b={id:uid(),name:'Sardine & rouz',meals:{ftour:[['bid',1],['khobz',.25],['fromage',1],['atay',1]],ghda:[['sardine',150],['rouz',150],['khodra',150],['zit_t',1]],kaskrout:[['atay',1],['tfa7',1]],'3cha':[['r_loubia',1],['khobz',.25]]}};
   return {members:[{id:uid(),name:'Mra',type:'mra',f:.85},{id:uid(),name:'Weld (8 snin)',type:'drri',f:.7}],days:[a,b],week:[a.id,b.id,a.id,b.id,a.id,a.id,b.id],budget:'',example:true};
 }
 function normalize(){
-  S.theme=S.theme||'auto'; S.lang=I18N[S.lang]?S.lang:'dj';
+  S.theme=S.theme||'auto'; if(!Array.isArray(S.meals)||!S.meals.length)S.meals=DEFAULT_MEALS(); S.pantry=S.pantry||{}; if(!S.recipes)S.recipes=sampleRecipes(); S.lang=I18N[S.lang]?S.lang:'dj';
   S.prices=S.prices||{}; S.custom=S.custom||[]; S.checked=S.checked||{};
   S.custom.forEach(f=>{if(typeof f.n!=='string')f.n='?';if(f.ul==='7ba'||!f.ul)f.ul='7ba';if(!f.bl)f.bl='7ba';delete f.nt});
   if(!S.house) S.house=sampleHouse();
@@ -665,7 +732,16 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 const P=()=>S.profiles.find(p=>p.id===S.active)||S.profiles[0];
 const H=()=>S.house;
 const allFoods=()=>FOODS.concat(S.custom||[]);
-const food=id=>allFoods().find(f=>f.id===id);
+const recipe=id=>(S.recipes||[]).find(r=>r.id===id);
+/* A recipe behaves like a food measured in portions: macros and cost of the whole pot divided by its portions */
+function recipeFood(r){const tot=sum(r.items);const n=Math.max(1,+r.servings||1);
+  return {id:r.id,n:r.n,cat:'rec',u:'u',ul:'portion',d:1,s:.5,m:[tot.k/n,tot.p/n,tot.c/n,tot.f/n],b:'u',bl:'portion',f:1,p:tot.cost/n,isRec:true}}
+const recipeFoods=()=>(S.recipes||[]).map(recipeFood);
+const food=id=>{if(typeof id==='string'&&id.startsWith('r_')){const r=recipe(id);return r?recipeFood(r):undefined}return allFoods().find(f=>f.id===id)};
+function sampleRecipes(){return [
+  {id:'r_tajine',n:"Tajine djaj b l'khodra",servings:5,items:[['djaj_kamel',1500],['batata',800],['khizzou',300],['bsla',200],['maticha',200],['zitoun',100],['zit_t',3],['zit_z',1]]},
+  {id:'r_3des',n:'3des',servings:4,items:[['3des_n',500],['maticha',200],['bsla',100],['khizzou',100],['zit_z',2]]},
+  {id:'r_loubia',n:'Loubia',servings:4,items:[['loubia_n',500],['maticha',300],['bsla',100],['zit_t',3]]}]}
 const price=f=>S.prices[f.id]!=null?S.prices[f.id]:f.p;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const r1=x=>Math.round(x*10)/10, r0=x=>Math.round(x), r2=x=>Math.round(x*100)/100;
@@ -704,7 +780,7 @@ function itemM(fid,q){
   return {k:f.m[0]*mul,p:f.m[1]*mul,c:f.m[2]*mul,f:f.m[3]*mul,cost:q*f.f*price(f)};
 }
 function sum(list){const tt={k:0,p:0,c:0,f:0,cost:0};list.forEach(([id,q])=>{const m=itemM(id,q);for(const k in tt)tt[k]+=m[k]});return tt;}
-const dayTot=d=>d?sum(MEAL_KEYS.flatMap(k=>d.meals[k]||[])):{k:0,p:0,c:0,f:0,cost:0};
+const dayTot=d=>d?sum(mealKeys().flatMap(k=>d.meals[k]||[])):{k:0,p:0,c:0,f:0,cost:0};
 const addT=(a,b,x=1)=>{const o={};for(const k in a)o[k]=a[k]+b[k]*x;return o;};
 /* How many adult-man portions of the shared food the household cooks */
 function houseFactor(){
@@ -822,13 +898,14 @@ function vAyyam(p){
   <p class="hint">${p.eatsHouse?t('hint_eats_house'):t('hint_days')}</p>
   ${doubleWarn(p)}
   ${dayHeader(p,curDay,t('new_day'))}
+  ${mealsOpen?vMealsEditor():`<div class="row"><button class="btn sm ghost" onclick="mealsOpen=true;render()">⚙ ${t('edit_meals')}</button></div>`}
   ${p.eatsHouse&&H().days.length?`<div class="row"><label class="lbl" for="hpSel" style="margin:0">${t('add_house_calc')}</label>
     <select id="hpSel" class="in" style="flex:1;min-width:150px" onchange="D().hp=this.value||null;save();render()"><option value="">${t('none')}</option>${H().days.map(x=>`<option value="${x.id}" ${d.hp===x.id?'selected':''}>${esc(x.name)} (×${p.hf})</option>`).join('')}</select></div>`:''}
   <div class="bars">
     ${bars4(tot,tg)}
     <div class="cost"><span>${p.eatsHouse?t('cost_extras'):t('cost_day')}</span><b>${dh(dayTot(d).cost)}</b></div>
   </div>
-  ${MEAL_KEYS.map(k=>vMeal(d,k,1)).join('')}
+  ${mealKeys().map(k=>vMeal(d,k,1)).join('')}
   </div>`;
 }
 function vMeal(d,k,mult){
@@ -848,6 +925,21 @@ function vMeal(d,k,mult){
     <button class="btn sm pri" onclick="openSheet('${k}')">${t('add_food')}</button></div>
     <div class="items">${rows||`<div class="empty">${t('empty_meal')}</div>`}</div></section>`;
 }
+let mealsOpen=false;
+function vMealsEditor(){
+  return `<section class="panel stack"><div class="sec-h"><h2>${t('meals_title')}</h2><button class="btn sm" onclick="mealsOpen=false;render()">${t('done')}</button></div>
+  <p class="hint">${t('meals_hint')}</p>
+  <div class="stack" style="gap:8px">${S.meals.map((m,i)=>`<div class="row">
+    <input id="ml_${m.k}" class="in" style="flex:1;min-width:140px" value="${esc(mealName(m.k))}" aria-label="${t('name')}" onchange="renameMeal('${m.k}',this.value)">
+    <button class="btn sm" aria-label="${t('up')}" onclick="moveMeal(${i},-1)" ${i?'':'disabled'}>↑</button>
+    <button class="btn sm" aria-label="${t('down')}" onclick="moveMeal(${i},1)" ${i<S.meals.length-1?'':'disabled'}>↓</button>
+    ${S.meals.length>1?`<button class="x" aria-label="${t('remove')}" onclick="rmMeal('${m.k}')">✕</button>`:''}</div>`).join('')}</div>
+  <div class="row"><button class="btn sm" onclick="addMeal()">${t('add_meal')}</button><button class="btn sm" onclick="presetMeals('ramadan')">☾ ${t('ramadan')}</button><button class="btn sm" onclick="presetMeals('normal')">${t('normal_meals')}</button></div></section>`}
+function renameMeal(k,v){const m=S.meals.find(x=>x.k===k);v=(v||'').trim();m.n=(v&&v!==mealBase(k))?v:null;save();render()}
+function moveMeal(i,d){const j=i+d;if(j<0||j>=S.meals.length)return;const a=S.meals;[a[i],a[j]]=[a[j],a[i]];save();render()}
+function rmMeal(k){S.meals=S.meals.filter(m=>m.k!==k);save();render()}
+function addMeal(){S.meals.push({k:'m_'+uid(),n:null});save();render()}
+function presetMeals(w){S.meals=w==='ramadan'?[{k:'ftour'},{k:'3cha'},{k:'s7our'}]:DEFAULT_MEALS();save();render()}
 function setQ(k,i,v){D().meals[k][i][1]=Math.max(0,parseFloat(v)||0);clearEx();save();render()}
 function step(k,i,dir){const it=D().meals[k][i];const f=food(it[0]);it[1]=Math.max(0,r1(it[1]+dir*f.s));clearEx();save();render()}
 function rmItem(k,i){D().meals[k].splice(i,1);clearEx();save();render()}
@@ -859,16 +951,21 @@ function delDay(){if(delArm!=='d'){delArm='d';render();return}const c=box();cons
   if(ctxHouse())S.profiles.forEach(p=>p.days.forEach(d=>{if(d.hp===id)d.hp=null}));
   delArm=null;setCur(c.days[0]&&c.days[0].id);save();render()}
 
-/* ---------- Sheet ---------- */
-function openSheet(k){sheetMeal=k;sheetQ='';sheetCat='all';renderSheet();setTimeout(()=>{const s=document.getElementById('sQ');s&&s.focus()},50)}
-function closeSheet(){sheetMeal=null;document.getElementById('sheetRoot').innerHTML=''}
+/* ---------- Sheet: adds food to a meal, or an ingredient to a recipe ---------- */
+let sheetRecipe=null;
+function openSheet(k){sheetMeal=k;sheetRecipe=null;sheetQ='';sheetCat='all';renderSheet();focusSheet()}
+function openSheetRecipe(id){sheetRecipe=id;sheetMeal='__recipe';sheetQ='';sheetCat='all';renderSheet();focusSheet()}
+function focusSheet(){setTimeout(()=>{const s=document.getElementById('sQ');s&&s.focus()},50)}
+function closeSheet(){sheetMeal=null;sheetRecipe=null;document.getElementById('sheetRoot').innerHTML=''}
+function sheetCats(){return (sheetRecipe||!(S.recipes||[]).length?[]:['rec']).concat(CAT_KEYS)}
 function renderSheet(){
   if(!sheetMeal) return;
+  const title=sheetRecipe?t('sheet_recipe')+' · '+esc((recipe(sheetRecipe)||{}).n||''):t('sheet_title',{meal:esc(mealName(sheetMeal))})+(ctxHouse()?t('sheet_house'):'');
   document.getElementById('sheetRoot').innerHTML=`<div class="sheet-bg" onclick="closeSheet()"></div>
   <div class="sheet" role="dialog" aria-label="${t('add_food')}">
-    <div class="sec-h"><h2 style="font-size:18px">${t('sheet_title',{meal:mealName(sheetMeal)})}${ctxHouse()?t('sheet_house'):''}</h2><button class="btn sm" onclick="closeSheet()">${t('close')}</button></div>
+    <div class="sec-h"><h2 style="font-size:18px">${title}</h2><button class="btn sm" onclick="closeSheet()">${t('close')}</button></div>
     <input id="sQ" class="in" style="margin-top:10px" placeholder="${t('search_ph')}" value="${esc(sheetQ)}" oninput="sheetQ=this.value;renderSheetList()">
-    <div class="chips" style="margin-top:10px">${[['all',t('all')]].concat(CAT_KEYS.map(k=>[k,catName(k)])).map(([k,l])=>`<button class="chip" aria-pressed="${sheetCat===k}" onclick="sheetCat='${k}';renderSheet()">${l}</button>`).join('')}</div>
+    <div class="chips" style="margin-top:10px">${[['all',t('all')]].concat(sheetCats().map(k=>[k,catName(k)])).map(([k,l])=>`<button class="chip" aria-pressed="${sheetCat===k}" onclick="sheetCat='${k}';renderSheet()">${l}</button>`).join('')}</div>
     <div class="list" id="sList"></div></div>`;
   renderSheetList();
 }
@@ -876,13 +973,57 @@ function renderSheet(){
 function searchable(f){if(f.n!=null)return f.n.toLowerCase();return Object.keys(I18N).map(l=>(I18N[l].foods||[])[FOOD_IDX[f.id]]||'').join(' ').toLowerCase()}
 function renderSheetList(){
   const q=sheetQ.toLowerCase().trim();
-  const list=allFoods().filter(f=>(sheetCat==='all'||f.cat===sheetCat)&&(!q||searchable(f).includes(q)));
+  const pool=(sheetRecipe?[]:recipeFoods()).concat(allFoods());
+  const list=pool.filter(f=>(sheetCat==='all'||f.cat===sheetCat)&&(!q||searchable(f).includes(q)));
   document.getElementById('sList').innerHTML=list.length?list.map(f=>`<button class="fopt" onclick="addFood('${f.id}')">
-    <span><span class="nm">${esc(fname(f))}</span><br><span class="mm">${f.u==='g'?gr(100):nu(1,esc(unitName(f.ul)))}: ${macro({k:f.m[0],p:f.m[1],c:f.m[2],f:f.m[3]})}</span></span>
+    <span><span class="nm">${f.isRec?'🍲 ':''}${esc(fname(f))}</span><br><span class="mm">${f.u==='g'?gr(100):nu(1,esc(unitName(f.ul)))}: ${macro({k:f.m[0],p:f.m[1],c:f.m[2],f:f.m[3]})}${f.isRec?' · '+dh(f.p):''}</span></span>
     <span class="add">+</span></button>`).join(''):`<p class="hint" style="padding:12px 0">${t('no_result')}</p>`;
 }
-function addFood(id){const f=food(id);const arr=D().meals[sheetMeal];const ex=arr.find(x=>x[0]===id);
+function addFood(id){const f=food(id);
+  if(sheetRecipe){const r=recipe(sheetRecipe);const ex=r.items.find(x=>x[0]===id);
+    if(ex) ex[1]=r1(ex[1]+(f.u==='g'?50:f.s)); else r.items.push([id,f.u==='g'?Math.round(f.d*r.servings/50)*50||50:Math.max(1,r1(f.d*r.servings))]);
+    save();render();toast(t('toast_added',{n:fname(f)}));return}
+  const d=D(); if(!d.meals[sheetMeal]) d.meals[sheetMeal]=[]; const arr=d.meals[sheetMeal];const ex=arr.find(x=>x[0]===id);
   if(ex) ex[1]=r1(ex[1]+f.s); else arr.push([id,f.d]); clearEx(); save();render();toast(t('toast_added',{n:fname(f)}))}
+
+/* ---------- Recipes (editor lives in the Household tab) ---------- */
+let editRec=null;
+function vRecipes(){
+  const rs=S.recipes||[]; const r=editRec&&recipe(editRec);
+  const chips=rs.map(x=>`<button class="chip" aria-pressed="${editRec===x.id}" onclick="editRec=editRec==='${x.id}'?null:'${x.id}';delArm=null;render()">🍲 ${esc(x.n)}</button>`).join('');
+  let ed='';
+  if(r){const tot=sum(r.items);const n=Math.max(1,+r.servings||1);
+    const rows=r.items.map(([id,q],i)=>{const f=food(id);if(!f)return '';const m=itemM(id,q);
+      return `<div class="item"><div style="min-width:0"><div class="nm">${esc(fname(f))}</div><div class="mm">${macro(m)}</div>${f.nt?`<div class="mm">${esc(noteOf(f))}</div>`:''}</div>
+      <div class="qty"><button aria-label="${t('dec')}" onclick="rStep(${i},-1)">−</button>
+        <input id="rq_${i}" type="number" inputmode="decimal" min="0" step="${f.u==='g'?50:f.s}" value="${q}" aria-label="${t('qty')}" onchange="rSetQ(${i},this.value)">
+        <small>${f.u==='g'?t('u_g'):esc(unitName(f.ul))}</small><button aria-label="${t('inc')}" onclick="rStep(${i},1)">+</button></div>
+      <div class="price">${dh(m.cost)}</div><button class="x" aria-label="${t('remove')}" onclick="rRm(${i})">✕</button></div>`}).join('');
+    ed=`<div class="meal">
+      <div class="meal-h" style="flex-wrap:wrap;align-items:flex-end">
+        <div style="flex:1;min-width:160px"><label class="lbl" for="rName">${t('recipe_name')}</label><input id="rName" class="in" value="${esc(r.n)}" onchange="renameRecipe(this.value)"></div>
+        <div style="width:100px"><label class="lbl" for="rServ">${t('servings')}</label><input id="rServ" class="in num" type="number" min="1" max="40" step="1" value="${r.servings}" onchange="setServings(this.value)"></div></div>
+      <div class="items">${rows||`<div class="empty">${t('recipe_empty')}</div>`}</div>
+      <div class="meal-h" style="border-top:1px solid var(--line);border-bottom:0;flex-wrap:wrap">
+        <div class="m"><b>${t('per_portion')}</b> ${macro({k:tot.k/n,p:tot.p/n,c:tot.c/n,f:tot.f/n})} · ${dh(tot.cost/n)}<br><b>${t('whole_pot')}</b> ${kc(r0(tot.k))} · ${dh(tot.cost)}</div>
+        <div class="row"><button class="btn sm pri" onclick="openSheetRecipe('${r.id}')">${t('add_ingredient')}</button>
+          <button class="btn sm danger" onclick="delRecipe('${r.id}')">${delArm==='rec'+r.id?t('confirm_del'):t('del')}</button></div></div></div>`}
+  return `<section class="stack"><div class="sec-h"><h2>${t('recipes')}</h2><button class="btn sm" onclick="newRecipe()">${t('new_recipe')}</button></div>
+    <p class="hint">${t('recipe_hint')} ${t('dry_hint')}</p>
+    ${rs.length?`<div class="chips">${chips}</div>`:''}${ed}</section>`;
+}
+const R=()=>recipe(editRec);
+function newRecipe(){const r={id:'r_'+uid(),n:t('recipe_default'),servings:4,items:[]};S.recipes.push(r);editRec=r.id;save();render();setTimeout(()=>{const e=document.getElementById('rName');e&&e.select()},50)}
+function renameRecipe(v){R().n=(v||'').trim()||t('recipe_default');save();render()}
+function setServings(v){R().servings=Math.min(40,Math.max(1,Math.round(+v||1)));save();render()}
+function rSetQ(i,v){R().items[i][1]=Math.max(0,parseFloat(v)||0);save();render()}
+function rStep(i,dir){const it=R().items[i];const f=food(it[0]);it[1]=Math.max(0,r1(it[1]+dir*(f.u==='g'?50:f.s)));save();render()}
+function rRm(i){R().items.splice(i,1);save();render()}
+function delRecipe(id){if(delArm!=='rec'+id){delArm='rec'+id;render();return}
+  S.recipes=S.recipes.filter(r=>r.id!==id);eachList(arr=>{for(let i=arr.length-1;i>=0;i--)if(arr[i][0]===id)arr.splice(i,1)});
+  editRec=null;delArm=null;save();render();toast(t('toast_deleted'))}
+/* Every list of [foodId, qty]: meals of all profile days, household days and recipes */
+function eachList(fn){S.profiles.flatMap(p=>p.days).concat(H().days).forEach(d=>Object.keys(d.meals).forEach(k=>fn(d.meals[k])));(S.recipes||[]).forEach(r=>fn(r.items))}
 
 /* ---------- Week (one profile) ---------- */
 function weekSelect(c,setter){
@@ -932,6 +1073,7 @@ function vDar(){
     ${S.profiles.map(doubleWarn).join('')}
   </section>
 
+  ${vRecipes()}
   <section class="stack">
     <div class="sec-h"><h2>${t('house_food')}</h2></div>
     <p class="hint">${t('house_food_hint',{x:bdi(tf)})}</p>
@@ -940,7 +1082,7 @@ function vDar(){
       <div class="bar"><div class="t"><span>${t('per_adult')}</span>${kc(r0(dt.k))}</div></div>
       <div class="bar"><div class="t"><span>${t('prot')}</span>${gr(r0(dt.p))}</div></div>
       <div class="cost"><span>${t('house_day_cost',{x:tf})}</span><b>${dh(dt.cost*tf)}</b></div></div>
-    ${MEAL_KEYS.map(k=>vMeal(d,k,tf)).join('')}`:''}
+    ${mealKeys().map(k=>vMeal(d,k,tf)).join('')}`:''}
   </section>
 
   <section class="panel stack"><div class="sec-h"><h2>${t('house_week')}</h2></div>
@@ -954,21 +1096,52 @@ function addM(){H().members.push({id:uid(),name:t('new_member'),type:'rajel',f:1
 function rmM(id){H().members=H().members.filter(m=>m.id!==id);save();render()}
 
 /* ---------- Shopping (whole household) ---------- */
-function fmtAmt(f,x){
-  if(f.b==='kg') return x>=1?nu(Math.ceil(x*10-1e-9)/10,t('u_kg')):gr(Math.ceil(x*1000/10)*10);
-  if(f.b==='L') return x>=1?nu(Math.ceil(x*10-1e-9)/10,t('u_L')):nu(Math.ceil(x*1000/10)*10,t('u_ml'));
-  return nu(Math.ceil(x-1e-9),esc(unitName(f.bl||'7ba')));
+/* Amount in buy units -> [number, unit]; kg/L round up to 0.1 above 1, to 10 g/ml below */
+function amtParts(f,x){
+  if(f.b==='kg') return x>=1?[Math.ceil(x*10-1e-9)/10,t('u_kg')]:[Math.ceil(x*100-1e-9)*10,t('u_g')];
+  if(f.b==='L') return x>=1?[Math.ceil(x*10-1e-9)/10,t('u_L')]:[Math.ceil(x*100-1e-9)*10,t('u_ml')];
+  return [Math.ceil(x-1e-9),unitName(f.bl||'7ba')];
 }
-function vT9edya(){
+const fmtAmt=(f,x)=>{const [n,u]=amtParts(f,x);return nu(n,esc(u))};
+const txtAmt=(f,x)=>amtParts(f,x).join(' ');
+/* What you actually take home: whole packs for packaged goods, whole units for counted items */
+function buyQty(f,x){const p=PACK[f.id];if(p)return Math.ceil(x/p-1e-9)*p;if(f.b==='u')return Math.ceil(x-1e-9);return x}
+let showPantry=false;
+function shopData(){
   const agg={}; const parts=[];
-  const addDay=(d,mult)=>{let c=0;if(!d)return 0;MEAL_KEYS.forEach(k=>(d.meals[k]||[]).forEach(([id,q])=>{const f=food(id);if(!f)return;agg[id]=(agg[id]||0)+q*f.f*mult;c+=q*f.f*price(f)*mult}));return c};
+  const add=(id,amt)=>{agg[id]=(agg[id]||0)+amt};
+  const addDay=(d,mult)=>{let c=0;if(!d)return 0;mealKeys().forEach(k=>(d.meals[k]||[]).forEach(([id,q])=>{const f=food(id);if(!f)return;
+    if(f.isRec){const r=recipe(id);const n=Math.max(1,+r.servings||1);r.items.forEach(([iid,iq])=>{const g=food(iid);if(g)add(iid,iq*(q/n)*g.f*mult)})}
+    else add(id,q*f.f*mult);
+    c+=q*f.f*price(f)*mult}));return c};
   S.profiles.forEach(p=>{if(!S.shop[p.id])return;let c=0;p.week.forEach(id=>{c+=addDay(p.days.find(d=>d.id===id),1)});parts.push([esc(p.name)+(p.eatsHouse?t('extras'):''),c])});
   const tf=houseFactor();
   if(S.shop.house){let c=0;H().week.forEach(id=>{c+=addDay(hDay(id),tf)});parts.push([t('house_food')+' (×'+tf+')',c])}
-  const cost=parts.reduce((s,x)=>s+x[1],0); const month=cost*30/7; const bud=parseFloat(H().budget);
-  const groups=CAT_KEYS.map(c=>{const ids=Object.keys(agg).filter(id=>food(id)&&food(id).cat===c&&agg[id]>0);if(!ids.length)return '';
-    return `<div class="grp">${catName(c)}</div>`+ids.map(id=>{const f=food(id);const x=agg[id];const done=S.checked[id];
-      return `<label class="li ${done?'done':''}"><input type="checkbox" ${done?'checked':''} onchange="chk('${id}',this.checked)"><span class="nm">${esc(f.sn?t('sugar'):fname(f))}</span><span class="amt">${fmtAmt(f,x)}</span><span class="pr">${dh(x*price(f))}</span></label>`}).join('')}).join('');
+  const rows=Object.keys(agg).filter(id=>food(id)&&agg[id]>0).map(id=>{const f=food(id);const monthly=STAPLE.has(id);
+    const need=monthly?agg[id]*30/7:agg[id];const buy=buyQty(f,need);return {id,f,monthly,need,buy,cost:buy*price(f),home:!!S.pantry[id],done:!!S.checked[id]}})
+    .sort((a,b)=>CAT_KEYS.indexOf(a.f.cat)-CAT_KEYS.indexOf(b.f.cat));
+  const cost=parts.reduce((s,x)=>s+x[1],0);
+  return {rows,parts,cost};
+}
+/* Shorter names on the list: built-in foods drop their bracketed detail (raw/cooked, portion size) */
+const shopName=f=>f.sn?t('sugar'):(f.n!=null?f.n:fname(f).replace(/\s*\([^)]*\)\s*$/,''));
+function shopText(rows){
+  const d=new Date().toLocaleDateString(lang()==='en'?'en-GB':'fr-FR');
+  const sec=(m,title)=>{const r=rows.filter(x=>x.monthly===m&&!x.home&&!x.done);return r.length?`\n*${title}*\n`+r.map(x=>`- ${shopName(x.f)}: ${txtAmt(x.f,x.buy)}`).join('\n')+'\n':''};
+  const trip=rows.filter(x=>!x.home&&!x.done).reduce((s,x)=>s+x.cost,0);
+  return `🛒 ${t('list_title')} · ${d}\n`+sec(false,t('weekly_items'))+sec(true,t('monthly_items'))+`\n${t('this_trip')} ≈ ${trip.toFixed(0)} ${t('dh')}`;
+}
+function vT9edya(){
+  const {rows,parts,cost}=shopData(); const month=cost*30/7; const bud=parseFloat(H().budget);
+  const visible=rows.filter(x=>!x.home), home=rows.filter(x=>x.home);
+  const trip=visible.filter(x=>!x.done).reduce((s,x)=>s+x.cost,0);
+  const row=x=>{const differs=Math.abs(x.buy-x.need)>1e-6&&x.f.b!=='u';
+    return `<div class="li ${x.done?'done':''}"><input type="checkbox" id="ck_${x.id}" ${x.done?'checked':''} onchange="chk('${x.id}',this.checked)">
+      <label class="nm" for="ck_${x.id}">${esc(shopName(x.f))}${differs?`<small class="need">${t('need',{x:fmtAmt(x.f,x.need)})}</small>`:''}</label>
+      <span class="amt">${fmtAmt(x.f,x.buy)}</span><span class="pr">${dh(x.cost)}</span>
+      <button class="home-btn" aria-pressed="${x.home}" title="${t('have_home')}" aria-label="${t('have_home')}: ${esc(shopName(x.f))}" onclick="pantry('${x.id}')">⌂</button></div>`};
+  const section=(m,title,hint)=>{const r=visible.filter(x=>x.monthly===m);return r.length?`<div class="grp">${title}</div>${hint?`<div class="grp-hint">${hint}</div>`:''}`+r.map(row).join(''):''};
+  const txt=shopText(rows);
   return `<div class="stack">
   <section class="panel stack"><div class="sec-h"><h2>${t('who_in')}</h2></div>
     <div class="chips">
@@ -979,13 +1152,17 @@ function vT9edya(){
   </section>
   <section class="stack"><div class="sec-h"><h2>${t('week_list')}</h2><button class="btn sm ghost" onclick="S.checked={};save();render()">${t('restart')}</button></div>
     <p class="hint">${t('list_hint')}</p>
-    <div class="receipt">${groups||`<div class="empty">${t('list_empty')}</div>`}
-      <div class="tot"><div><span>${t('week')}</span><b>${dh(cost)}</b></div><div><span>${t('month')}</span><b>${dh(month)}</b></div>
+    <div class="receipt">${rows.length?section(false,t('weekly_items'))+section(true,t('monthly_items'),t('monthly_hint')):`<div class="empty">${t('list_empty')}</div>`}
+      ${home.length?`<div class="grp row" style="justify-content:space-between"><span>⌂ ${t('at_home',{n:home.length})}</span><button class="btn sm ghost" onclick="showPantry=!showPantry;render()">${showPantry?t('hide'):t('show')}</button></div>${showPantry?home.map(row).join(''):''}`:''}
+      <div class="tot"><div><span>${t('this_trip')}</span><b>${dh(trip)}</b></div><div><span>${t('week')}</span><b>${dh(cost)}</b></div><div><span>${t('month')}</span><b>${dh(month)}</b></div>
       ${bud?`<div><span>${t('house_budget')}</span><b style="color:${month>bud?'var(--danger)':'var(--p)'}">${bdi((month>bud?'+':'−')+Math.abs(month-bud).toFixed(0)+' '+t('dh'))}</b></div>`:''}</div>
     </div>
+    ${rows.length?`<div class="row"><a class="btn pri" href="https://wa.me/?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">${t('share_wa')}</a><button class="btn" onclick="copyList()">${t('copy_list')}</button></div>`:''}
     <div style="max-width:260px"><label class="lbl" for="hBud">${t('house_budget_in')}</label><input id="hBud" class="in num" type="number" min="0" value="${H().budget}" onchange="H().budget=this.value;save();render()"></div>
   </section></div>`;
 }
+function pantry(id){if(S.pantry[id])delete S.pantry[id];else S.pantry[id]=true;save();render()}
+function copyList(){const txt=shopText(shopData().rows);try{navigator.clipboard.writeText(txt).then(()=>toast(t('toast_copied')),()=>toast(txt.slice(0,60)))}catch(e){}}
 function chk(id,v){S.checked[id]=v;save();render()}
 
 /* ---------- Prices ---------- */
@@ -1040,14 +1217,14 @@ function addCustom(){
       eachItem((it)=>{if(it[0]===f.id)it[1]=conv(it[1])});}
     Object.assign(f,fields);delete S.prices[f.id];editingCustom=null;save();render();toast(t('toast_saved'));return}
   S.custom.push(Object.assign({id:'c_'+uid()},fields));save();render();toast(t('toast_custom',{n}))}
-function eachItem(fn){const all=S.profiles.flatMap(p=>p.days).concat(H().days);all.forEach(d=>MEAL_KEYS.forEach(k=>(d.meals[k]||[]).forEach((it,i,arr)=>fn(it,i,arr))))}
+function eachItem(fn){eachList(arr=>arr.forEach((it,i)=>fn(it,i,arr)))}
 function editCustom(id){editingCustom=id;render();const f=food(id);
   const set=(i,v)=>{const el=document.getElementById(i);if(el)el.value=v};
   set('cN',f.n);set('cCat',f.cat);set('cU',f.u);set('cP',price(f));set('cK',f.m[0]);set('cPr',f.m[1]);set('cC',f.m[2]);set('cF',f.m[3]);
   const el=document.getElementById('customForm');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})}
 function delCustom(id){if(delArm!=='c_'+id){delArm='c_'+id;render();return}
   S.custom=S.custom.filter(f=>f.id!==id);delete S.prices[id];delete S.checked[id];
-  const all=S.profiles.flatMap(p=>p.days).concat(H().days);all.forEach(d=>MEAL_KEYS.forEach(k=>{d.meals[k]=(d.meals[k]||[]).filter(it=>it[0]!==id)}));
+  eachList(arr=>{for(let i=arr.length-1;i>=0;i--)if(arr[i][0]===id)arr.splice(i,1)});
   if(editingCustom===id)editingCustom=null;delArm=null;save();render();toast(t('toast_deleted'))}
 function resetAll(){if(delArm!=='all'){delArm='all';render();return}
   const keep={lang:S.lang,theme:S.theme};try{localStorage.removeItem(KEY)}catch(e){}
