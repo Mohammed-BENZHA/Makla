@@ -240,6 +240,13 @@ bdi{unicode-bidi:isolate}
 a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .btn:disabled{opacity:.4}
 @media (max-width:480px){.li{grid-template-columns:auto 1fr auto auto;row-gap:2px}.li .pr{grid-column:2/4;grid-row:2;text-align:start;font-size:12px}.li .home-btn{grid-column:4;grid-row:1/3}}
+.chart{overflow-x:auto}
+.chart svg{width:100%;min-width:300px;height:auto;display:block}
+.chart .gl{stroke:var(--line);stroke-width:1}
+.chart .ax{fill:var(--muted);font:11px var(--mono)}
+.chart .ma{fill:none;stroke:var(--accent);stroke-width:2.5;stroke-linejoin:round}
+.chart .pt{fill:var(--muted);opacity:.55}
+.chart .end{fill:var(--accent);stroke:var(--bg);stroke-width:2}
 </style>
 </head>
 <body>
@@ -279,6 +286,7 @@ const LANGS=[['dj','Darija'],['da','الدارجة'],['fr','Français'],['ar','�
 const RTL={da:1,ar:1};
 const I18N={
 dj:{
+ weight_title:'Lwazn',log:'Sjel',today_w:'Lwazn (kg)',date:'Tarikh',no_weights:'Mazal ma sjelti 7ta wazn. Wzen rasek f sba7, 9bel l\'makla, 3-4 d merrat f simana.',avg7:'Moyenne 7 ayyam',per_week:'F simana',history:'Akhir l\'wazn',trend_note:'Lwazn dyal nhar wa7ed kaytbeddel b 1–2 kg b sbab l\'ma w l\'mel7. Chouf l\'moyenne, machi l\'ra9m dyal lyoum.',rate_fast:'Kat9es b zerba ({r}% f simana). Ktar men 1% f simana kaykhsser l\'3dalat: zid chwiya d l\'calories.',need_more:'Bach l\'app t7seb TDEE l7a9i9i dyalek, khassek 14 yom w 6 d l\'wazn 3la l\'a9al (daba: {d} yom, {n} wazn).',tdee_obs:'TDEE l7a9i9i ≈ {x} kcal (l\'formule kat9oul {y})',tdee_explain:'M7soub men l\'makla li f l\'planning dyalek ({i} kcal f nhar) w tbeddel lwazn ({r} kg f simana). S7i7 ghir ila kont katakol b7al l\'planning.',use_tdee:'Sta3mel had l\'ra9m',reset_tdee:'Rje3 l l\'formule',tdee_used:'Lhadaf daba m7soub 3la TDEE l7a9i9i dyalek ({x} kcal).',toast_logged:'Tsjel',simana_hint:'Lista dyal t9edya kayna f l\'onglet "T9edya", w katjme3 ga3 les profils li khtariti.',budget_in:'Budget dyal t9edya f chhar (DH)',no_plan:'3mmer l\'ayyam w simana bach l\'app t3ref ch7al katakol.',
  rec_names:{'tajine':'Tajine djaj b l\'khodra','3des':'3des','loubia':'Loubia','khodra_djaj':'Khodra soti b djaj','rouz_kefta':'Rouz b l\'kefta','mar9a':'Mar9a b l7em','tajine_7out':'Tajine b l7out','tajine_zbib':'Tajine b l7em, bsla w zbib','harira':'7rira','couscous':'Kesksou b l\'khodra','9hwa_7lib':'9hwa b l7lib'},
  recipes:'Recettes',recipe_hint:"Dkhel l'9edra kamla kima katteyybha, w ch7al d portions dyal wa7ed kbir katkhrej. L'app kat7seb l'portion, w t9der tzidha f ay wjba.",
  dry_hint:"L'9tani w rouz: khtar l'version \"nay\" w dkhel l'wazn 9bel tayb.",new_recipe:'+ Recette jdida',recipe_name:'Smiya dyal recette',servings:'Portions',
@@ -347,6 +355,7 @@ dj:{
  foods:["Bid roumi","Bid beldi","Khobz kamel (khobza ~200g)","Khobz byed (khobza ~200g)","Msemen","Harcha","Choufan (flocons d'avoine)","7lib (kas 200 ml)","Perly / yaourt (7ok)","Fromage mtellat","Whey (scoop 30g)","Atay b sokar (kas)","Sder djaj (nay)","Fkhad djaj bla jeld (nay)","Sardine (nay, li katakol)","Merla / 7out byed (nay, filet)","L7em bgri habra (nay)","Kefta bgri (nay)","Kefta dinde (nay)","Kebda djaj (nay)","Ton (7ok, ~80g msfi)","Rouz (tayeb)","Ma9arouna (tayba)","3des (tayeb)","Loubia (tayba)","7mes (tayeb)","Batata (nay)","Batata 7lowa (nay)","Khodra (maticha, khyar, bsla…)","Banan","Tfa7a / limouna","Tmer","Avoka","Zit dyal tayb (mo3al9a kbira)","Zit zitoun (mo3al9a kbira)","Louz","Kawkaw","Amlou (mo3al9a 20g)",'Rouz (nay)','Ma9arouna (nay)','3des (nay)','Loubia (nay)','7mes (nay)','Maticha','Bsla','Khizzou','9ar3a','Zitoun','Djaja kamla (b l3dem)','Jben (mo3al9a 20g)','Confiture (mo3al9a 20g)','L3sel (mo3al9a 20g)','Zebda (mo3al9a 14g)','Sokar (mo3al9a sghira 5g)','9hwa mto7na (l kas)','L7em b l3dem (ghanmi/bgri)','7out kamel (b l3dem)','Zbib','Felfla','Kesksou (nay)']
 },
 da:{
+ weight_title:'الوزن',log:'سجل',today_w:'الوزن (كيلو)',date:'التاريخ',no_weights:'مازال ما سجلتي حتى وزن. وزن راسك فالصباح قبل الماكلة، 3-4 ديال المرات فالسيمانة.',avg7:'المعدل ديال 7 أيام',per_week:'فالسيمانة',history:'آخر الأوزان',trend_note:'الوزن ديال نهار واحد كيتبدل بـ1–2 كيلو بسباب الما والملحة. شوف المعدل، ماشي الرقم ديال اليوم.',rate_fast:'كتنقص بالزربة ({r}% فالسيمانة). كثر من 1% فالسيمانة كيخسر العضلات: زيد شوية ديال الكالوري.',need_more:'باش الأپليكاسيون تحسب TDEE الحقيقي ديالك، خاصك 14 يوم و6 ديال الأوزان على الأقل (دابا: {d} يوم، {n} وزن).',tdee_obs:'TDEE الحقيقي ≈ {x} كالوري (الفورمول كتقول {y})',tdee_explain:'محسوب من الماكلة لي فالبرنامج ديالك ({i} كالوري فالنهار) وتبدال الوزن ({r} كيلو فالسيمانة). صحيح غير إلا كنتي كتاكل بحال البرنامج.',use_tdee:'ستعمل هاد الرقم',reset_tdee:'رجع للفورمول',tdee_used:'الهدف دابا محسوب على TDEE الحقيقي ديالك ({x} كالوري).',toast_logged:'تسجل',simana_hint:'اللائحة ديال التقضية كاينة فـ"التقضية"، وكتجمع كاع البروفيلات لي ختاريتي.',budget_in:'البودجي ديال التقضية فالشهر (درهم)',no_plan:'عمّر الأيام والسيمانة باش الأپليكاسيون تعرف شحال كتاكل.',
  rec_names:{'tajine':'طاجين الدجاج بالخضرة','3des':'العدس','loubia':'اللوبيا','khodra_djaj':'خضرة صوطي بالدجاج','rouz_kefta':'روز بالكفتة','mar9a':'المرقة باللحم','tajine_7out':'طاجين الحوت','tajine_zbib':'طاجين اللحم بالبصلة والزبيب','harira':'الحريرة','couscous':'كسكسو بالخضرة','9hwa_7lib':'قهوة بالحليب'},
  recipes:'الوصفات',recipe_hint:'دخل القدرة كاملة كيما كتطيبها، وشحال ديال الحصص ديال واحد كبير كتخرج. الأپليكاسيون كتحسب الحصة، وتقدر تزيدها فأي وجبة.',
  dry_hint:'القطاني والروز: ختار "ناي" ودخل الوزن قبل الطيب.',new_recipe:'+ وصفة جديدة',recipe_name:'سمية الوصفة',servings:'الحصص',
@@ -386,7 +395,7 @@ da:{
  sheet_title:'زيد لـ{meal}',sheet_house:' (الدار)',close:'سالي',search_ph:'قلب: بيض، سردين، عدس…',all:'كلشي',
  no_result:'ما لقيت والو. زيد ماكلة ديالك فـ"الأثمنة".',toast_added:'تزاد {n}',
  week_of:'السيمانة ديال {n}',pick_template:'ختار النموذج ديال كل نهار',avg_day:'المعدل ديال النهار',avg_with_house:' (مع الماكلة ديال الدار ×{x})',
- extras_week:'الزيادات ديالك فالسيمانة',cost_week:'الثمن ديال السيمانة',simana_hint:'اللائحة ديال التقضية كاينة فـ"التقضية"، وكتجمع ناس الدار كاملين.',
+ extras_week:'الزيادات ديالك فالسيمانة',cost_week:'الثمن ديال السيمانة',
  ex_house:'هادشي <b>مثال</b>. بدل ناس الدار والماكلة ديالكم.',house_people:'ناس الدار',house_eq:'الدار = {x} حصص ديال واحد كبير',
  portion_hint:'كل واحد عندو "حصة": شحال كياكل مقارنة مع راجل كبير (1). هادشي تقريبي على حساب الطاقة لي كيحتاج؛ بدلو إلا بغيتي.',
  profile_eats:'بروفيل · كياكل مع الدار',portion:'الحصة',type:'النوع',add_member:'+ زيد واحد (بلا بروفيل)',new_member:'واحد جديد',
@@ -415,6 +424,7 @@ da:{
  foods:['بيض رومي','بيض بلدي','خبز كامل (خبزة ~200 غ)','خبز أبيض (خبزة ~200 غ)','مسمن','حرشة','الشوفان','حليب (كاس 200 مل)','بيرلي / ياغورت (حك)','فرماج مثلث','واي (سكوب 30 غ)','أتاي بالسكر (كاس)','صدر الدجاج (ناي)','فخاد الدجاج بلا جلد (ناي)','سردين (ناي، لي كتاكل)','ميرلا / حوت بيض (ناي، فيلي)','لحم بگري هبرة (ناي)','كفتة بگري (ناية)','كفتة الداند (ناية)','كبدة الدجاج (ناية)','طون (حك، ~80 غ مصفي)','روز (طايب)','مقارونة (طايبة)','عدس (طايب)','لوبيا (طايبة)','حمص (طايب)','بطاطا (ناية)','بطاطا حلوة (ناية)','خضرة (ماطيشة، خيار، بصلة…)','بنان','تفاحة / ليمونة','تمر','أفوكا','زيت ديال الطيب (معيلقة كبيرة)','زيت الزيتون (معيلقة كبيرة)','لوز','كاوكاو','أملو (معيلقة 20 غ)','روز (ناي)','مقارونة (ناية)','عدس (ناي)','لوبيا (ناية)','حمص (ناي)','ماطيشة','بصلة','خيزو','قرعة','زيتون','دجاجة كاملة (بالعظم)','جبن (معيلقة 20 غ)','كونفيتور (معيلقة 20 غ)','العسل (معيلقة 20 غ)','الزبدة (معيلقة 14 غ)','السكر (معيلقة صغيرة 5 غ)','القهوة المطحونة (للكاس)','اللحم بالعظم (غنمي/بگري)','حوت كامل (بالعظم)','الزبيب','الفلفلة','الكسكسو (ناي)']
 },
 fr:{
+ weight_title:'Poids',log:'Enregistrer',today_w:'Poids (kg)',date:'Date',no_weights:'Aucune pesée pour l\'instant. Pesez-vous le matin, avant de manger, 3 à 4 fois par semaine.',avg7:'Moyenne sur 7 jours',per_week:'Par semaine',history:'Dernières pesées',trend_note:'Le poids d\'un jour varie de 1 à 2 kg selon l\'eau et le sel. Suivez la moyenne, pas le chiffre du jour.',rate_fast:'Perte rapide ({r} % par semaine). Au-delà de 1 % par semaine, on perd du muscle : ajoutez un peu de calories.',need_more:'Pour estimer votre vrai TDEE, il faut au moins 14 jours et 6 pesées (actuellement : {d} jours, {n} pesées).',tdee_obs:'TDEE réel ≈ {x} kcal (la formule donne {y})',tdee_explain:'Calculé à partir de votre plan ({i} kcal par jour) et de l\'évolution du poids ({r} kg par semaine). Juste seulement si vous avez suivi le plan.',use_tdee:'Utiliser ce chiffre',reset_tdee:'Revenir à la formule',tdee_used:'Objectif basé sur votre TDEE réel ({x} kcal).',toast_logged:'Enregistré',simana_hint:'La liste de courses se trouve dans l\'onglet « Courses » et regroupe les profils choisis.',budget_in:'Budget courses mensuel (DH)',no_plan:'Remplissez vos jours et votre semaine pour que l\'app connaisse vos apports.',
  rec_names:{'tajine':'Tajine de poulet aux légumes','3des':'Lentilles','loubia':'Haricots blancs (loubia)','khodra_djaj':'Légumes sautés au poulet','rouz_kefta':'Riz à la kefta','mar9a':'Marga à la viande','tajine_7out':'Tajine de poisson','tajine_zbib':'Tajine de viande, oignons et raisins','harira':'Harira','couscous':'Couscous aux légumes','9hwa_7lib':'Café au lait'},
  recipes:'Recettes',recipe_hint:"Saisissez la marmite entière comme vous la cuisinez, et le nombre de portions adulte qu'elle donne. L'app calcule la portion, que vous ajoutez à n'importe quel repas.",
  dry_hint:'Légumineuses et riz : choisissez la version « crue » et saisissez le poids avant cuisson.',new_recipe:'+ Nouvelle recette',recipe_name:'Nom de la recette',servings:'Portions',
@@ -454,7 +464,7 @@ fr:{
  sheet_title:'Ajouter au {meal}',sheet_house:' (foyer)',close:'Fermer',search_ph:'Rechercher : œuf, sardine, lentilles…',all:'Tout',
  no_result:"Aucun résultat. Ajoutez votre aliment dans l'onglet « Prix ».",toast_added:'{n} ajouté',
  week_of:'Semaine de {n}',pick_template:'Choisissez la journée type de chaque jour',avg_day:'Moyenne journalière',avg_with_house:' (avec le repas du foyer ×{x})',
- extras_week:'Vos extras sur la semaine',cost_week:'Coût de la semaine',simana_hint:"La liste de courses se trouve dans l'onglet « Courses » et regroupe tout le foyer.",
+ extras_week:'Vos extras sur la semaine',cost_week:'Coût de la semaine',
  ex_house:"Ceci est un <b>exemple</b>. Modifiez les membres du foyer et vos repas.",house_people:'Membres du foyer',house_eq:'Foyer = {x} portions adulte',
  portion_hint:"Chaque personne a une « portion » : ce qu'elle mange par rapport à un homme adulte (1). Valeurs approximatives selon les besoins énergétiques ; modifiez-les si besoin.",
  profile_eats:'profil · mange avec le foyer',portion:'Portion',type:'Type',add_member:'+ Ajouter une personne (sans profil)',new_member:'Nouvelle personne',
@@ -483,6 +493,7 @@ fr:{
  foods:["Œufs","Œufs beldi","Pain complet (~200 g)","Pain blanc (~200 g)","Msemen","Harcha","Flocons d'avoine","Lait (verre 200 ml)","Yaourt / Perly (pot)","Fromage portion","Whey (dose 30 g)","Thé sucré (verre)","Blanc de poulet (cru)","Cuisse de poulet sans peau (crue)","Sardine (crue, partie comestible)","Merlan / poisson blanc (filet cru)","Bœuf maigre (cru)","Kefta de bœuf (crue)","Kefta de dinde (crue)","Foie de poulet (cru)","Thon (boîte, ~80 g égoutté)","Riz (cuit)","Pâtes (cuites)","Lentilles (cuites)","Haricots blancs (cuits)","Pois chiches (cuits)","Pomme de terre (crue)","Patate douce (crue)","Légumes (tomate, concombre, oignon…)","Banane","Pomme / orange","Dattes","Avocat","Huile de cuisson (c. à soupe)","Huile d'olive (c. à soupe)","Amandes","Cacahuètes","Amlou (c. à soupe 20 g)",'Riz (cru)','Pâtes (crues)','Lentilles (crues)','Haricots blancs (crus)','Pois chiches (crus)','Tomate','Oignon','Carotte','Courgette','Olives','Poulet entier (avec os)','Fromage frais jben (c. à s. 20 g)','Confiture (c. à s. 20 g)','Miel (c. à s. 20 g)','Beurre (c. à s. 14 g)','Sucre (c. à c. 5 g)','Café moulu (par tasse)','Viande avec os (agneau/bœuf)','Poisson entier (avec arêtes)','Raisins secs','Poivron','Couscous (sec)']
 },
 ar:{
+ weight_title:'الوزن',log:'تسجيل',today_w:'الوزن (كغ)',date:'التاريخ',no_weights:'لم تسجل أي وزن بعد. زن نفسك صباحًا قبل الأكل، 3–4 مرات في الأسبوع.',avg7:'متوسط 7 أيام',per_week:'في الأسبوع',history:'آخر الأوزان',trend_note:'يتغير وزن اليوم الواحد بـ1–2 كغ بسبب الماء والملح. تابع المتوسط لا رقم اليوم.',rate_fast:'نزول سريع ({r}% في الأسبوع). أكثر من 1% أسبوعيًا يفقدك العضلات: زد قليلًا من السعرات.',need_more:'لتقدير سعرات الثبات الحقيقية، يلزم 14 يومًا و6 أوزان على الأقل (حاليًا: {d} يوم، {n} وزن).',tdee_obs:'سعرات الثبات الحقيقية ≈ {x} سعرة (المعادلة تعطي {y})',tdee_explain:'محسوبة من برنامجك ({i} سعرة يوميًا) وتغير الوزن ({r} كغ أسبوعيًا). صحيحة فقط إذا التزمت بالبرنامج.',use_tdee:'استعمل هذا الرقم',reset_tdee:'الرجوع إلى المعادلة',tdee_used:'الهدف الآن محسوب على سعرات الثبات الحقيقية ({x} سعرة).',toast_logged:'تم التسجيل',simana_hint:'لائحة المشتريات في خانة "المشتريات"، وتجمع الملفات التي اخترتها.',budget_in:'ميزانية المشتريات الشهرية (درهم)',no_plan:'املأ الأيام والأسبوع ليعرف التطبيق ما تأكله.',
  rec_names:{'tajine':'طاجين الدجاج بالخضر','3des':'عدس','loubia':'لوبيا','khodra_djaj':'خضر مقلية بالدجاج','rouz_kefta':'أرز بالكفتة','mar9a':'مرقة باللحم','tajine_7out':'طاجين السمك','tajine_zbib':'طاجين اللحم بالبصل والزبيب','harira':'حريرة','couscous':'كسكس بالخضر','9hwa_7lib':'قهوة بالحليب'},
  recipes:'الوصفات',recipe_hint:'أدخل القدر كاملًا كما تطبخه، وعدد حصص البالغين التي يعطيها. يحسب التطبيق الحصة، ويمكنك إضافتها إلى أي وجبة.',
  dry_hint:'القطاني والأرز: اختر النسخة "النيئة" وأدخل الوزن قبل الطبخ.',new_recipe:'+ وصفة جديدة',recipe_name:'اسم الوصفة',servings:'الحصص',
@@ -522,7 +533,7 @@ ar:{
  sheet_title:'أضف إلى {meal}',sheet_house:' (الأسرة)',close:'إغلاق',search_ph:'ابحث: بيض، سردين، عدس…',all:'الكل',
  no_result:'لا توجد نتائج. أضف طعامك في خانة "الأسعار".',toast_added:'أُضيف {n}',
  week_of:'أسبوع {n}',pick_template:'اختر اليوم النموذجي لكل يوم',avg_day:'المعدل اليومي',avg_with_house:' (مع وجبة الأسرة ×{x})',
- extras_week:'إضافاتك خلال الأسبوع',cost_week:'تكلفة الأسبوع',simana_hint:'لائحة المشتريات في خانة "المشتريات"، وتجمع كل أفراد الأسرة.',
+ extras_week:'إضافاتك خلال الأسبوع',cost_week:'تكلفة الأسبوع',
  ex_house:'هذه بيانات <b>تجريبية</b>. غيّر أفراد الأسرة ووجباتكم.',house_people:'أفراد الأسرة',house_eq:'الأسرة = {x} حصة بالغ',
  portion_hint:'لكل فرد "حصة": ما يأكله مقارنة برجل بالغ (1). القيم تقريبية حسب الاحتياجات من الطاقة؛ عدّلها إن شئت.',
  profile_eats:'ملف · يأكل مع الأسرة',portion:'الحصة',type:'الفئة',add_member:'+ أضف فردًا (بدون ملف)',new_member:'فرد جديد',
@@ -551,6 +562,7 @@ ar:{
  foods:['بيض عادي','بيض بلدي','خبز كامل (رغيف ~200 غ)','خبز أبيض (رغيف ~200 غ)','مسمن','حرشة','رقائق الشوفان','حليب (كأس 200 مل)','ياغورت (علبة)','جبن مثلث','واي بروتين (مغرفة 30 غ)','شاي بالسكر (كأس)','صدر دجاج (نيء)','فخذ دجاج بدون جلد (نيء)','سردين (نيء، الجزء المأكول)','سمك أبيض (فيليه نيء)','لحم بقري هبرة (نيء)','كفتة بقري (نيئة)','كفتة ديك رومي (نيئة)','كبد دجاج (نيء)','تونة (علبة، ~80 غ مصفاة)','أرز (مطبوخ)','معكرونة (مطبوخة)','عدس (مطبوخ)','لوبيا بيضاء (مطبوخة)','حمص (مطبوخ)','بطاطس (نيئة)','بطاطا حلوة (نيئة)','خضر (طماطم، خيار، بصل…)','موز','تفاح / برتقال','تمر','أفوكادو','زيت الطبخ (ملعقة كبيرة)','زيت الزيتون (ملعقة كبيرة)','لوز','فول سوداني','أملو (ملعقة 20 غ)','أرز (نيء)','معكرونة (نيئة)','عدس (نيء)','لوبيا بيضاء (نيئة)','حمص (نيء)','طماطم','بصل','جزر','كوسة','زيتون','دجاجة كاملة (بالعظم)','جبن طري (ملعقة 20 غ)','مربى (ملعقة 20 غ)','عسل (ملعقة 20 غ)','زبدة (ملعقة 14 غ)','سكر (ملعقة صغيرة 5 غ)','قهوة مطحونة (للكوب)','لحم بالعظم (غنم/بقر)','سمك كامل (بالعظم)','زبيب','فلفل حلو','كسكس (جاف)']
 },
 en:{
+ weight_title:'Weight',log:'Log',today_w:'Weight (kg)',date:'Date',no_weights:'No weigh-ins yet. Weigh yourself in the morning before eating, 3–4 times a week.',avg7:'7-day average',per_week:'Per week',history:'Recent weigh-ins',trend_note:'A single day\'s weight swings 1–2 kg with water and salt. Watch the average, not today\'s number.',rate_fast:'Losing fast ({r}% a week). More than 1% a week costs muscle: add some calories.',need_more:'To estimate your real TDEE the app needs at least 14 days and 6 weigh-ins (now: {d} days, {n} weigh-ins).',tdee_obs:'Real TDEE ≈ {x} kcal (formula says {y})',tdee_explain:'Worked out from your plan ({i} kcal a day) and your weight change ({r} kg a week). Only right if you ate as planned.',use_tdee:'Use this number',reset_tdee:'Back to formula',tdee_used:'Target now based on your real TDEE ({x} kcal).',toast_logged:'Logged',simana_hint:'The shopping list is in the "Shopping" tab and combines the profiles you pick.',budget_in:'Monthly shopping budget (DH)',no_plan:'Fill in your days and week so the app knows what you eat.',
  rec_names:{'tajine':'Chicken tagine with vegetables','3des':'Lentils','loubia':'White beans (loubia)','khodra_djaj':'Chicken & sautéed vegetables','rouz_kefta':'Rice with kefta','mar9a':'Marga (meat stew)','tajine_7out':'Fish tagine','tajine_zbib':'Meat tagine with onions & raisins','harira':'Harira','couscous':'Vegetable couscous','9hwa_7lib':'Coffee with milk'},
  recipes:'Recipes',recipe_hint:'Enter the whole pot the way you cook it, and how many adult portions it makes. The app works out one portion, which you can add to any meal.',
  dry_hint:'Legumes and rice: pick the "raw" version and enter the weight before cooking.',new_recipe:'+ New recipe',recipe_name:'Recipe name',servings:'Portions',
@@ -590,7 +602,7 @@ en:{
  sheet_title:'Add to {meal}',sheet_house:' (household)',close:'Close',search_ph:'Search: eggs, sardine, lentils…',all:'All',
  no_result:'No match. Add your own food in the "Prices" tab.',toast_added:'{n} added',
  week_of:"{n}'s week",pick_template:'Pick the template for each day',avg_day:'Daily average',avg_with_house:' (incl. household meal ×{x})',
- extras_week:'Your extras this week',cost_week:'Cost of the week',simana_hint:'The shopping list is in the "Shopping" tab and covers the whole household.',
+ extras_week:'Your extras this week',cost_week:'Cost of the week',
  ex_house:'This is <b>example</b> data. Change the household members and your meals.',house_people:'Household members',house_eq:'Household = {x} adult portions',
  portion_hint:'Each person has a "portion": how much they eat compared with an adult man (1). Rough values based on energy needs; change them if you like.',
  profile_eats:'profile · eats with household',portion:'Portion',type:'Type',add_member:'+ Add person (no profile)',new_member:'New person',
@@ -741,7 +753,8 @@ function normalize(){
   S.custom.forEach(f=>{if(typeof f.n!=='string')f.n='?';if(f.ul==='7ba'||!f.ul)f.ul='7ba';if(!f.bl)f.bl='7ba';delete f.nt});
   if(!S.house) S.house=sampleHouse();
   if(!S.shop) S.shop={house:true};
-  S.profiles.forEach(p=>{if(p.fatPct==null)p.fatPct=27;if(p.eatsHouse==null)p.eatsHouse=false;if(p.hf==null)p.hf=p.sex==='f'?.85:1;if(S.shop[p.id]==null)S.shop[p.id]=true;delete p.checked});
+  if(S.budget==null)S.budget=(S.house&&S.house.budget)||(S.profiles.find(p=>p.budget)||{}).budget||''; S.shop.house=false;
+  S.profiles.forEach(p=>{if(p.fatPct==null)p.fatPct=27;p.eatsHouse=false;if(!Array.isArray(p.weights))p.weights=[];if(p.hf==null)p.hf=p.sex==='f'?.85:1;if(S.shop[p.id]==null)S.shop[p.id]=true;delete p.checked});
 }
 function load(){
   try{const r=localStorage.getItem(KEY); if(r){const o=JSON.parse(r); if(o&&o.profiles&&o.profiles.length){S=o;normalize();return;}}}catch(e){}
@@ -788,7 +801,7 @@ const clamp=(k,v,def)=>{v=+v;if(!isFinite(v)||v<=0)return def;return Math.min(LI
 function targets(p){
   const w=clamp('w',p.w,70), h=clamp('h',p.h,170), age=clamp('age',p.age,30);
   const bmr=10*w+6.25*h-5*age+(p.sex==='m'?5:-161);
-  const tdee=bmr*p.act; const minor=age<18;
+  const tdeeF=bmr*p.act; const tdee=p.tdeeAdj?p.tdeeAdj:tdeeF; const minor=age<18;
   const goal=(minor&&GOALS[p.goal][0]<1)?'maintain':p.goal;
   let kcal=Math.round(tdee*GOALS[goal][0]); let floored=false;
   const floor=p.sex==='f'?1200:1500;
@@ -798,8 +811,77 @@ function targets(p){
   const fatPct=clamp('fatPct',p.fatPct,27);
   const fat=Math.max(Math.round(kcal*fatPct/100/9),Math.round(refW*.6));
   const carbs=Math.max(0,Math.round((kcal-prot*4-fat*9)/4));
-  return {bmr:Math.round(bmr),tdee:Math.round(tdee),kcal,prot,fat,carbs,pk,refW:Math.round(refW),bmi:r1(bmi),usesRef:bmi>25,floored,minor,goal};
+  return {bmr:Math.round(bmr),tdee:Math.round(tdee),tdeeF:Math.round(tdeeF),kcal,prot,fat,carbs,pk,refW:Math.round(refW),bmi:r1(bmi),usesRef:bmi>25,floored,minor,goal};
 }
+/* ---------- Weight tracking ----------
+ Daily weight swings ±1–2 kg with water and salt, so the app works on trends:
+ - 7-day moving average for display;
+ - slope = least-squares fit of the raw weigh-ins over the last 28 days (kg/day);
+ - measured TDEE = planned intake − slope × 7700 kcal/kg (energy content of body tissue, approx.).
+ It needs ≥14 days and ≥6 weigh-ins, and is only as good as how closely the plan was followed. */
+const dayNum=d=>Math.round(Date.parse(d+'T12:00:00Z')/864e5);
+const todayStr=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+function weightStats(p){
+  const ws=(p.weights||[]).slice().sort((a,b)=>a.d<b.d?-1:1); if(!ws.length) return null;
+  const pts=ws.map(e=>({x:dayNum(e.d),w:+e.w,d:e.d}));
+  const ma=pts.map(q=>{const win=pts.filter(r=>r.x<=q.x&&r.x>q.x-7);return win.reduce((s,r)=>s+r.w,0)/win.length});
+  const last=pts[pts.length-1].x; const win=pts.filter(q=>q.x>last-28); const span=last-win[0].x;
+  let slope=null;
+  if(win.length>=6&&span>=14){const mx=win.reduce((s,q)=>s+q.x,0)/win.length,my=win.reduce((s,q)=>s+q.w,0)/win.length;
+    let num=0,den=0;win.forEach(q=>{num+=(q.x-mx)*(q.w-my);den+=(q.x-mx)**2});slope=den?num/den:0}
+  const avgNow=ma[ma.length-1];
+  return {pts,ma,slope,span,n:win.length,avgNow,ratePct:slope!=null?slope*7/avgNow*100:null};
+}
+function measuredTdee(p,st){if(!st||st.slope==null)return null;const {avg,n}=weekAvg(p);if(!n)return null;
+  const v=Math.round((avg.k-st.slope*7700)/10)*10;return (v>900&&v<6000)?{v,intake:Math.round(avg.k)}:null}
+function weightChart(st){
+  const W=600,H=190,pl=40,pr=12,pt=12,pb=26; const pts=st.pts.slice(-60), ma=st.ma.slice(-60);
+  const xs=pts.map(q=>q.x), ys=pts.map(q=>q.w).concat(ma);
+  const x0=Math.min(...xs), x1=Math.max(...xs,x0+1); let y0=Math.min(...ys), y1=Math.max(...ys); const padY=Math.max(.5,(y1-y0)*.15); y0-=padY; y1+=padY;
+  const X=x=>pl+(x-x0)/(x1-x0)*(W-pl-pr), Y=y=>pt+(y1-y)/(y1-y0)*(H-pt-pb);
+  const ticks=[0,1,2,3].map(i=>y0+(y1-y0)*i/3);
+  const grid=ticks.map(v=>`<line x1="${pl}" x2="${W-pr}" y1="${Y(v)}" y2="${Y(v)}" class="gl"/><text x="${pl-6}" y="${Y(v)+4}" class="ax" text-anchor="end">${v.toFixed(1)}</text>`).join('');
+  const line=ma.map((v,i)=>(i?'L':'M')+X(pts[i].x).toFixed(1)+' '+Y(v).toFixed(1)).join(' ');
+  const dots=pts.map(q=>`<circle cx="${X(q.x).toFixed(1)}" cy="${Y(q.w).toFixed(1)}" r="3" class="pt"/>`).join('');
+  const lab=(q,a)=>`<text x="${X(q.x)}" y="${H-6}" class="ax" text-anchor="${a}">${q.d.slice(5).split('-').reverse().join('/')}</text>`;
+  const endI=ma.length-1;
+  return `<div class="chart" dir="ltr"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${t('weight_title')}">${grid}<path d="${line}" class="ma"/>${dots}
+    <circle cx="${X(pts[endI].x)}" cy="${Y(ma[endI])}" r="5" class="end"/>${lab(pts[0],'start')}${pts.length>1?lab(pts[endI],'end'):''}</svg></div>`;
+}
+function vWeight(p){
+  const st=weightStats(p); const tg=targets(p);
+  const recent=(p.weights||[]).slice().sort((a,b)=>a.d<b.d?1:-1).slice(0,5);
+  let info='';
+  if(st){
+    const rate=st.slope!=null?st.slope*7:null;
+    info=`<div class="target" style="grid-template-columns:repeat(2,1fr)">
+      <div class="tbox"><span>${t('avg7')}</span><b>${st.avgNow.toFixed(1)}</b><span>${t('u_kg')}</span></div>
+      <div class="tbox"><span>${t('per_week')}</span><b style="color:${rate!=null&&rate<0?'var(--p)':'var(--ink)'}">${rate!=null?(rate>0?'+':'')+rate.toFixed(2):'—'}</b><span>${t('u_kg')}</span></div></div>
+    ${weightChart(st)}
+    <p class="hint">${t('trend_note')}</p>
+    ${st.ratePct!=null&&st.ratePct<-1?`<div class="warn">${t('rate_fast',{r:bdi(Math.abs(st.ratePct).toFixed(1))})}</div>`:''}`;
+    const m=measuredTdee(p,st);
+    if(st.slope==null) info+=`<p class="hint">${t('need_more',{d:bdi(st.span),n:bdi(st.n)})}</p>`;
+    else if(!m) info+=`<p class="hint">${t('no_plan')}</p>`;
+    else info+=`<div class="note stack" style="gap:8px"><b>${t('tdee_obs',{x:bdi(m.v),y:bdi(tg.tdeeF)})}</b>
+      <span class="hint">${t('tdee_explain',{i:bdi(m.intake),r:bdi((st.slope*7).toFixed(2))})}</span>
+      <div class="row">${p.tdeeAdj!==m.v?`<button class="btn sm pri" onclick="P().tdeeAdj=${m.v};save();render()">${t('use_tdee')}</button>`:''}</div></div>`;
+  }
+  return `<section class="panel stack"><h2 style="font-size:19px">${t('weight_title')}</h2>
+    <div class="row" style="align-items:flex-end">
+      <div style="flex:1;min-width:110px"><label class="lbl" for="wVal">${t('today_w')}</label><input id="wVal" class="in num" type="number" inputmode="decimal" step="0.1" min="35" max="250" placeholder="${p.w}"></div>
+      <div style="flex:1;min-width:130px"><label class="lbl" for="wDate">${t('date')}</label><input id="wDate" class="in" type="date" value="${todayStr()}" max="${todayStr()}"></div>
+      <button class="btn pri" onclick="logWeight()">${t('log')}</button></div>
+    ${st?info:`<p class="hint">${t('no_weights')}</p>`}
+    ${p.tdeeAdj?`<div class="row" style="justify-content:space-between"><span class="hint">${t('tdee_used',{x:bdi(p.tdeeAdj)})}</span><button class="btn sm" onclick="delete P().tdeeAdj;save();render()">${t('reset_tdee')}</button></div>`:''}
+    ${recent.length?`<div class="ptable">${recent.map(e=>`<div class="prow"><span class="num">${bdi(e.d.split('-').reverse().join('/'))}</span><div class="row"><b class="num">${bdi(e.w.toFixed(1)+' '+t('u_kg'))}</b><button class="x" aria-label="${t('remove')}" onclick="rmWeight('${e.d}')">✕</button></div></div>`).join('')}</div>`:''}
+  </section>`;
+}
+function logWeight(){const w=parseFloat(document.getElementById('wVal').value);const d=document.getElementById('wDate').value||todayStr();
+  if(!(w>=35&&w<=250)){document.getElementById('wVal').focus();return}
+  const p=P();p.weights=(p.weights||[]).filter(e=>e.d!==d);p.weights.push({d,w:Math.round(w*10)/10});
+  const latest=p.weights.slice().sort((a,b)=>a.d<b.d?1:-1)[0];p.w=latest.w;p.example=false;save();render();toast(t('toast_logged'))}
+function rmWeight(d){const p=P();p.weights=p.weights.filter(e=>e.d!==d);save();render()}
 /* Average personal kcal per filled day: used to warn about counting a person's food twice */
 function personalAvg(p){let n=0,k=0;p.week.forEach(id=>{const d=p.days.find(x=>x.id===id);if(d){const v=dayTot(d).k;if(v>0){n++;k+=v}}});return n?k/n:0}
 function doubleWarn(p){if(!p.eatsHouse)return '';const a=personalAvg(p);return a>targets(p).kcal*.5?`<div class="warn">${t('double_warn',{n:esc(p.name),k:bdi(r0(a))})}</div>`:''}
@@ -818,7 +900,7 @@ function houseFactor(){
 const hDay=id=>H().days.find(d=>d.id===id);
 
 /* ---------- Editing context: the Days tab edits the profile, the Household tab edits the household ---------- */
-const ctxHouse=()=>tab==='dar';
+const ctxHouse=()=>false;
 const box=()=>ctxHouse()?H():P();
 const D=()=>box().days.find(x=>x.id===(ctxHouse()?curHDay:curDay));
 function setCur(id){if(ctxHouse())curHDay=id;else curDay=id}
@@ -843,11 +925,10 @@ function renderNow(){
   renderHeader();
   const p=P();
   document.getElementById('profSel').innerHTML=S.profiles.map(x=>`<option value="${x.id}" ${x.id===p.id?'selected':''}>${esc(x.name)}</option>`).join('');
-  const T=['profil','ayyam','simana','dar','t9edya','prix'];
-  document.getElementById('tabs').innerHTML=T.map(k=>`<button role="tab" aria-selected="${tab===k}" onclick="go('${k}')">${t('tab_'+k)}</button>`).join('');
+  const T=['profil','ayyam','simana','recettes','t9edya','prix'];
+  document.getElementById('tabs').innerHTML=T.map(k=>`<button role="tab" aria-selected="${tab===k}" onclick="go('${k}')">${k==='recettes'?t('recipes'):t('tab_'+k)}</button>`).join('');
   if(!p.days.find(d=>d.id===curDay)) curDay=p.days[0]&&p.days[0].id;
-  if(!H().days.find(d=>d.id===curHDay)) curHDay=H().days[0]&&H().days[0].id;
-  document.getElementById('view').innerHTML=({profil:vProfil,ayyam:vAyyam,simana:vSimana,dar:vDar,t9edya:vT9edya,prix:vPrix}[tab])(p);
+  document.getElementById('view').innerHTML=({profil:vProfil,ayyam:vAyyam,simana:vSimana,recettes:()=>`<div class="stack">${vRecipes()}</div>`,t9edya:vT9edya,prix:vPrix}[tab])(p);
   if(sheetMeal) renderSheet();
 }
 function go(k){tab=k;delArm=null;render();window.scrollTo(0,0)}
@@ -877,10 +958,10 @@ function vProfil(p){
     <div class="grid">
       <div><label class="lbl" for="pPk">${t('prot_kg')}</label><input id="pPk" class="in num" type="number" step="0.1" min="1" max="3.3" placeholder="${GOALS[p.goal][1]}" value="${p.protKg??''}" onchange="upd('protKg',this.value?this.value:null)"></div>
       <div><label class="lbl" for="pFp">${t('fat_pct')}</label><input id="pFp" class="in num" type="number" step="1" min="20" max="40" value="${p.fatPct}" onchange="upd('fatPct',this.value)"></div>
-      <div><label class="lbl" for="pBud">${t('budget_month')}</label><input id="pBud" class="in num" type="number" min="0" value="${p.budget}" onchange="upd('budget',this.value)"></div>
     </div>
     <p class="hint">${t('prot_hint',{g:GOALS[p.goal][1]})}</p>
   </section>
+  ${vWeight(p)}
   <section class="panel stack">
     <h2 style="font-size:19px">${t('day_target')}</h2>
     <div class="target">
@@ -925,7 +1006,6 @@ function vAyyam(p){
   if(hd) tot=addT(tot,dayTot(hd),p.hf);
   return `<div class="stack">
   <p class="hint">${p.eatsHouse?t('hint_eats_house'):t('hint_days')}</p>
-  ${doubleWarn(p)}
   ${dayHeader(p,curDay,t('new_day'))}
   ${mealsOpen?vMealsEditor():`<div class="row"><button class="btn sm ghost" onclick="mealsOpen=true;render()">⚙ ${t('edit_meals')}</button></div>`}
   ${p.eatsHouse&&H().days.length?`<div class="row"><label class="lbl" for="hpSel" style="margin:0">${t('add_house_calc')}</label>
@@ -1058,71 +1138,22 @@ function eachList(fn){S.profiles.flatMap(p=>p.days).concat(H().days).forEach(d=>
 function weekSelect(c,setter){
   return `<div class="week">${[0,1,2,3,4,5,6].map(i=>{const w=tl('week_days',i);return `<div class="wd"><b>${w}</b><select id="${setter}${i}" aria-label="${w}" onchange="${setter}(${i},this.value)">${c.days.map(d=>`<option value="${d.id}" ${c.week[i]===d.id?'selected':''}>${esc(d.name)}</option>`).join('')}<option value="" ${!c.week[i]?'selected':''}>${t('none')}</option></select></div>`}).join('')}</div>`;
 }
+/* Average planned intake over the days of the week that have food */
+function weekAvg(p){const sumT={k:0,p:0,c:0,f:0};let own=0,n=0;
+  [0,1,2,3,4,5,6].forEach(i=>{const dt=dayTot(p.days.find(x=>x.id===p.week[i]));own+=dt.cost;if(dt.k>0){n++;for(const k in sumT)sumT[k]+=dt[k]}});
+  const avg={};for(const k in sumT)avg[k]=n?sumT[k]/n:0;return {avg,n,own}}
 function vSimana(p){
-  const tg=targets(p); const sumT={k:0,p:0,c:0,f:0}; let own=0, n=0;
-  [0,1,2,3,4,5,6].forEach(i=>{const d=p.days.find(x=>x.id===p.week[i]);const dt=dayTot(d);own+=dt.cost;
-    let tt=dt; if(p.eatsHouse) tt=addT(tt,dayTot(hDay(H().week[i])),p.hf);
-    if(tt.k>0){n++;for(const k in sumT)sumT[k]+=tt[k]}});
-  const avg={};for(const k in sumT)avg[k]=n?sumT[k]/n:0;
+  const tg=targets(p); const {avg,n,own}=weekAvg(p);
   return `<div class="stack">
   <section class="panel stack"><div class="sec-h"><h2>${t('week_of',{n:esc(p.name)})}</h2><span class="hint">${t('pick_template')}</span></div>
     ${weekSelect(p,'setW')}
     <h3 style="font-size:15px">${t('avg_day')}${p.eatsHouse?t('avg_with_house',{x:p.hf}):''}${t('avg_n',{n})}</h3>
-    ${doubleWarn(p)}
     <div class="bars" style="position:static">${bars4(avg,tg)}
       <div class="cost"><span>${p.eatsHouse?t('extras_week'):t('cost_week')}</span><b>${dh(own)}</b></div></div>
     <p class="hint">${t('simana_hint')}</p>
   </section></div>`;
 }
 function setW(i,v){P().week[i]=v||null;save();render()}
-
-/* ---------- Household ---------- */
-function vDar(){
-  const h=H(); const tf=houseFactor(); const d=D();
-  const typeOpts=cur=>TYPES.map(([k,f],i)=>`<option value="${k}" ${cur===k?'selected':''}>${tl('types',i)} (×${f})</option>`).join('');
-  const dt=d?dayTot(d):null;
-  return `<div class="stack">
-  ${h.example?`<div class="note">${t('ex_house')}</div>`:''}
-  <section class="panel stack">
-    <div class="sec-h"><h2>${t('house_people')}</h2><span class="hint">${t('house_eq',{x:bdi(tf)})}</span></div>
-    <p class="hint">${t('portion_hint')}</p>
-    <div class="mems">
-      ${S.profiles.map(p=>`<div class="mem">
-        <label class="mem-n"><input type="checkbox" ${p.eatsHouse?'checked':''} onchange="setPH('${p.id}','eatsHouse',this.checked)"> <span><b>${esc(p.name)}</b><small>${t('profile_eats')}</small></span></label>
-        <div class="mem-f"><label class="lbl" for="hf_${p.id}">${t('portion')}</label><input id="hf_${p.id}" class="in num" type="number" step="0.05" min="0" max="2" value="${p.hf}" ${p.eatsHouse?'':'disabled'} onchange="setPH('${p.id}','hf',+this.value)"></div>
-      </div>`).join('')}
-      ${h.members.map(m=>`<div class="mem">
-        <div class="mem-n" style="flex-wrap:wrap"><input id="mn_${m.id}" class="in" style="flex:1;min-width:110px" value="${esc(m.name)}" aria-label="${t('name')}" onchange="setM('${m.id}','name',this.value)">
-          <select id="mt_${m.id}" class="in" style="flex:1;min-width:130px" aria-label="${t('type')}" onchange="setM('${m.id}','type',this.value)">${typeOpts(m.type)}</select></div>
-        <div class="mem-f"><label class="lbl" for="mf_${m.id}">${t('portion')}</label><input id="mf_${m.id}" class="in num" type="number" step="0.05" min="0" max="2" value="${m.f}" onchange="setM('${m.id}','f',+this.value)"></div>
-        <button class="x" aria-label="${t('remove')} ${esc(m.name)}" onclick="rmM('${m.id}')">✕</button>
-      </div>`).join('')}
-    </div>
-    <div class="row"><button class="btn sm" onclick="addM()">${t('add_member')}</button></div>
-    ${S.profiles.map(doubleWarn).join('')}
-  </section>
-
-  ${vRecipes()}
-  <section class="stack">
-    <div class="sec-h"><h2>${t('house_food')}</h2></div>
-    <p class="hint">${t('house_food_hint',{x:bdi(tf)})}</p>
-    ${dayHeader(h,curHDay,t('new_house_day'))}
-    ${d?`<div class="bars" style="position:static">
-      <div class="bar"><div class="t"><span>${t('per_adult')}</span>${kc(r0(dt.k))}</div></div>
-      <div class="bar"><div class="t"><span>${t('prot')}</span>${gr(r0(dt.p))}</div></div>
-      <div class="cost"><span>${t('house_day_cost',{x:tf})}</span><b>${dh(dt.cost*tf)}</b></div></div>
-    ${mealKeys().map(k=>vMeal(d,k,tf)).join('')}`:''}
-  </section>
-
-  <section class="panel stack"><div class="sec-h"><h2>${t('house_week')}</h2></div>
-    ${weekSelect(h,'setHW')}
-  </section></div>`;
-}
-function setHW(i,v){H().week[i]=v||null;save();render()}
-function setPH(id,k,v){const p=S.profiles.find(x=>x.id===id);p[k]=v;save();render()}
-function setM(id,k,v){const m=H().members.find(x=>x.id===id);m[k]=v;if(k==='type')m.f=TYPES.find(x=>x[0]===v)[1];H().example=false;save();render()}
-function addM(){H().members.push({id:uid(),name:t('new_member'),type:'rajel',f:1});H().example=false;save();render()}
-function rmM(id){H().members=H().members.filter(m=>m.id!==id);save();render()}
 
 /* ---------- Shopping (whole household) ---------- */
 /* Amount in buy units -> [number, unit]; kg/L round up to 0.1 above 1, to 10 g/ml below */
@@ -1145,8 +1176,6 @@ function shopData(){
     else add(id,q*f.f*mult);
     c+=q*f.f*price(f)*mult}));return c};
   S.profiles.forEach(p=>{if(!S.shop[p.id])return;let c=0;p.week.forEach(id=>{c+=addDay(p.days.find(d=>d.id===id),1)});parts.push([esc(p.name)+(p.eatsHouse?t('extras'):''),c])});
-  const tf=houseFactor();
-  if(S.shop.house){let c=0;H().week.forEach(id=>{c+=addDay(hDay(id),tf)});parts.push([t('house_food')+' (×'+tf+')',c])}
   const rows=Object.keys(agg).filter(id=>food(id)&&agg[id]>0).map(id=>{const f=food(id);const monthly=STAPLE.has(id);
     const need=monthly?agg[id]*30/7:agg[id];const buy=buyQty(f,need);return {id,f,monthly,need,buy,cost:buy*price(f),home:!!S.pantry[id],done:!!S.checked[id]}})
     .sort((a,b)=>CAT_KEYS.indexOf(a.f.cat)-CAT_KEYS.indexOf(b.f.cat));
@@ -1162,7 +1191,7 @@ function shopText(rows){
   return `🛒 ${t('list_title')} · ${d}\n`+sec(false,t('weekly_items'))+sec(true,t('monthly_items'))+`\n${t('this_trip')} ≈ ${trip.toFixed(0)} ${t('dh')}`;
 }
 function vT9edya(){
-  const {rows,parts,cost}=shopData(); const month=cost*30/7; const bud=parseFloat(H().budget);
+  const {rows,parts,cost}=shopData(); const month=cost*30/7; const bud=parseFloat(S.budget);
   const visible=rows.filter(x=>!x.home), home=rows.filter(x=>x.home);
   const trip=visible.filter(x=>!x.done).reduce((s,x)=>s+x.cost,0);
   const row=x=>{const differs=Math.abs(x.buy-x.need)>1e-6&&x.f.b!=='u';
@@ -1176,7 +1205,6 @@ function vT9edya(){
   <section class="panel stack"><div class="sec-h"><h2>${t('who_in')}</h2></div>
     <div class="chips">
       ${S.profiles.map(p=>`<button class="chip" aria-pressed="${!!S.shop[p.id]}" onclick="S.shop['${p.id}']=!S.shop['${p.id}'];save();render()">${esc(p.name)}</button>`).join('')}
-      <button class="chip" aria-pressed="${!!S.shop.house}" onclick="S.shop.house=!S.shop.house;save();render()">${t('house_food')}</button>
     </div>
     <div class="split">${parts.map(([n,c])=>`<div><span>${n}</span><b>${dh(c)}</b></div>`).join('')||`<p class="hint">${t('pick_someone')}</p>`}</div>
   </section>
@@ -1185,10 +1213,10 @@ function vT9edya(){
     <div class="receipt">${rows.length?section(false,t('weekly_items'))+section(true,t('monthly_items'),t('monthly_hint')):`<div class="empty">${t('list_empty')}</div>`}
       ${home.length?`<div class="grp row" style="justify-content:space-between"><span>⌂ ${t('at_home',{n:home.length})}</span><button class="btn sm ghost" onclick="showPantry=!showPantry;render()">${showPantry?t('hide'):t('show')}</button></div>${showPantry?home.map(row).join(''):''}`:''}
       <div class="tot"><div><span>${t('this_trip')}</span><b>${dh(trip)}</b></div><div><span>${t('week')}</span><b>${dh(cost)}</b></div><div><span>${t('month')}</span><b>${dh(month)}</b></div>
-      ${bud?`<div><span>${t('house_budget')}</span><b style="color:${month>bud?'var(--danger)':'var(--p)'}">${bdi((month>bud?'+':'−')+Math.abs(month-bud).toFixed(0)+' '+t('dh'))}</b></div>`:''}</div>
+      ${bud?`<div><span>${t('budget_month').split('(')[0].trim()}</span><b style="color:${month>bud?'var(--danger)':'var(--p)'}">${bdi((month>bud?'+':'−')+Math.abs(month-bud).toFixed(0)+' '+t('dh'))}</b></div>`:''}</div>
     </div>
     ${rows.length?`<div class="row"><a class="btn pri" href="https://wa.me/?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">${t('share_wa')}</a><button class="btn" onclick="copyList()">${t('copy_list')}</button></div>`:''}
-    <div style="max-width:260px"><label class="lbl" for="hBud">${t('house_budget_in')}</label><input id="hBud" class="in num" type="number" min="0" value="${H().budget}" onchange="H().budget=this.value;save();render()"></div>
+    <div style="max-width:260px"><label class="lbl" for="hBud">${t('budget_in')}</label><input id="hBud" class="in num" type="number" min="0" value="${S.budget}" onchange="S.budget=this.value;save();render()"></div>
   </section></div>`;
 }
 function pantry(id){if(S.pantry[id])delete S.pantry[id];else S.pantry[id]=true;save();render()}
