@@ -208,6 +208,11 @@ nav.tabs button[aria-selected="true"]{background:var(--bg);color:var(--accent);b
 .split div{display:flex;justify-content:space-between;gap:10px;font-size:14px}
 .split b{color:var(--money)}
 nav.tabs button{padding:9px 10px}
+
+.themesw{display:flex;background:var(--bg);box-shadow:var(--press);border-radius:999px;padding:4px;gap:2px}
+.themesw button{border:0;background:transparent;border-radius:999px;padding:5px 11px;font-weight:700;font-size:13px;color:var(--muted)}
+.themesw button[aria-checked="true"]{background:var(--bg);color:var(--accent);box-shadow:var(--raise-sm)}
+.who{flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -217,6 +222,11 @@ nav.tabs button{padding:9px 10px}
     <div class="brand">
       <h1>Makla & Mizan</h1>
       <p>Macros, planning dyal simana w lista dyal t9edya b dirham</p>
+    </div>
+    <div class="themesw" role="radiogroup" aria-label="Mode" id="themeSw">
+      <button role="radio" data-t="light" onclick="setTheme('light')" aria-label="Fat7">☀</button>
+      <button role="radio" data-t="auto" onclick="setTheme('auto')" aria-label="3la 7sab telephone">Auto</button>
+      <button role="radio" data-t="dark" onclick="setTheme('dark')" aria-label="Ghamej">☾</button>
     </div>
     <div class="who">
       <button id="installBtn" class="btn sm pri" hidden onclick="doInstall()">Installi l'app</button>
@@ -299,7 +309,7 @@ function sampleHouse(){
   return {members:[{id:uid(),name:'Mra',type:'mra',f:.85},{id:uid(),name:'Weld (8 snin)',type:'drri',f:.7}],days:[a,b],week:[a.id,b.id,a.id,b.id,a.id,a.id,b.id],budget:'',example:true};
 }
 function normalize(){
-  S.prices=S.prices||{}; S.custom=S.custom||[]; S.checked=S.checked||{};
+  S.theme=S.theme||'auto'; S.prices=S.prices||{}; S.custom=S.custom||[]; S.checked=S.checked||{};
   if(!S.house) S.house=sampleHouse();
   if(!S.shop) S.shop={house:true};
   S.profiles.forEach(p=>{if(p.eatsHouse==null)p.eatsHouse=false;if(p.hf==null)p.hf=p.sex==='f'?.85:1;if(S.shop[p.id]==null)S.shop[p.id]=true;delete p.checked});
@@ -635,13 +645,24 @@ function addCustom(){
 function exportData(){const t=JSON.stringify(S);const el=document.getElementById('impT');
   const ok=()=>toast('Tnsakh');const fb=()=>{el.value=t;el.select();toast('Selectionni w nsakh')};
   try{navigator.clipboard.writeText(t).then(ok,fb)}catch(e){fb()}}
-function importData(){try{const o=JSON.parse(document.getElementById('impT').value);if(!o.profiles||!o.profiles.length)throw 0;S=o;normalize();save();curDay=null;curHDay=null;render();toast('Importa mzyan')}catch(e){document.getElementById('impMsg').textContent='Had l\'code machi s7i7.'}}
+function importData(){try{const o=JSON.parse(document.getElementById('impT').value);if(!o.profiles||!o.profiles.length)throw 0;S=o;normalize();save();applyTheme();curDay=null;curHDay=null;render();toast('Importa mzyan')}catch(e){document.getElementById('impMsg').textContent='Had l\'code machi s7i7.'}}
 
 /* ---------- Toast ---------- */
 let tt;function toast(m){const r=document.getElementById('toastRoot');r.innerHTML=`<div class="toast">${esc(m)}</div>`;clearTimeout(tt);tt=setTimeout(()=>r.innerHTML='',1800)}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
 
 load();render();
+/* ---------- Theme: light / dark / follow phone ---------- */
+function applyTheme(){
+  const t=(S&&S.theme)||'auto'; const root=document.documentElement;
+  if(t==='auto') root.removeAttribute('data-theme'); else root.setAttribute('data-theme',t);
+  document.querySelectorAll('#themeSw button').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.t===t)));
+  const dark=t==='dark'||(t==='auto'&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches);
+  const m=document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute('content',dark?'#252a2c':'#ece5da');
+}
+function setTheme(t){S.theme=t;save();applyTheme()}
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applyTheme)}catch(e){}
+applyTheme();
 
 /* ---------- PWA ---------- */
 let deferredPrompt=null;
