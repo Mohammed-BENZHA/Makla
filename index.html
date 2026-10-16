@@ -247,6 +247,10 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .chart .ma{fill:none;stroke:var(--accent);stroke-width:2.5;stroke-linejoin:round}
 .chart .pt{fill:var(--muted);opacity:.55}
 .chart .end{fill:var(--accent);stroke:var(--bg);stroke-width:2}
+
+.pedit{display:flex;align-items:center;gap:6px;margin-top:4px}
+.pin{width:78px;border:0;background:var(--bg);box-shadow:var(--press);border-radius:8px;padding:4px 8px;font-size:12.5px;color:var(--money)}
+.li.street{grid-template-columns:auto 1fr auto auto}
 </style>
 </head>
 <body>
@@ -286,11 +290,12 @@ const LANGS=[['dj','Darija'],['da','الدارجة'],['fr','Français'],['ar','�
 const RTL={da:1,ar:1};
 const I18N={
 dj:{
+ new_ingredient:'+ Ingrédient jdid',unit_g:'Gram (g)',unit_ml:'Mlilitr (ml)',unit_u:'7ba',unit_mk:'M3el9a kbira (~15 g)',unit_ms:'M3el9a sghira (~5 g)',unit_kas:'Kas (~200 ml)',macros_per:'Macros l {u}',price_per:'Taman (DH l {u})',street_group:'Men zan9a',street_hint:'Makla wajda katchriha barra: ma katdkholch f lista dyal l7anout, walakin taman dyalha m7soub f simana w chhar.',street_note:'L\'macros ta9ribiyin: kaytbeddlou men 7anout l 7anout. Beddel taman f "Prix".',
  weight_title:'Lwazn',log:'Sjel',today_w:'Lwazn (kg)',date:'Tarikh',no_weights:'Mazal ma sjelti 7ta wazn. Wzen rasek f sba7, 9bel l\'makla, 3-4 d merrat f simana.',avg7:'Moyenne 7 ayyam',per_week:'F simana',history:'Akhir l\'wazn',trend_note:'Lwazn dyal nhar wa7ed kaytbeddel b 1–2 kg b sbab l\'ma w l\'mel7. Chouf l\'moyenne, machi l\'ra9m dyal lyoum.',rate_fast:'Kat9es b zerba ({r}% f simana). Ktar men 1% f simana kaykhsser l\'3dalat: zid chwiya d l\'calories.',need_more:'Bach l\'app t7seb TDEE l7a9i9i dyalek, khassek 14 yom w 6 d l\'wazn 3la l\'a9al (daba: {d} yom, {n} wazn).',tdee_obs:'TDEE l7a9i9i ≈ {x} kcal (l\'formule kat9oul {y})',tdee_explain:'M7soub men l\'makla li f l\'planning dyalek ({i} kcal f nhar) w tbeddel lwazn ({r} kg f simana). S7i7 ghir ila kont katakol b7al l\'planning.',use_tdee:'Sta3mel had l\'ra9m',reset_tdee:'Rje3 l l\'formule',tdee_used:'Lhadaf daba m7soub 3la TDEE l7a9i9i dyalek ({x} kcal).',toast_logged:'Tsjel',simana_hint:'Lista dyal t9edya kayna f l\'onglet "T9edya", w katjme3 ga3 les profils li khtariti.',budget_in:'Budget dyal t9edya f chhar (DH)',no_plan:'3mmer l\'ayyam w simana bach l\'app t3ref ch7al katakol.',
  rec_names:{'tajine':'Tajine djaj b l\'khodra','3des':'3des','loubia':'Loubia','khodra_djaj':'Khodra soti b djaj','rouz_kefta':'Rouz b l\'kefta','mar9a':'Mar9a b l7em','tajine_7out':'Tajine b l7out','tajine_zbib':'Tajine b l7em, bsla w zbib','harira':'7rira','couscous':'Kesksou b l\'khodra','9hwa_7lib':'9hwa b l7lib'},
- recipes:'Recettes',recipe_hint:"Dkhel l'9edra kamla kima katteyybha, w ch7al d portions dyal wa7ed kbir katkhrej. L'app kat7seb l'portion, w t9der tzidha f ay wjba.",
- dry_hint:"L'9tani w rouz: khtar l'version \"nay\" w dkhel l'wazn 9bel tayb.",new_recipe:'+ Recette jdida',recipe_name:'Smiya dyal recette',servings:'Portions',
- add_ingredient:'+ Zid ingrédient',per_portion:'L portion:',whole_pot:'L9edra kamla:',recipe_empty:'Mazal ma kayn 7ta ingrédient.',recipe_default:'Recette jdida',done:'Sali',cat_rec:'Recettes',sheet_recipe:'Zid l recette',
+ recipes:'Recettes',recipe_hint:'Dkhel l\'9edra kamla kima katteyybha, w ch7al d nass kbar kaytakel menha. L\'app kat7seb dyal wa7ed, w t9der tzidha f ay wjba.',
+ dry_hint:"L'9tani w rouz: khtar l'version \"nay\" w dkhel l'wazn 9bel tayb.",new_recipe:'+ Recette jdida',recipe_name:'Smiya dyal recette',servings:'Ch7al d nass',
+ add_ingredient:'+ Zid ingrédient',per_portion:'L wa7ed:',whole_pot:'L9edra kamla:',recipe_empty:'Mazal ma kayn 7ta ingrédient.',recipe_default:'Recette jdida',done:'Sali',cat_rec:'Recettes',sheet_recipe:'Zid l recette',
  weekly_items:'Kol simana',monthly_items:'Merra f chhar',monthly_hint:"Kmiya dyal chhar kamel, mdowra l l'format li katchri.",need:'khassek {x}',have_home:'3endi f dar',
  at_home:'{n} 7wayej 3endek f dar',show:'Werri',hide:'Khbi',this_trip:'Had t9edya',share_wa:'Sifet f WhatsApp',copy_list:"Nsakh l'lista",list_title:'Lista dyal t9edya',
  edit_meals:'Beddel les wjbat',meals_title:'Les wjbat',add_meal:'+ Zid wjba',new_meal:'Wjba jdida',ramadan:'Ramadan',normal_meals:"Rje3 l'3adi",
@@ -343,8 +348,8 @@ dj:{
  paste_ph:'Lsa9 sauvegarde hna…',import:'Importer',toast_copied:'Tnsakh',toast_select:'Selectionni w nsakh',toast_import:'Importa mzyan',import_err:"Had l'code machi s7i7.",
  toast_installed:"L'app tinstallat",
  u_g:'g',u_kg:'kg',u_L:'L',u_ml:'ml',dh:'DH',kcal_u:'kcal',mP:'P',mC:'K',mF:'D',
- un:{bida:'bida',khobza:'khobza','7ba':'7ba',kas:'kas','7ok':'7ok',scoop:'scoop',banana:'banana',mo3al9a:'mo3al9a',portion:'portion'},
- cats:['Ftour & snack','L7em & 7out','Nachawiyat & 9tani','Khodra & fakiya','Zit & louz'],
+ un:{bida:'bida',khobza:'khobza','7ba':'7ba',kas:'kas','7ok':'7ok',scoop:'scoop',banana:'banana',mo3al9a:'mo3al9a',portion:'portion',mo3al9a_s:'m3el9a sghira',plat:'plat',zlafa:'zlafa'},
+ cats:['Ftour & snack','L7em & 7out','Nachawiyat & 9tani','Khodra & fakiya','Zit & louz','Men zan9a'],
  meals:['Ftour','Ghda','Kaskrout','3cha'],
  week_days:['Tnin','Tlat','Larb3','Lkhmis','Jjem3a','Ssebt','L7ed'],
  goals:['Tnchif (n9es chhem)','Recomp (3dalat + n9es chhem)','7afed 3la lwazn','Zid 3dalat (b chwiya)','Zid lwazn (bzzerba)'],
@@ -352,14 +357,15 @@ dj:{
  types:['Rajel kbir','Mra kbira','Mrahe9 (12–17)','Drri (7–11)','Sghir (3–6)','Bebe (<3)'],
  notes:{bone:"L3dem ~25% men l'wazn",sardine:'Katakol ~60% men li katchri',merla:'Filet ~50% men l7out kamel',dry:'Prix dyal kg nay',oil:'Zid lzit li katdir f tayb, 7it hiya li kat-khrej l7sab',whole:'Dkhel l\'wazn kima chritiha (b l3dem). L\'macros m7soubin 3la ~65% li katakol.'},
  sugar:'Sokar (dyal atay)',
- foods:["Bid roumi","Bid beldi","Khobz kamel (khobza ~200g)","Khobz byed (khobza ~200g)","Msemen","Harcha","Choufan (flocons d'avoine)","7lib (kas 200 ml)","Perly / yaourt (7ok)","Fromage mtellat","Whey (scoop 30g)","Atay b sokar (kas)","Sder djaj (nay)","Fkhad djaj bla jeld (nay)","Sardine (nay, li katakol)","Merla / 7out byed (nay, filet)","L7em bgri habra (nay)","Kefta bgri (nay)","Kefta dinde (nay)","Kebda djaj (nay)","Ton (7ok, ~80g msfi)","Rouz (tayeb)","Ma9arouna (tayba)","3des (tayeb)","Loubia (tayba)","7mes (tayeb)","Batata (nay)","Batata 7lowa (nay)","Khodra (maticha, khyar, bsla…)","Banan","Tfa7a / limouna","Tmer","Avoka","Zit dyal tayb (mo3al9a kbira)","Zit zitoun (mo3al9a kbira)","Louz","Kawkaw","Amlou (mo3al9a 20g)",'Rouz (nay)','Ma9arouna (nay)','3des (nay)','Loubia (nay)','7mes (nay)','Maticha','Bsla','Khizzou','9ar3a','Zitoun','Djaja kamla (b l3dem)','Jben (mo3al9a 20g)','Confiture (mo3al9a 20g)','L3sel (mo3al9a 20g)','Zebda (mo3al9a 14g)','Sokar (mo3al9a sghira 5g)','9hwa mto7na (l kas)','L7em b l3dem (ghanmi/bgri)','7out kamel (b l3dem)','Zbib','Felfla','Kesksou (nay)']
+ foods:["Bid roumi","Bid beldi","Khobz kamel (khobza ~200g)","Khobz byed (khobza ~200g)","Msemen","Harcha","Choufan (flocons d'avoine)","7lib (kas 200 ml)","Perly / yaourt (7ok)","Fromage mtellat","Whey (scoop 30g)","Atay b sokar (kas)","Sder djaj (nay)","Fkhad djaj bla jeld (nay)","Sardine (nay, li katakol)","Merla / 7out byed (nay, filet)","L7em bgri habra (nay)","Kefta bgri (nay)","Kefta dinde (nay)","Kebda djaj (nay)","Ton (7ok, ~80g msfi)","Rouz (tayeb)","Ma9arouna (tayba)","3des (tayeb)","Loubia (tayba)","7mes (tayeb)","Batata (nay)","Batata 7lowa (nay)","Khodra (maticha, khyar, bsla…)","Banan","Tfa7a / limouna","Tmer","Avoka","Zit dyal tayb (mo3al9a kbira)","Zit zitoun (mo3al9a kbira)","Louz","Kawkaw","Amlou (mo3al9a 20g)",'Rouz (nay)','Ma9arouna (nay)','3des (nay)','Loubia (nay)','7mes (nay)','Maticha','Bsla','Khizzou','9ar3a','Zitoun','Djaja kamla (b l3dem)','Jben (mo3al9a 20g)','Confiture (mo3al9a 20g)','L3sel (mo3al9a 20g)','Zebda (mo3al9a 14g)','Sokar (mo3al9a sghira 5g)','9hwa mto7na (l kas)','L7em b l3dem (ghanmi/bgri)','7out kamel (b l3dem)','Zbib','Felfla','Kesksou (nay)','Tacos (M, l7em wa7ed)','Burger','Panini','Chawarma (sandwich)','Sandwich kefta','Pizza (sghira)','Rfissa (plat)','T3am / kesksou (plat)','Bissara (zlafa)','Sfenj','Briwat (kefta wla 7out)','Ma9ouda','Pastilla (portion)','7rira (zlafa)']
 },
 da:{
+ new_ingredient:'+ مكون جديد',unit_g:'الغرام (غ)',unit_ml:'الميليلتر (مل)',unit_u:'الحبة',unit_mk:'معيلقة كبيرة (~15 غ)',unit_ms:'معيلقة صغيرة (~5 غ)',unit_kas:'كاس (~200 مل)',macros_per:'الماكروز لـ{u}',price_per:'الثمن (درهم لـ{u})',street_group:'من الزنقة',street_hint:'ماكلة واجدة كتشريها برا: ما كتدخلش فلائحة الحانوت، ولكن الثمن ديالها محسوب فالسيمانة والشهر.',street_note:'الماكروز تقريبيين: كيتبدلو من حانوت لحانوت. بدل الثمن فـ"الأثمنة".',
  weight_title:'الوزن',log:'سجل',today_w:'الوزن (كيلو)',date:'التاريخ',no_weights:'مازال ما سجلتي حتى وزن. وزن راسك فالصباح قبل الماكلة، 3-4 ديال المرات فالسيمانة.',avg7:'المعدل ديال 7 أيام',per_week:'فالسيمانة',history:'آخر الأوزان',trend_note:'الوزن ديال نهار واحد كيتبدل بـ1–2 كيلو بسباب الما والملحة. شوف المعدل، ماشي الرقم ديال اليوم.',rate_fast:'كتنقص بالزربة ({r}% فالسيمانة). كثر من 1% فالسيمانة كيخسر العضلات: زيد شوية ديال الكالوري.',need_more:'باش الأپليكاسيون تحسب TDEE الحقيقي ديالك، خاصك 14 يوم و6 ديال الأوزان على الأقل (دابا: {d} يوم، {n} وزن).',tdee_obs:'TDEE الحقيقي ≈ {x} كالوري (الفورمول كتقول {y})',tdee_explain:'محسوب من الماكلة لي فالبرنامج ديالك ({i} كالوري فالنهار) وتبدال الوزن ({r} كيلو فالسيمانة). صحيح غير إلا كنتي كتاكل بحال البرنامج.',use_tdee:'ستعمل هاد الرقم',reset_tdee:'رجع للفورمول',tdee_used:'الهدف دابا محسوب على TDEE الحقيقي ديالك ({x} كالوري).',toast_logged:'تسجل',simana_hint:'اللائحة ديال التقضية كاينة فـ"التقضية"، وكتجمع كاع البروفيلات لي ختاريتي.',budget_in:'البودجي ديال التقضية فالشهر (درهم)',no_plan:'عمّر الأيام والسيمانة باش الأپليكاسيون تعرف شحال كتاكل.',
  rec_names:{'tajine':'طاجين الدجاج بالخضرة','3des':'العدس','loubia':'اللوبيا','khodra_djaj':'خضرة صوطي بالدجاج','rouz_kefta':'روز بالكفتة','mar9a':'المرقة باللحم','tajine_7out':'طاجين الحوت','tajine_zbib':'طاجين اللحم بالبصلة والزبيب','harira':'الحريرة','couscous':'كسكسو بالخضرة','9hwa_7lib':'قهوة بالحليب'},
- recipes:'الوصفات',recipe_hint:'دخل القدرة كاملة كيما كتطيبها، وشحال ديال الحصص ديال واحد كبير كتخرج. الأپليكاسيون كتحسب الحصة، وتقدر تزيدها فأي وجبة.',
- dry_hint:'القطاني والروز: ختار "ناي" ودخل الوزن قبل الطيب.',new_recipe:'+ وصفة جديدة',recipe_name:'سمية الوصفة',servings:'الحصص',
- add_ingredient:'+ زيد مكون',per_portion:'للحصة:',whole_pot:'القدرة كاملة:',recipe_empty:'مازال ما كاين حتى مكون.',recipe_default:'وصفة جديدة',done:'سالي',cat_rec:'الوصفات',sheet_recipe:'زيد للوصفة',
+ recipes:'الوصفات',recipe_hint:'دخل القدرة كاملة كيما كتطيبها، وشحال ديال الناس الكبار كياكلو منها. الأپليكاسيون كتحسب ديال واحد، وتقدر تزيدها فأي وجبة.',
+ dry_hint:'القطاني والروز: ختار "ناي" ودخل الوزن قبل الطيب.',new_recipe:'+ وصفة جديدة',recipe_name:'سمية الوصفة',servings:'شحال ديال الناس',
+ add_ingredient:'+ زيد مكون',per_portion:'لواحد:',whole_pot:'القدرة كاملة:',recipe_empty:'مازال ما كاين حتى مكون.',recipe_default:'وصفة جديدة',done:'سالي',cat_rec:'الوصفات',sheet_recipe:'زيد للوصفة',
  weekly_items:'كل سيمانة',monthly_items:'مرة فالشهر',monthly_hint:'الكمية ديال الشهر كامل، مدورة للفورما لي كتشري.',need:'خاصك {x}',have_home:'عندي فالدار',
  at_home:'{n} حوايج عندك فالدار',show:'وري',hide:'خبي',this_trip:'هاد التقضية',share_wa:'صيفط فـWhatsApp',copy_list:'نسخ اللائحة',list_title:'اللائحة ديال التقضية',
  edit_meals:'بدل الوجبات',meals_title:'الوجبات',add_meal:'+ زيد وجبة',new_meal:'وجبة جديدة',ramadan:'رمضان',normal_meals:'رجع للعادي',
@@ -412,8 +418,8 @@ da:{
  paste_ph:'لصق السوفگارد هنا…',import:'إمپورطي',toast_copied:'تنسخ',toast_select:'سيليكسيوني ونسخ',toast_import:'تإمپورطا مزيان',import_err:'هاد الكود ماشي صحيح.',
  toast_installed:'الأپليكاسيون تإنستالات',
  u_g:'غ',u_kg:'كيلو',u_L:'لتر',u_ml:'مل',dh:'درهم',kcal_u:'كالوري',mP:'ب',mC:'ك',mF:'د',
- un:{bida:'بيضة',khobza:'خبزة','7ba':'حبة',kas:'كاس','7ok':'حك',scoop:'سكوب',banana:'بنانة',mo3al9a:'معيلقة',portion:'حصة'},
- cats:['الفطور والكاسكروط','اللحم والحوت','النشويات والقطاني','الخضرة والفاكية','الزيت واللوز'],
+ un:{bida:'بيضة',khobza:'خبزة','7ba':'حبة',kas:'كاس','7ok':'حك',scoop:'سكوب',banana:'بنانة',mo3al9a:'معيلقة',portion:'حصة',mo3al9a_s:'معيلقة صغيرة',plat:'طبسيل',zlafa:'زلافة'},
+ cats:['الفطور والكاسكروط','اللحم والحوت','النشويات والقطاني','الخضرة والفاكية','الزيت واللوز','من الزنقة'],
  meals:['الفطور','الغدا','الكاسكروط','العشا'],
  week_days:['التنين','التلات','لاربع','الخميس','الجمعة','السبت','الحد'],
  goals:['تنشيف (نقص الشحم)','ريكومپ (عضلات + نقص الشحم)','حافظ على الوزن','زيد العضلات بشوية','زيد الوزن بالزربة'],
@@ -421,14 +427,15 @@ da:{
  types:['راجل كبير','مرا كبيرة','مراهق (12–17)','دري (7–11)','صغير (3–6)','بيبي (<3)'],
  notes:{bone:'العظم ~25% من الوزن',sardine:'كتاكل ~60% من لي كتشري',merla:'الفيلي ~50% من الحوت كامل',dry:'الثمن ديال الكيلو ناي',oil:'زيد الزيت لي كدير فالطيب، حيت هي لي كتخرج الحساب',whole:'دخل الوزن كيما شريتيها (بالعظم). الماكروز محسوبين على ~65% لي كتاكل.',asbought:'دخل الوزن كيما شريتيه (بالعظم). الماكروز محسوبين غير على لي كتاكل.'},
  sugar:'السكر (ديال أتاي)',
- foods:['بيض رومي','بيض بلدي','خبز كامل (خبزة ~200 غ)','خبز أبيض (خبزة ~200 غ)','مسمن','حرشة','الشوفان','حليب (كاس 200 مل)','بيرلي / ياغورت (حك)','فرماج مثلث','واي (سكوب 30 غ)','أتاي بالسكر (كاس)','صدر الدجاج (ناي)','فخاد الدجاج بلا جلد (ناي)','سردين (ناي، لي كتاكل)','ميرلا / حوت بيض (ناي، فيلي)','لحم بگري هبرة (ناي)','كفتة بگري (ناية)','كفتة الداند (ناية)','كبدة الدجاج (ناية)','طون (حك، ~80 غ مصفي)','روز (طايب)','مقارونة (طايبة)','عدس (طايب)','لوبيا (طايبة)','حمص (طايب)','بطاطا (ناية)','بطاطا حلوة (ناية)','خضرة (ماطيشة، خيار، بصلة…)','بنان','تفاحة / ليمونة','تمر','أفوكا','زيت ديال الطيب (معيلقة كبيرة)','زيت الزيتون (معيلقة كبيرة)','لوز','كاوكاو','أملو (معيلقة 20 غ)','روز (ناي)','مقارونة (ناية)','عدس (ناي)','لوبيا (ناية)','حمص (ناي)','ماطيشة','بصلة','خيزو','قرعة','زيتون','دجاجة كاملة (بالعظم)','جبن (معيلقة 20 غ)','كونفيتور (معيلقة 20 غ)','العسل (معيلقة 20 غ)','الزبدة (معيلقة 14 غ)','السكر (معيلقة صغيرة 5 غ)','القهوة المطحونة (للكاس)','اللحم بالعظم (غنمي/بگري)','حوت كامل (بالعظم)','الزبيب','الفلفلة','الكسكسو (ناي)']
+ foods:['بيض رومي','بيض بلدي','خبز كامل (خبزة ~200 غ)','خبز أبيض (خبزة ~200 غ)','مسمن','حرشة','الشوفان','حليب (كاس 200 مل)','بيرلي / ياغورت (حك)','فرماج مثلث','واي (سكوب 30 غ)','أتاي بالسكر (كاس)','صدر الدجاج (ناي)','فخاد الدجاج بلا جلد (ناي)','سردين (ناي، لي كتاكل)','ميرلا / حوت بيض (ناي، فيلي)','لحم بگري هبرة (ناي)','كفتة بگري (ناية)','كفتة الداند (ناية)','كبدة الدجاج (ناية)','طون (حك، ~80 غ مصفي)','روز (طايب)','مقارونة (طايبة)','عدس (طايب)','لوبيا (طايبة)','حمص (طايب)','بطاطا (ناية)','بطاطا حلوة (ناية)','خضرة (ماطيشة، خيار، بصلة…)','بنان','تفاحة / ليمونة','تمر','أفوكا','زيت ديال الطيب (معيلقة كبيرة)','زيت الزيتون (معيلقة كبيرة)','لوز','كاوكاو','أملو (معيلقة 20 غ)','روز (ناي)','مقارونة (ناية)','عدس (ناي)','لوبيا (ناية)','حمص (ناي)','ماطيشة','بصلة','خيزو','قرعة','زيتون','دجاجة كاملة (بالعظم)','جبن (معيلقة 20 غ)','كونفيتور (معيلقة 20 غ)','العسل (معيلقة 20 غ)','الزبدة (معيلقة 14 غ)','السكر (معيلقة صغيرة 5 غ)','القهوة المطحونة (للكاس)','اللحم بالعظم (غنمي/بگري)','حوت كامل (بالعظم)','الزبيب','الفلفلة','الكسكسو (ناي)','تاكوس (M، لحم واحد)','بورگر','پانيني','شاورما (ساندويتش)','ساندويتش كفتة','پيتزا (صغيرة)','الرفيسة (طبسيل)','الطعام / الكسكسو (طبسيل)','البيصارة (زلافة)','السفنج','البريوات (كفتة ولا حوت)','المقودة','البسطيلة (حصة)','الحريرة (زلافة)']
 },
 fr:{
+ new_ingredient:'+ Nouvel ingrédient',unit_g:'Grammes (g)',unit_ml:'Millilitres (ml)',unit_u:'Pièce',unit_mk:'Cuillère à soupe (~15 g)',unit_ms:'Cuillère à café (~5 g)',unit_kas:'Verre (~200 ml)',macros_per:'Macros pour {u}',price_per:'Prix (DH par {u})',street_group:'Achats à emporter',street_hint:'Plats achetés tout prêts : ils ne vont pas sur la liste de courses, mais leur coût compte dans la semaine et le mois.',street_note:'Macros approximatives : elles varient d\'un vendeur à l\'autre. Modifiez le prix dans « Prix ».',
  weight_title:'Poids',log:'Enregistrer',today_w:'Poids (kg)',date:'Date',no_weights:'Aucune pesée pour l\'instant. Pesez-vous le matin, avant de manger, 3 à 4 fois par semaine.',avg7:'Moyenne sur 7 jours',per_week:'Par semaine',history:'Dernières pesées',trend_note:'Le poids d\'un jour varie de 1 à 2 kg selon l\'eau et le sel. Suivez la moyenne, pas le chiffre du jour.',rate_fast:'Perte rapide ({r} % par semaine). Au-delà de 1 % par semaine, on perd du muscle : ajoutez un peu de calories.',need_more:'Pour estimer votre vrai TDEE, il faut au moins 14 jours et 6 pesées (actuellement : {d} jours, {n} pesées).',tdee_obs:'TDEE réel ≈ {x} kcal (la formule donne {y})',tdee_explain:'Calculé à partir de votre plan ({i} kcal par jour) et de l\'évolution du poids ({r} kg par semaine). Juste seulement si vous avez suivi le plan.',use_tdee:'Utiliser ce chiffre',reset_tdee:'Revenir à la formule',tdee_used:'Objectif basé sur votre TDEE réel ({x} kcal).',toast_logged:'Enregistré',simana_hint:'La liste de courses se trouve dans l\'onglet « Courses » et regroupe les profils choisis.',budget_in:'Budget courses mensuel (DH)',no_plan:'Remplissez vos jours et votre semaine pour que l\'app connaisse vos apports.',
  rec_names:{'tajine':'Tajine de poulet aux légumes','3des':'Lentilles','loubia':'Haricots blancs (loubia)','khodra_djaj':'Légumes sautés au poulet','rouz_kefta':'Riz à la kefta','mar9a':'Marga à la viande','tajine_7out':'Tajine de poisson','tajine_zbib':'Tajine de viande, oignons et raisins','harira':'Harira','couscous':'Couscous aux légumes','9hwa_7lib':'Café au lait'},
- recipes:'Recettes',recipe_hint:"Saisissez la marmite entière comme vous la cuisinez, et le nombre de portions adulte qu'elle donne. L'app calcule la portion, que vous ajoutez à n'importe quel repas.",
- dry_hint:'Légumineuses et riz : choisissez la version « crue » et saisissez le poids avant cuisson.',new_recipe:'+ Nouvelle recette',recipe_name:'Nom de la recette',servings:'Portions',
- add_ingredient:'+ Ingrédient',per_portion:'Par portion :',whole_pot:'Marmite entière :',recipe_empty:'Aucun ingrédient pour le moment.',recipe_default:'Nouvelle recette',done:'Fermer',cat_rec:'Recettes',sheet_recipe:'Ajouter à la recette',
+ recipes:'Recettes',recipe_hint:'Saisissez la marmite entière comme vous la cuisinez, et le nombre d\'adultes qui en mangent. L\'app calcule la part d\'une personne, que vous ajoutez à n\'importe quel repas.',
+ dry_hint:'Légumineuses et riz : choisissez la version « crue » et saisissez le poids avant cuisson.',new_recipe:'+ Nouvelle recette',recipe_name:'Nom de la recette',servings:'Nombre de personnes',
+ add_ingredient:'+ Ingrédient',per_portion:'Par personne :',whole_pot:'Marmite entière :',recipe_empty:'Aucun ingrédient pour le moment.',recipe_default:'Nouvelle recette',done:'Fermer',cat_rec:'Recettes',sheet_recipe:'Ajouter à la recette',
  weekly_items:'Chaque semaine',monthly_items:'Une fois par mois',monthly_hint:'Quantité pour tout le mois, arrondie au format vendu.',need:'besoin : {x}',have_home:"J'en ai à la maison",
  at_home:'{n} articles déjà à la maison',show:'Afficher',hide:'Masquer',this_trip:'Ces courses',share_wa:'Envoyer sur WhatsApp',copy_list:'Copier la liste',list_title:'Liste de courses',
  edit_meals:'Modifier les repas',meals_title:'Repas',add_meal:'+ Ajouter un repas',new_meal:'Nouveau repas',ramadan:'Ramadan',normal_meals:'Repas habituels',
@@ -481,8 +488,8 @@ fr:{
  paste_ph:'Collez la sauvegarde ici…',import:'Importer',toast_copied:'Copié',toast_select:'Sélectionnez puis copiez',toast_import:'Import réussi',import_err:'Ce code est invalide.',
  toast_installed:'Application installée',
  u_g:'g',u_kg:'kg',u_L:'L',u_ml:'ml',dh:'DH',kcal_u:'kcal',mP:'P',mC:'G',mF:'L',
- un:{bida:'œuf',khobza:'pain','7ba':'pièce',kas:'verre','7ok':'pot',scoop:'dose',banana:'banane',mo3al9a:'c. à s.',portion:'portion'},
- cats:['Petit-déj & collations','Viandes & poissons','Féculents & légumineuses','Légumes & fruits','Huiles & fruits secs'],
+ un:{bida:'œuf',khobza:'pain','7ba':'pièce',kas:'verre','7ok':'pot',scoop:'dose',banana:'banane',mo3al9a:'c. à s.',portion:'portion',mo3al9a_s:'c. à c.',plat:'assiette',zlafa:'bol'},
+ cats:['Petit-déj & collations','Viandes & poissons','Féculents & légumineuses','Légumes & fruits','Huiles & fruits secs','À emporter'],
  meals:['Petit-déjeuner','Déjeuner','Goûter','Dîner'],
  week_days:['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'],
  goals:['Sèche (perte de gras)','Recomposition (muscle + perte de gras)','Maintien du poids','Prise de muscle (légère)','Prise de masse (rapide)'],
@@ -490,14 +497,15 @@ fr:{
  types:['Homme adulte','Femme adulte','Ado (12–17)','Enfant (7–11)','Petit (3–6)','Bébé (<3)'],
  notes:{bone:'Os ≈ 25 % du poids',sardine:'Partie comestible ≈ 60 % du poids acheté',merla:'Filet ≈ 50 % du poisson entier',dry:'Prix du kg cru (sec)',oil:"Comptez l'huile de cuisson : c'est elle qui fausse le plus le calcul",whole:'Saisissez le poids acheté (avec os). Macros calculées sur ~65 % comestible.',asbought:'Saisissez le poids acheté (avec os). Macros calculées sur la partie comestible.'},
  sugar:'Sucre (thé)',
- foods:["Œufs","Œufs beldi","Pain complet (~200 g)","Pain blanc (~200 g)","Msemen","Harcha","Flocons d'avoine","Lait (verre 200 ml)","Yaourt / Perly (pot)","Fromage portion","Whey (dose 30 g)","Thé sucré (verre)","Blanc de poulet (cru)","Cuisse de poulet sans peau (crue)","Sardine (crue, partie comestible)","Merlan / poisson blanc (filet cru)","Bœuf maigre (cru)","Kefta de bœuf (crue)","Kefta de dinde (crue)","Foie de poulet (cru)","Thon (boîte, ~80 g égoutté)","Riz (cuit)","Pâtes (cuites)","Lentilles (cuites)","Haricots blancs (cuits)","Pois chiches (cuits)","Pomme de terre (crue)","Patate douce (crue)","Légumes (tomate, concombre, oignon…)","Banane","Pomme / orange","Dattes","Avocat","Huile de cuisson (c. à soupe)","Huile d'olive (c. à soupe)","Amandes","Cacahuètes","Amlou (c. à soupe 20 g)",'Riz (cru)','Pâtes (crues)','Lentilles (crues)','Haricots blancs (crus)','Pois chiches (crus)','Tomate','Oignon','Carotte','Courgette','Olives','Poulet entier (avec os)','Fromage frais jben (c. à s. 20 g)','Confiture (c. à s. 20 g)','Miel (c. à s. 20 g)','Beurre (c. à s. 14 g)','Sucre (c. à c. 5 g)','Café moulu (par tasse)','Viande avec os (agneau/bœuf)','Poisson entier (avec arêtes)','Raisins secs','Poivron','Couscous (sec)']
+ foods:["Œufs","Œufs beldi","Pain complet (~200 g)","Pain blanc (~200 g)","Msemen","Harcha","Flocons d'avoine","Lait (verre 200 ml)","Yaourt / Perly (pot)","Fromage portion","Whey (dose 30 g)","Thé sucré (verre)","Blanc de poulet (cru)","Cuisse de poulet sans peau (crue)","Sardine (crue, partie comestible)","Merlan / poisson blanc (filet cru)","Bœuf maigre (cru)","Kefta de bœuf (crue)","Kefta de dinde (crue)","Foie de poulet (cru)","Thon (boîte, ~80 g égoutté)","Riz (cuit)","Pâtes (cuites)","Lentilles (cuites)","Haricots blancs (cuits)","Pois chiches (cuits)","Pomme de terre (crue)","Patate douce (crue)","Légumes (tomate, concombre, oignon…)","Banane","Pomme / orange","Dattes","Avocat","Huile de cuisson (c. à soupe)","Huile d'olive (c. à soupe)","Amandes","Cacahuètes","Amlou (c. à soupe 20 g)",'Riz (cru)','Pâtes (crues)','Lentilles (crues)','Haricots blancs (crus)','Pois chiches (crus)','Tomate','Oignon','Carotte','Courgette','Olives','Poulet entier (avec os)','Fromage frais jben (c. à s. 20 g)','Confiture (c. à s. 20 g)','Miel (c. à s. 20 g)','Beurre (c. à s. 14 g)','Sucre (c. à c. 5 g)','Café moulu (par tasse)','Viande avec os (agneau/bœuf)','Poisson entier (avec arêtes)','Raisins secs','Poivron','Couscous (sec)','Tacos (M, 1 viande)','Burger','Panini','Chawarma (sandwich)','Sandwich kefta','Pizza (petite)','Rfissa (assiette)','Couscous (assiette)','Bissara (bol)','Sfenj (beignet)','Briouates (kefta ou poisson)','Maakouda','Pastilla (part)','Harira (bol)']
 },
 ar:{
+ new_ingredient:'+ مكون جديد',unit_g:'غرام (غ)',unit_ml:'ميليلتر (مل)',unit_u:'حبة',unit_mk:'ملعقة كبيرة (~15 غ)',unit_ms:'ملعقة صغيرة (~5 غ)',unit_kas:'كأس (~200 مل)',macros_per:'الماكروز لكل {u}',price_per:'السعر (درهم لكل {u})',street_group:'وجبات من الخارج',street_hint:'وجبات جاهزة تشتريها من الخارج: لا تدخل في لائحة المشتريات، لكن تكلفتها محسوبة في الأسبوع والشهر.',street_note:'الماكروز تقريبية وتختلف من بائع لآخر. عدّل السعر في "الأسعار".',
  weight_title:'الوزن',log:'تسجيل',today_w:'الوزن (كغ)',date:'التاريخ',no_weights:'لم تسجل أي وزن بعد. زن نفسك صباحًا قبل الأكل، 3–4 مرات في الأسبوع.',avg7:'متوسط 7 أيام',per_week:'في الأسبوع',history:'آخر الأوزان',trend_note:'يتغير وزن اليوم الواحد بـ1–2 كغ بسبب الماء والملح. تابع المتوسط لا رقم اليوم.',rate_fast:'نزول سريع ({r}% في الأسبوع). أكثر من 1% أسبوعيًا يفقدك العضلات: زد قليلًا من السعرات.',need_more:'لتقدير سعرات الثبات الحقيقية، يلزم 14 يومًا و6 أوزان على الأقل (حاليًا: {d} يوم، {n} وزن).',tdee_obs:'سعرات الثبات الحقيقية ≈ {x} سعرة (المعادلة تعطي {y})',tdee_explain:'محسوبة من برنامجك ({i} سعرة يوميًا) وتغير الوزن ({r} كغ أسبوعيًا). صحيحة فقط إذا التزمت بالبرنامج.',use_tdee:'استعمل هذا الرقم',reset_tdee:'الرجوع إلى المعادلة',tdee_used:'الهدف الآن محسوب على سعرات الثبات الحقيقية ({x} سعرة).',toast_logged:'تم التسجيل',simana_hint:'لائحة المشتريات في خانة "المشتريات"، وتجمع الملفات التي اخترتها.',budget_in:'ميزانية المشتريات الشهرية (درهم)',no_plan:'املأ الأيام والأسبوع ليعرف التطبيق ما تأكله.',
  rec_names:{'tajine':'طاجين الدجاج بالخضر','3des':'عدس','loubia':'لوبيا','khodra_djaj':'خضر مقلية بالدجاج','rouz_kefta':'أرز بالكفتة','mar9a':'مرقة باللحم','tajine_7out':'طاجين السمك','tajine_zbib':'طاجين اللحم بالبصل والزبيب','harira':'حريرة','couscous':'كسكس بالخضر','9hwa_7lib':'قهوة بالحليب'},
- recipes:'الوصفات',recipe_hint:'أدخل القدر كاملًا كما تطبخه، وعدد حصص البالغين التي يعطيها. يحسب التطبيق الحصة، ويمكنك إضافتها إلى أي وجبة.',
- dry_hint:'القطاني والأرز: اختر النسخة "النيئة" وأدخل الوزن قبل الطبخ.',new_recipe:'+ وصفة جديدة',recipe_name:'اسم الوصفة',servings:'الحصص',
- add_ingredient:'+ أضف مكونًا',per_portion:'للحصة:',whole_pot:'القدر كاملًا:',recipe_empty:'لا توجد مكونات بعد.',recipe_default:'وصفة جديدة',done:'إغلاق',cat_rec:'الوصفات',sheet_recipe:'أضف إلى الوصفة',
+ recipes:'الوصفات',recipe_hint:'أدخل القدر كاملًا كما تطبخه، وعدد البالغين الذين يأكلون منه. يحسب التطبيق حصة الفرد، ويمكنك إضافتها إلى أي وجبة.',
+ dry_hint:'القطاني والأرز: اختر النسخة "النيئة" وأدخل الوزن قبل الطبخ.',new_recipe:'+ وصفة جديدة',recipe_name:'اسم الوصفة',servings:'عدد الأشخاص',
+ add_ingredient:'+ أضف مكونًا',per_portion:'للفرد:',whole_pot:'القدر كاملًا:',recipe_empty:'لا توجد مكونات بعد.',recipe_default:'وصفة جديدة',done:'إغلاق',cat_rec:'الوصفات',sheet_recipe:'أضف إلى الوصفة',
  weekly_items:'كل أسبوع',monthly_items:'مرة في الشهر',monthly_hint:'كمية الشهر كاملًا، مقرّبة إلى حجم البيع.',need:'المطلوب: {x}',have_home:'متوفر في البيت',
  at_home:'{n} مواد متوفرة في البيت',show:'إظهار',hide:'إخفاء',this_trip:'هذه المشتريات',share_wa:'إرسال عبر WhatsApp',copy_list:'نسخ اللائحة',list_title:'لائحة المشتريات',
  edit_meals:'تعديل الوجبات',meals_title:'الوجبات',add_meal:'+ أضف وجبة',new_meal:'وجبة جديدة',ramadan:'رمضان',normal_meals:'الوجبات المعتادة',
@@ -550,8 +558,8 @@ ar:{
  paste_ph:'الصق النسخة الاحتياطية هنا…',import:'استيراد',toast_copied:'تم النسخ',toast_select:'حدّد ثم انسخ',toast_import:'تم الاستيراد',import_err:'هذا الرمز غير صالح.',
  toast_installed:'تم تثبيت التطبيق',
  u_g:'غ',u_kg:'كغ',u_L:'ل',u_ml:'مل',dh:'درهم',kcal_u:'سعرة',mP:'ب',mC:'ن',mF:'د',
- un:{bida:'بيضة',khobza:'رغيف','7ba':'حبة',kas:'كأس','7ok':'علبة',scoop:'مغرفة',banana:'موزة',mo3al9a:'ملعقة',portion:'حصة'},
- cats:['الفطور والوجبات الخفيفة','اللحوم والأسماك','النشويات والقطاني','الخضر والفواكه','الزيوت والمكسرات'],
+ un:{bida:'بيضة',khobza:'رغيف','7ba':'حبة',kas:'كأس','7ok':'علبة',scoop:'مغرفة',banana:'موزة',mo3al9a:'ملعقة',portion:'حصة',mo3al9a_s:'ملعقة صغيرة',plat:'صحن',zlafa:'زلافة'},
+ cats:['الفطور والوجبات الخفيفة','اللحوم والأسماك','النشويات والقطاني','الخضر والفواكه','الزيوت والمكسرات','وجبات جاهزة'],
  meals:['الفطور','الغداء','اللمجة','العشاء'],
  week_days:['الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت','الأحد'],
  goals:['تنشيف (خسارة الدهون)','إعادة تشكيل الجسم (عضلات + خسارة دهون)','الحفاظ على الوزن','زيادة عضلية خفيفة','زيادة سريعة في الوزن'],
@@ -559,14 +567,15 @@ ar:{
  types:['رجل بالغ','امرأة بالغة','مراهق (12–17)','طفل (7–11)','طفل صغير (3–6)','رضيع (<3)'],
  notes:{bone:'العظم ≈ 25% من الوزن',sardine:'الجزء المأكول ≈ 60% مما تشتريه',merla:'الفيليه ≈ 50% من السمكة الكاملة',dry:'سعر الكيلو نيئًا (جافًّا)',oil:'احسب زيت الطبخ، فهو أكبر مصدر خفي للسعرات',whole:'أدخل الوزن كما اشتريته (بالعظم). الماكروز محسوبة على ~65% من الجزء المأكول.',asbought:'أدخل الوزن كما اشتريته (بالعظم). الماكروز محسوبة على الجزء المأكول فقط.'},
  sugar:'السكر (للشاي)',
- foods:['بيض عادي','بيض بلدي','خبز كامل (رغيف ~200 غ)','خبز أبيض (رغيف ~200 غ)','مسمن','حرشة','رقائق الشوفان','حليب (كأس 200 مل)','ياغورت (علبة)','جبن مثلث','واي بروتين (مغرفة 30 غ)','شاي بالسكر (كأس)','صدر دجاج (نيء)','فخذ دجاج بدون جلد (نيء)','سردين (نيء، الجزء المأكول)','سمك أبيض (فيليه نيء)','لحم بقري هبرة (نيء)','كفتة بقري (نيئة)','كفتة ديك رومي (نيئة)','كبد دجاج (نيء)','تونة (علبة، ~80 غ مصفاة)','أرز (مطبوخ)','معكرونة (مطبوخة)','عدس (مطبوخ)','لوبيا بيضاء (مطبوخة)','حمص (مطبوخ)','بطاطس (نيئة)','بطاطا حلوة (نيئة)','خضر (طماطم، خيار، بصل…)','موز','تفاح / برتقال','تمر','أفوكادو','زيت الطبخ (ملعقة كبيرة)','زيت الزيتون (ملعقة كبيرة)','لوز','فول سوداني','أملو (ملعقة 20 غ)','أرز (نيء)','معكرونة (نيئة)','عدس (نيء)','لوبيا بيضاء (نيئة)','حمص (نيء)','طماطم','بصل','جزر','كوسة','زيتون','دجاجة كاملة (بالعظم)','جبن طري (ملعقة 20 غ)','مربى (ملعقة 20 غ)','عسل (ملعقة 20 غ)','زبدة (ملعقة 14 غ)','سكر (ملعقة صغيرة 5 غ)','قهوة مطحونة (للكوب)','لحم بالعظم (غنم/بقر)','سمك كامل (بالعظم)','زبيب','فلفل حلو','كسكس (جاف)']
+ foods:['بيض عادي','بيض بلدي','خبز كامل (رغيف ~200 غ)','خبز أبيض (رغيف ~200 غ)','مسمن','حرشة','رقائق الشوفان','حليب (كأس 200 مل)','ياغورت (علبة)','جبن مثلث','واي بروتين (مغرفة 30 غ)','شاي بالسكر (كأس)','صدر دجاج (نيء)','فخذ دجاج بدون جلد (نيء)','سردين (نيء، الجزء المأكول)','سمك أبيض (فيليه نيء)','لحم بقري هبرة (نيء)','كفتة بقري (نيئة)','كفتة ديك رومي (نيئة)','كبد دجاج (نيء)','تونة (علبة، ~80 غ مصفاة)','أرز (مطبوخ)','معكرونة (مطبوخة)','عدس (مطبوخ)','لوبيا بيضاء (مطبوخة)','حمص (مطبوخ)','بطاطس (نيئة)','بطاطا حلوة (نيئة)','خضر (طماطم، خيار، بصل…)','موز','تفاح / برتقال','تمر','أفوكادو','زيت الطبخ (ملعقة كبيرة)','زيت الزيتون (ملعقة كبيرة)','لوز','فول سوداني','أملو (ملعقة 20 غ)','أرز (نيء)','معكرونة (نيئة)','عدس (نيء)','لوبيا بيضاء (نيئة)','حمص (نيء)','طماطم','بصل','جزر','كوسة','زيتون','دجاجة كاملة (بالعظم)','جبن طري (ملعقة 20 غ)','مربى (ملعقة 20 غ)','عسل (ملعقة 20 غ)','زبدة (ملعقة 14 غ)','سكر (ملعقة صغيرة 5 غ)','قهوة مطحونة (للكوب)','لحم بالعظم (غنم/بقر)','سمك كامل (بالعظم)','زبيب','فلفل حلو','كسكس (جاف)','تاكوس (وسط، لحم واحد)','برغر','بانيني','شاورما (ساندويتش)','ساندويتش كفتة','بيتزا (صغيرة)','رفيسة (صحن)','كسكس (صحن)','بيصارة (زلافة)','سفنج','بريوات (كفتة أو سمك)','معقودة','بسطيلة (حصة)','حريرة (زلافة)']
 },
 en:{
+ new_ingredient:'+ New ingredient',unit_g:'Grams (g)',unit_ml:'Millilitres (ml)',unit_u:'Piece',unit_mk:'Tablespoon (~15 g)',unit_ms:'Teaspoon (~5 g)',unit_kas:'Glass (~200 ml)',macros_per:'Macros per {u}',price_per:'Price (DH per {u})',street_group:'Takeaway',street_hint:'Ready-made food bought out: it stays off the shopping list, but its cost counts in the week and month.',street_note:'Approximate macros: they vary from one vendor to another. Change the price in "Prices".',
  weight_title:'Weight',log:'Log',today_w:'Weight (kg)',date:'Date',no_weights:'No weigh-ins yet. Weigh yourself in the morning before eating, 3–4 times a week.',avg7:'7-day average',per_week:'Per week',history:'Recent weigh-ins',trend_note:'A single day\'s weight swings 1–2 kg with water and salt. Watch the average, not today\'s number.',rate_fast:'Losing fast ({r}% a week). More than 1% a week costs muscle: add some calories.',need_more:'To estimate your real TDEE the app needs at least 14 days and 6 weigh-ins (now: {d} days, {n} weigh-ins).',tdee_obs:'Real TDEE ≈ {x} kcal (formula says {y})',tdee_explain:'Worked out from your plan ({i} kcal a day) and your weight change ({r} kg a week). Only right if you ate as planned.',use_tdee:'Use this number',reset_tdee:'Back to formula',tdee_used:'Target now based on your real TDEE ({x} kcal).',toast_logged:'Logged',simana_hint:'The shopping list is in the "Shopping" tab and combines the profiles you pick.',budget_in:'Monthly shopping budget (DH)',no_plan:'Fill in your days and week so the app knows what you eat.',
  rec_names:{'tajine':'Chicken tagine with vegetables','3des':'Lentils','loubia':'White beans (loubia)','khodra_djaj':'Chicken & sautéed vegetables','rouz_kefta':'Rice with kefta','mar9a':'Marga (meat stew)','tajine_7out':'Fish tagine','tajine_zbib':'Meat tagine with onions & raisins','harira':'Harira','couscous':'Vegetable couscous','9hwa_7lib':'Coffee with milk'},
- recipes:'Recipes',recipe_hint:'Enter the whole pot the way you cook it, and how many adult portions it makes. The app works out one portion, which you can add to any meal.',
- dry_hint:'Legumes and rice: pick the "raw" version and enter the weight before cooking.',new_recipe:'+ New recipe',recipe_name:'Recipe name',servings:'Portions',
- add_ingredient:'+ Add ingredient',per_portion:'Per portion:',whole_pot:'Whole pot:',recipe_empty:'No ingredients yet.',recipe_default:'New recipe',done:'Close',cat_rec:'Recipes',sheet_recipe:'Add to recipe',
+ recipes:'Recipes',recipe_hint:'Enter the whole pot the way you cook it, and how many adults eat from it. The app works out one person’s share, which you can add to any meal.',
+ dry_hint:'Legumes and rice: pick the "raw" version and enter the weight before cooking.',new_recipe:'+ New recipe',recipe_name:'Recipe name',servings:'Serves',
+ add_ingredient:'+ Add ingredient',per_portion:'Per person:',whole_pot:'Whole pot:',recipe_empty:'No ingredients yet.',recipe_default:'New recipe',done:'Close',cat_rec:'Recipes',sheet_recipe:'Add to recipe',
  weekly_items:'Every week',monthly_items:'Once a month',monthly_hint:'Amount for the whole month, rounded to the pack size.',need:'need {x}',have_home:'Already at home',
  at_home:'{n} items already at home',show:'Show',hide:'Hide',this_trip:'This trip',share_wa:'Send on WhatsApp',copy_list:'Copy list',list_title:'Shopping list',
  edit_meals:'Edit meals',meals_title:'Meals',add_meal:'+ Add meal',new_meal:'New meal',ramadan:'Ramadan',normal_meals:'Usual meals',
@@ -619,8 +628,8 @@ en:{
  paste_ph:'Paste a backup here…',import:'Import',toast_copied:'Copied',toast_select:'Select and copy',toast_import:'Imported',import_err:'This code is not valid.',
  toast_installed:'App installed',
  u_g:'g',u_kg:'kg',u_L:'L',u_ml:'ml',dh:'DH',kcal_u:'kcal',mP:'P',mC:'C',mF:'F',
- un:{bida:'egg',khobza:'loaf','7ba':'piece',kas:'glass','7ok':'cup',scoop:'scoop',banana:'banana',mo3al9a:'tbsp',portion:'portion'},
- cats:['Breakfast & snacks','Meat & fish','Starches & legumes','Vegetables & fruit','Oils & nuts'],
+ un:{bida:'egg',khobza:'loaf','7ba':'piece',kas:'glass','7ok':'cup',scoop:'scoop',banana:'banana',mo3al9a:'tbsp',portion:'portion',mo3al9a_s:'tsp',plat:'plate',zlafa:'bowl'},
+ cats:['Breakfast & snacks','Meat & fish','Starches & legumes','Vegetables & fruit','Oils & nuts','Takeaway'],
  meals:['Breakfast','Lunch','Snack','Dinner'],
  week_days:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
  goals:['Cut (lose fat)','Recomp (muscle + fat loss)','Maintain weight','Lean bulk','Bulk'],
@@ -628,7 +637,7 @@ en:{
  types:['Adult man','Adult woman','Teen (12–17)','Child (7–11)','Young child (3–6)','Toddler (<3)'],
  notes:{bone:'Bone ≈ 25% of weight',sardine:'Edible part ≈ 60% of what you buy',merla:'Fillet ≈ 50% of the whole fish',dry:'Price per kg, dry (uncooked)',oil:'Count your cooking oil: it is the biggest hidden source of calories',whole:'Enter the weight as bought (with bones). Macros assume ~65% is edible.',asbought:'Enter the weight as bought (with bones). Macros count only the edible part.'},
  sugar:'Sugar (for tea)',
- foods:['Eggs','Free-range eggs (beldi)','Whole-wheat bread (~200 g loaf)','White bread (~200 g loaf)','Msemen','Harcha','Rolled oats','Milk (200 ml glass)','Yogurt / Perly (cup)','Cheese wedge','Whey (30 g scoop)','Sweet mint tea (glass)','Chicken breast (raw)','Skinless chicken thigh (raw)','Sardine (raw, edible part)','Whiting / white fish (raw fillet)','Lean beef (raw)','Beef kefta (raw)','Turkey kefta (raw)','Chicken liver (raw)','Tuna (can, ~80 g drained)','Rice (cooked)','Pasta (cooked)','Lentils (cooked)','White beans (cooked)','Chickpeas (cooked)','Potato (raw)','Sweet potato (raw)','Vegetables (tomato, cucumber, onion…)','Banana','Apple / orange','Dates','Avocado','Cooking oil (tbsp)','Olive oil (tbsp)','Almonds','Peanuts','Amlou (20 g tbsp)','Rice (raw)','Pasta (raw)','Lentils (raw)','White beans (raw)','Chickpeas (raw)','Tomato','Onion','Carrot','Zucchini','Olives','Whole chicken (with bones)','Fresh cheese, jben (20 g tbsp)','Jam (20 g tbsp)','Honey (20 g tbsp)','Butter (14 g tbsp)','Sugar (5 g tsp)','Ground coffee (per cup)','Meat on the bone (lamb/beef)','Whole fish (with bones)','Raisins','Bell pepper','Couscous (dry)']
+ foods:['Eggs','Free-range eggs (beldi)','Whole-wheat bread (~200 g loaf)','White bread (~200 g loaf)','Msemen','Harcha','Rolled oats','Milk (200 ml glass)','Yogurt / Perly (cup)','Cheese wedge','Whey (30 g scoop)','Sweet mint tea (glass)','Chicken breast (raw)','Skinless chicken thigh (raw)','Sardine (raw, edible part)','Whiting / white fish (raw fillet)','Lean beef (raw)','Beef kefta (raw)','Turkey kefta (raw)','Chicken liver (raw)','Tuna (can, ~80 g drained)','Rice (cooked)','Pasta (cooked)','Lentils (cooked)','White beans (cooked)','Chickpeas (cooked)','Potato (raw)','Sweet potato (raw)','Vegetables (tomato, cucumber, onion…)','Banana','Apple / orange','Dates','Avocado','Cooking oil (tbsp)','Olive oil (tbsp)','Almonds','Peanuts','Amlou (20 g tbsp)','Rice (raw)','Pasta (raw)','Lentils (raw)','White beans (raw)','Chickpeas (raw)','Tomato','Onion','Carrot','Zucchini','Olives','Whole chicken (with bones)','Fresh cheese, jben (20 g tbsp)','Jam (20 g tbsp)','Honey (20 g tbsp)','Butter (14 g tbsp)','Sugar (5 g tsp)','Ground coffee (per cup)','Meat on the bone (lamb/beef)','Whole fish (with bones)','Raisins','Bell pepper','Couscous (dry)','Tacos (M, one meat)','Burger','Panini','Shawarma (sandwich)','Kefta sandwich','Pizza (small)','Rfissa (plate)','Couscous (plate)','Bissara (bowl)','Sfenj (doughnut)','Briouats (kefta or fish)','Maakouda (potato fritter)','Pastilla (slice)','Harira (bowl)']
 }};
 
 /* ---------- Food data ----------
@@ -636,7 +645,7 @@ en:{
  b = buy unit (kg | L | u); f = buy units needed per 1 g (or per 1 unit) eaten,
  including waste (bones, peel) and dry→cooked conversion. p = default price per buy unit (DH).
  Names live in I18N[lang].foods (same order as this list); ul/bl are unit keys; nt is a note key. */
-const CAT_KEYS=['ftour','prot','carb','veg','fat'];
+const CAT_KEYS=['ftour','prot','carb','veg','fat','zan9a'];
 const FOODS=[
  {id:'bid',cat:'ftour',u:'u',ul:'bida',d:3,s:1,m:[72,6.3,.4,4.8],b:'u',bl:'bida',f:1,p:1.4},
  {id:'bid_beldi',cat:'ftour',u:'u',ul:'bida',d:2,s:1,m:[68,6,.4,4.5],b:'u',bl:'bida',f:1,p:2.5},
@@ -697,7 +706,21 @@ const FOODS=[
  {id:'7out_kamel',cat:'prot',u:'g',d:300,s:50,m:[50,9,0,1.3],b:'kg',f:.001,p:45,nt:'asbought'},
  {id:'zbib',cat:'veg',u:'g',d:30,s:10,m:[299,3.1,79,.5],b:'kg',f:.001,p:50},
  {id:'felfla',cat:'veg',u:'g',d:100,s:50,m:[26,1,6,.3],b:'kg',f:.001,p:8},
- {id:'couscous_n',cat:'carb',u:'g',d:100,s:25,m:[376,12.8,77,.6],b:'kg',f:.001,p:15}
+ {id:'couscous_n',cat:'carb',u:'g',d:100,s:25,m:[376,12.8,77,.6],b:'kg',f:.001,p:15},
+ {id:'z_tacos',cat:'zan9a',u:'u',ul:'7ba',d:1,s:1,m:[950,42,90,46],b:'u',bl:'7ba',f:1,p:35,nt:'street'},
+ {id:'z_burger',cat:'zan9a',u:'u',ul:'7ba',d:1,s:1,m:[560,28,45,29],b:'u',bl:'7ba',f:1,p:30,nt:'street'},
+ {id:'z_panini',cat:'zan9a',u:'u',ul:'7ba',d:1,s:1,m:[600,30,62,24],b:'u',bl:'7ba',f:1,p:25,nt:'street'},
+ {id:'z_chawarma',cat:'zan9a',u:'u',ul:'7ba',d:1,s:1,m:[620,33,55,29],b:'u',bl:'7ba',f:1,p:25,nt:'street'},
+ {id:'z_sand_kefta',cat:'zan9a',u:'u',ul:'7ba',d:1,s:1,m:[650,30,62,30],b:'u',bl:'7ba',f:1,p:20,nt:'street'},
+ {id:'z_pizza',cat:'zan9a',u:'u',ul:'7ba',d:1,s:1,m:[800,33,95,31],b:'u',bl:'7ba',f:1,p:40,nt:'street'},
+ {id:'z_rfissa',cat:'zan9a',u:'u',ul:'plat',d:1,s:.5,m:[780,40,80,32],b:'u',bl:'plat',f:1,p:50,nt:'street'},
+ {id:'z_t3am',cat:'zan9a',u:'u',ul:'plat',d:1,s:.5,m:[760,35,100,23],b:'u',bl:'plat',f:1,p:40,nt:'street'},
+ {id:'z_bissara',cat:'zan9a',u:'u',ul:'zlafa',d:1,s:.5,m:[380,19,46,13],b:'u',bl:'zlafa',f:1,p:8,nt:'street'},
+ {id:'z_sfenj',cat:'zan9a',u:'u',ul:'7ba',d:1,s:1,m:[200,4,25,9.5],b:'u',bl:'7ba',f:1,p:2,nt:'street'},
+ {id:'z_briwat',cat:'zan9a',u:'u',ul:'7ba',d:1,s:1,m:[110,4,9,6.5],b:'u',bl:'7ba',f:1,p:3,nt:'street'},
+ {id:'z_ma9ouda',cat:'zan9a',u:'u',ul:'7ba',d:1,s:1,m:[120,2,12,7],b:'u',bl:'7ba',f:1,p:1.5,nt:'street'},
+ {id:'z_pastilla',cat:'zan9a',u:'u',ul:'portion',d:1,s:.5,m:[550,25,45,30],b:'u',bl:'portion',f:1,p:35,nt:'street'},
+ {id:'z_harira_z',cat:'zan9a',u:'u',ul:'zlafa',d:1,s:.5,m:[230,11,32,6],b:'u',bl:'zlafa',f:1,p:6,nt:'street'}
 ];
 /* Bought once a month (dry goods that keep) and the pack size they are sold in, in buy units */
 const STAPLE=new Set(['rouz_n','makarona_n','3des_n','loubia_n','7mes_n','rouz','makarona','3des','loubia','7mes','choufan','atay','zit_t','zit_z','whey','louz','kawkaw','tmer','amlou','ton','zitoun','confiture','l3sel','sokar','9hwa','zbib','couscous_n']);
@@ -716,8 +739,11 @@ function t(k,v){let s=I18N[lang()][k];if(s==null)s=I18N.dj[k];if(s==null)return 
   if(v&&typeof s==='string')for(const x in v)s=s.split('{'+x+'}').join(v[x]);return s;}
 const tl=(k,i)=>{const a=I18N[lang()][k]||I18N.dj[k];return (a&&a[i]!=null)?a[i]:I18N.dj[k][i]};
 const fname=f=>f.n!=null?f.n:tl('foods',FOOD_IDX[f.id]);
+/* Unit shown next to a quantity: g, ml or the food's own unit word */
+const uLab=f=>f.u==='g'?(f.gu==='ml'?t('u_ml'):t('u_g')):unitName(f.ul);
+const buyLab=f=>f.b==='kg'?t('u_kg'):f.b==='L'?t('u_L'):unitName(f.bl||'7ba');
 const unitName=k=>{const u=I18N[lang()].un||I18N.dj.un;return u[k]||I18N.dj.un[k]||k};
-const noteOf=f=>f.nt?((I18N[lang()].notes||{})[f.nt]||I18N.dj.notes[f.nt]):'';
+const noteOf=f=>f.nt==='street'?t('street_note'):f.nt?((I18N[lang()].notes||{})[f.nt]||I18N.dj.notes[f.nt]):'';
 const catName=k=>k==='rec'?t('cat_rec'):tl('cats',CAT_KEYS.indexOf(k));
 const DEFAULT_MEALS=()=>[{k:'ftour'},{k:'ghda'},{k:'kaskrout'},{k:'3cha'}];
 const mealKeys=()=>S.meals.map(m=>m.k);
@@ -750,7 +776,7 @@ function normalize(){
     S.recipes.forEach(r=>{const k=r.id.slice(2);if(!r.key&&I18N.dj.rec_names[k]===r.n)r.key=k});
     sampleRecipes().forEach(r=>{if(!have.has(r.id)&&!['r_tajine','r_3des','r_loubia'].includes(r.id))S.recipes.push(r)});S.recipeSeed=2} S.lang=I18N[S.lang]?S.lang:'dj';
   S.prices=S.prices||{}; S.custom=S.custom||[]; S.checked=S.checked||{};
-  S.custom.forEach(f=>{if(typeof f.n!=='string')f.n='?';if(f.ul==='7ba'||!f.ul)f.ul='7ba';if(!f.bl)f.bl='7ba';delete f.nt});
+  S.custom.forEach(f=>{if(!f.mu)f.mu=f.u==='g'?'g':'u';if(typeof f.n!=='string')f.n='?';if(f.ul==='7ba'||!f.ul)f.ul='7ba';if(!f.bl)f.bl='7ba';delete f.nt});
   if(!S.house) S.house=sampleHouse();
   if(!S.shop) S.shop={house:true};
   if(S.budget==null)S.budget=(S.house&&S.house.budget)||(S.profiles.find(p=>p.budget)||{}).budget||''; S.shop.house=false;
@@ -1020,13 +1046,13 @@ function vAyyam(p){
 function vMeal(d,k,mult){
   const list=d.meals[k]||[]; const tot=sum(list); const fam=mult!==1;
   const rows=list.map(([id,q],i)=>{const f=food(id); if(!f) return ''; const m=itemM(id,q);
-    const famQ=fam?`<div class="mm">${t('house_whole')} <b>${f.u==='g'?gr(r0(q*mult)):nu(r1(q*mult),unitName(f.ul))}</b></div>`:'';
+    const famQ=fam?`<div class="mm">${t('house_whole')} <b>${nu(f.u==='g'?r0(q*mult):r1(q*mult),esc(uLab(f)))}</b></div>`:'';
     return `<div class="item">
       <div style="min-width:0"><div class="nm">${esc(fname(f))}</div>
       <div class="mm">${macro(m)}</div>${famQ}</div>
       <div class="qty"><button aria-label="${t('dec')}" onclick="step('${k}',${i},-1)">−</button>
         <input id="q_${fam?'h':'p'}_${k}_${i}" type="number" inputmode="decimal" min="0" step="${f.s}" value="${q}" aria-label="${t('qty')}" onchange="setQ('${k}',${i},this.value)">
-        <small>${f.u==='g'?t('u_g'):esc(unitName(f.ul))}</small><button aria-label="${t('inc')}" onclick="step('${k}',${i},1)">+</button></div>
+        <small>${esc(uLab(f))}</small><button aria-label="${t('inc')}" onclick="step('${k}',${i},1)">+</button></div>
       <div class="price">${dh(m.cost*mult)}</div>
       <button class="x" aria-label="${t('remove')}" onclick="rmItem('${k}',${i})">✕</button>
     </div>`}).join('');
@@ -1061,11 +1087,11 @@ function delDay(){if(delArm!=='d'){delArm='d';render();return}const c=box();cons
   delArm=null;setCur(c.days[0]&&c.days[0].id);save();render()}
 
 /* ---------- Sheet: adds food to a meal, or an ingredient to a recipe ---------- */
-let sheetRecipe=null;
+let sheetRecipe=null, sheetNew=false;
 function openSheet(k){sheetMeal=k;sheetRecipe=null;sheetQ='';sheetCat='all';renderSheet();focusSheet()}
 function openSheetRecipe(id){sheetRecipe=id;sheetMeal='__recipe';sheetQ='';sheetCat='all';renderSheet();focusSheet()}
 function focusSheet(){setTimeout(()=>{const s=document.getElementById('sQ');s&&s.focus()},50)}
-function closeSheet(){sheetMeal=null;sheetRecipe=null;document.getElementById('sheetRoot').innerHTML=''}
+function closeSheet(){sheetNew=false;sheetMeal=null;sheetRecipe=null;document.getElementById('sheetRoot').innerHTML=''}
 function sheetCats(){return (sheetRecipe||!(S.recipes||[]).length?[]:['rec']).concat(CAT_KEYS)}
 function renderSheet(){
   if(!sheetMeal) return;
@@ -1073,10 +1099,13 @@ function renderSheet(){
   document.getElementById('sheetRoot').innerHTML=`<div class="sheet-bg" onclick="closeSheet()"></div>
   <div class="sheet" role="dialog" aria-label="${t('add_food')}">
     <div class="sec-h"><h2 style="font-size:18px">${title}</h2><button class="btn sm" onclick="closeSheet()">${t('close')}</button></div>
-    <input id="sQ" class="in" style="margin-top:10px" placeholder="${t('search_ph')}" value="${esc(sheetQ)}" oninput="sheetQ=this.value;renderSheetList()">
+    ${sheetNew?`<div class="list stack" style="padding-top:10px">${customFormHTML()}
+      <div class="row"><button class="btn pri" onclick="addCustom()">${t('add')}</button><button class="btn" onclick="sheetNew=false;renderSheet()">${t('cancel')}</button><span id="cErr" class="hint" style="color:var(--danger)"></span></div></div></div>`:
+    `<div class="row" style="margin-top:10px;flex-wrap:nowrap"><input id="sQ" class="in" style="flex:1;min-width:0" placeholder="${t('search_ph')}" value="${esc(sheetQ)}" oninput="sheetQ=this.value;renderSheetList()">
+      <button class="btn sm" style="white-space:nowrap" onclick="sheetNew=true;renderSheet();const n=document.getElementById('cN');if(n){n.value=sheetQ;n.focus()}">${t('new_ingredient')}</button></div>
     <div class="chips" style="margin-top:10px">${[['all',t('all')]].concat(sheetCats().map(k=>[k,catName(k)])).map(([k,l])=>`<button class="chip" aria-pressed="${sheetCat===k}" onclick="sheetCat='${k}';renderSheet()">${l}</button>`).join('')}</div>
-    <div class="list" id="sList"></div></div>`;
-  renderSheetList();
+    <div class="list" id="sList"></div></div>`}`;
+  if(!sheetNew) renderSheetList();
 }
 /* Search matches the food name in every language, so a French word still finds the item while the app is in Darija */
 function searchable(f){if(f.n!=null)return f.n.toLowerCase();return Object.keys(I18N).map(l=>(I18N[l].foods||[])[FOOD_IDX[f.id]]||'').join(' ').toLowerCase()}
@@ -1085,7 +1114,7 @@ function renderSheetList(){
   const pool=(sheetRecipe?[]:recipeFoods()).concat(allFoods());
   const list=pool.filter(f=>(sheetCat==='all'||f.cat===sheetCat)&&(!q||searchable(f).includes(q)));
   document.getElementById('sList').innerHTML=list.length?list.map(f=>`<button class="fopt" onclick="addFood('${f.id}')">
-    <span><span class="nm">${f.isRec?'🍲 ':''}${esc(fname(f))}</span><br><span class="mm">${f.u==='g'?gr(100):nu(1,esc(unitName(f.ul)))}: ${macro({k:f.m[0],p:f.m[1],c:f.m[2],f:f.m[3]})}${f.isRec?' · '+dh(f.p):''}</span></span>
+    <span><span class="nm">${f.isRec?'🍲 ':''}${esc(fname(f))}</span><br><span class="mm">${nu(f.u==='g'?100:1,esc(uLab(f)))}: ${macro({k:f.m[0],p:f.m[1],c:f.m[2],f:f.m[3]})}${f.isRec?' · '+dh(f.p):''}</span></span>
     <span class="add">+</span></button>`).join(''):`<p class="hint" style="padding:12px 0">${t('no_result')}</p>`;
 }
 function addFood(id){const f=food(id);
@@ -1103,10 +1132,11 @@ function vRecipes(){
   let ed='';
   if(r){const tot=sum(r.items);const n=Math.max(1,+r.servings||1);
     const rows=r.items.map(([id,q],i)=>{const f=food(id);if(!f)return '';const m=itemM(id,q);
-      return `<div class="item"><div style="min-width:0"><div class="nm">${esc(fname(f))}</div><div class="mm">${macro(m)}</div>${f.nt?`<div class="mm">${esc(noteOf(f))}</div>`:''}</div>
+      return `<div class="item"><div style="min-width:0"><div class="nm">${esc(fname(f))}</div><div class="mm">${macro(m)}</div>${f.nt?`<div class="mm">${esc(noteOf(f))}</div>`:''}
+        <div class="mm pedit"><label for="rp_${i}">${t('dh')}/${esc(buyLab(f))}</label><input id="rp_${i}" class="pin num" type="number" inputmode="decimal" step="0.1" min="0" value="${r2(price(f))}" onchange="setP('${f.id}',this.value)"></div></div>
       <div class="qty"><button aria-label="${t('dec')}" onclick="rStep(${i},-1)">−</button>
         <input id="rq_${i}" type="number" inputmode="decimal" min="0" step="${f.u==='g'?50:f.s}" value="${q}" aria-label="${t('qty')}" onchange="rSetQ(${i},this.value)">
-        <small>${f.u==='g'?t('u_g'):esc(unitName(f.ul))}</small><button aria-label="${t('inc')}" onclick="rStep(${i},1)">+</button></div>
+        <small>${esc(uLab(f))}</small><button aria-label="${t('inc')}" onclick="rStep(${i},1)">+</button></div>
       <div class="price">${dh(m.cost)}</div><button class="x" aria-label="${t('remove')}" onclick="rRm(${i})">✕</button></div>`}).join('');
     ed=`<div class="meal">
       <div class="meal-h" style="flex-wrap:wrap;align-items:flex-end">
@@ -1176,8 +1206,8 @@ function shopData(){
     else add(id,q*f.f*mult);
     c+=q*f.f*price(f)*mult}));return c};
   S.profiles.forEach(p=>{if(!S.shop[p.id])return;let c=0;p.week.forEach(id=>{c+=addDay(p.days.find(d=>d.id===id),1)});parts.push([esc(p.name)+(p.eatsHouse?t('extras'):''),c])});
-  const rows=Object.keys(agg).filter(id=>food(id)&&agg[id]>0).map(id=>{const f=food(id);const monthly=STAPLE.has(id);
-    const need=monthly?agg[id]*30/7:agg[id];const buy=buyQty(f,need);return {id,f,monthly,need,buy,cost:buy*price(f),home:!!S.pantry[id],done:!!S.checked[id]}})
+  const rows=Object.keys(agg).filter(id=>food(id)&&agg[id]>0).map(id=>{const f=food(id);const monthly=STAPLE.has(id);const street=f.cat==='zan9a';
+    const need=monthly?agg[id]*30/7:agg[id];const buy=buyQty(f,need);return {id,f,monthly,street,need,buy,cost:buy*price(f),home:!!S.pantry[id],done:!!S.checked[id]}})
     .sort((a,b)=>CAT_KEYS.indexOf(a.f.cat)-CAT_KEYS.indexOf(b.f.cat));
   const cost=parts.reduce((s,x)=>s+x[1],0);
   return {rows,parts,cost};
@@ -1186,13 +1216,13 @@ function shopData(){
 const shopName=f=>f.sn?t('sugar'):(f.n!=null?f.n:fname(f).replace(/\s*\([^)]*\)\s*$/,''));
 function shopText(rows){
   const d=new Date().toLocaleDateString(lang()==='en'?'en-GB':'fr-FR');
-  const sec=(m,title)=>{const r=rows.filter(x=>x.monthly===m&&!x.home&&!x.done);return r.length?`\n*${title}*\n`+r.map(x=>`- ${shopName(x.f)}: ${txtAmt(x.f,x.buy)}`).join('\n')+'\n':''};
-  const trip=rows.filter(x=>!x.home&&!x.done).reduce((s,x)=>s+x.cost,0);
+  const sec=(m,title)=>{const r=rows.filter(x=>x.monthly===m&&!x.street&&!x.home&&!x.done);return r.length?`\n*${title}*\n`+r.map(x=>`- ${shopName(x.f)}: ${txtAmt(x.f,x.buy)}`).join('\n')+'\n':''};
+  const trip=rows.filter(x=>!x.street&&!x.home&&!x.done).reduce((s,x)=>s+x.cost,0);
   return `🛒 ${t('list_title')} · ${d}\n`+sec(false,t('weekly_items'))+sec(true,t('monthly_items'))+`\n${t('this_trip')} ≈ ${trip.toFixed(0)} ${t('dh')}`;
 }
 function vT9edya(){
   const {rows,parts,cost}=shopData(); const month=cost*30/7; const bud=parseFloat(S.budget);
-  const visible=rows.filter(x=>!x.home), home=rows.filter(x=>x.home);
+  const street=rows.filter(x=>x.street), visible=rows.filter(x=>!x.home&&!x.street), home=rows.filter(x=>x.home&&!x.street);
   const trip=visible.filter(x=>!x.done).reduce((s,x)=>s+x.cost,0);
   const row=x=>{const differs=Math.abs(x.buy-x.need)>1e-6&&x.f.b!=='u';
     return `<div class="li ${x.done?'done':''}"><input type="checkbox" id="ck_${x.id}" ${x.done?'checked':''} onchange="chk('${x.id}',this.checked)">
@@ -1210,7 +1240,7 @@ function vT9edya(){
   </section>
   <section class="stack"><div class="sec-h"><h2>${t('week_list')}</h2><button class="btn sm ghost" onclick="S.checked={};save();render()">${t('restart')}</button></div>
     <p class="hint">${t('list_hint')}</p>
-    <div class="receipt">${rows.length?section(false,t('weekly_items'))+section(true,t('monthly_items'),t('monthly_hint')):`<div class="empty">${t('list_empty')}</div>`}
+    <div class="receipt">${rows.length?section(false,t('weekly_items'))+section(true,t('monthly_items'),t('monthly_hint'))+(street.length?`<div class="grp">${t('street_group')}</div><div class="grp-hint">${t('street_hint')}</div>`+street.map(x=>`<div class="li street"><span></span><span class="nm">${esc(shopName(x.f))}</span><span class="amt">${fmtAmt(x.f,x.buy)}</span><span class="pr">${dh(x.cost)}</span></div>`).join(''):''):`<div class="empty">${t('list_empty')}</div>`}
       ${home.length?`<div class="grp row" style="justify-content:space-between"><span>⌂ ${t('at_home',{n:home.length})}</span><button class="btn sm ghost" onclick="showPantry=!showPantry;render()">${showPantry?t('hide'):t('show')}</button></div>${showPantry?home.map(row).join(''):''}`:''}
       <div class="tot"><div><span>${t('this_trip')}</span><b>${dh(trip)}</b></div><div><span>${t('week')}</span><b>${dh(cost)}</b></div><div><span>${t('month')}</span><b>${dh(month)}</b></div>
       ${bud?`<div><span>${t('budget_month').split('(')[0].trim()}</span><b style="color:${month>bud?'var(--danger)':'var(--p)'}">${bdi((month>bud?'+':'−')+Math.abs(month-bud).toFixed(0)+' '+t('dh'))}</b></div>`:''}</div>
@@ -1237,18 +1267,7 @@ function vPrix(){
     <div class="ptable">${S.custom.map(f=>`<div class="prow"><div style="min-width:0"><div style="font-weight:600">${esc(f.n)}</div><small>${catName(f.cat)} · ${macro({k:f.m[0],p:f.m[1],c:f.m[2],f:f.m[3]})}</small></div>
       <div class="row"><button class="btn sm" onclick="editCustom('${f.id}')">${t('edit')}</button><button class="btn sm danger" onclick="delCustom('${f.id}')">${delArm==='c_'+f.id?t('confirm_del'):t('del')}</button></div></div>`).join('')}</div></section>`:''}
   <section class="panel stack" id="customForm"><h2 style="font-size:19px">${editingCustom?t('edit')+' · '+esc((food(editingCustom)||{}).n||''):t('add_custom')}</h2>
-    <div class="grid">
-      <div><label class="lbl" for="cN">${t('name')}</label><input id="cN" class="in" placeholder="${t('custom_ph')}"></div>
-      <div><label class="lbl" for="cCat">${t('category')}</label><select id="cCat" class="in">${CAT_KEYS.map(k=>`<option value="${k}">${catName(k)}</option>`).join('')}</select></div>
-      <div><label class="lbl" for="cU">${t('calc_by')}</label><select id="cU" class="in"><option value="g">${t('by_gram')}</option><option value="u">${t('by_unit')}</option></select></div>
-      <div><label class="lbl" for="cP">${t('price_dh')}</label><input id="cP" class="in num" type="number" step="0.1" min="0"></div>
-    </div>
-    <div class="grid">
-      <div><label class="lbl" for="cK">${t('kcal_u')}</label><input id="cK" class="in num" type="number" min="0"></div>
-      <div><label class="lbl" for="cPr">${t('prot_g')}</label><input id="cPr" class="in num" type="number" step="0.1" min="0"></div>
-      <div><label class="lbl" for="cC">${t('carbs_g')}</label><input id="cC" class="in num" type="number" step="0.1" min="0"></div>
-      <div><label class="lbl" for="cF">${t('fat_g')}</label><input id="cF" class="in num" type="number" step="0.1" min="0"></div>
-    </div>
+    ${customFormHTML()}
     <div class="row"><button class="btn pri" onclick="addCustom()">${editingCustom?t('save'):t('add')}</button>${editingCustom?`<button class="btn" onclick="editingCustom=null;render()">${t('cancel')}</button>`:''}<span id="cErr" class="hint" style="color:var(--danger)"></span></div>
   </section>
   <section class="panel stack"><h2 style="font-size:19px">${t('backup')}</h2>
@@ -1264,21 +1283,45 @@ function vPrix(){
 }
 function setP(id,v){const x=parseFloat(v);if(isNaN(x))delete S.prices[id];else S.prices[id]=Math.max(0,x);save();render()}
 let editingCustom=null;
+/* How a custom food is measured. f = buy units per measure (kg or L for spoons and glasses, so the list says "1 kg jben") */
+const MU={g:{u:'g',b:'kg',f:.001,d:100,s:25},ml:{u:'g',gu:'ml',b:'L',f:.001,d:200,s:50},u:{u:'u',ul:'7ba',b:'u',bl:'7ba',f:1,d:1,s:1},
+  mk:{u:'u',ul:'mo3al9a',b:'kg',f:.015,d:1,s:.5},ms:{u:'u',ul:'mo3al9a_s',b:'kg',f:.005,d:1,s:1},kas:{u:'u',ul:'kas',b:'L',f:.2,d:1,s:.5}};
+const muOf=f=>f.mu||(f.u==='g'?'g':'u');
+function muLabels(mu){const per={g:'100 '+t('u_g'),ml:'100 '+t('u_ml'),u:unitName('7ba'),mk:unitName('mo3al9a'),ms:unitName('mo3al9a_s'),kas:unitName('kas')}[mu];
+  const pu={g:t('u_kg'),ml:t('u_L'),u:unitName('7ba'),mk:t('u_kg'),ms:t('u_kg'),kas:t('u_L')}[mu];return {mac:t('macros_per',{u:per}),pr:t('price_per',{u:pu})}}
+function muUpdate(){const el=document.getElementById('cU');if(!el)return;const l=muLabels(el.value);
+  document.getElementById('cMacLbl').textContent=l.mac;document.getElementById('cPLbl').textContent=l.pr}
+function customFormHTML(){const l=muLabels('g');
+  return `<div class="grid">
+      <div><label class="lbl" for="cN">${t('name')}</label><input id="cN" class="in" placeholder="${t('custom_ph')}"></div>
+      <div><label class="lbl" for="cCat">${t('category')}</label><select id="cCat" class="in">${CAT_KEYS.map(k=>`<option value="${k}">${catName(k)}</option>`).join('')}</select></div>
+      <div><label class="lbl" for="cU">${t('calc_by')}</label><select id="cU" class="in" onchange="muUpdate()">${Object.keys(MU).map(k=>`<option value="${k}">${t('unit_'+k)}</option>`).join('')}</select></div>
+      <div><label class="lbl" for="cP" id="cPLbl">${l.pr}</label><input id="cP" class="in num" type="number" step="0.1" min="0"></div>
+    </div>
+    <p class="hint" id="cMacLbl" style="margin:0">${l.mac}</p>
+    <div class="grid">
+      <div><label class="lbl" for="cK">${t('kcal_u')}</label><input id="cK" class="in num" type="number" min="0"></div>
+      <div><label class="lbl" for="cPr">${t('prot_g')}</label><input id="cPr" class="in num" type="number" step="0.1" min="0"></div>
+      <div><label class="lbl" for="cC">${t('carbs_g')}</label><input id="cC" class="in num" type="number" step="0.1" min="0"></div>
+      <div><label class="lbl" for="cF">${t('fat_g')}</label><input id="cF" class="in num" type="number" step="0.1" min="0"></div>
+    </div>`}
 function addCustom(){
-  const g=id=>document.getElementById(id).value; const n=g('cN').trim(); const u=g('cU');
+  const g=id=>document.getElementById(id).value; const n=g('cN').trim(); const mu=g('cU'); const M=MU[mu]||MU.g;
   const nums=['cP','cK','cPr','cC','cF'].map(i=>parseFloat(g(i)));
   if(!n||nums.some(x=>isNaN(x)||x<0)){document.getElementById('cErr').textContent=t('custom_err');return}
-  const fields={n,cat:g('cCat'),u,ul:'7ba',d:u==='g'?100:1,s:u==='g'?25:1,m:nums.slice(1),b:u==='g'?'kg':'u',bl:'7ba',f:u==='g'?.001:1,p:nums[0]};
+  const fields={n,cat:g('cCat'),mu,u:M.u,gu:M.gu||null,ul:M.ul||'7ba',bl:M.bl||'7ba',b:M.b,f:M.f,d:M.d,s:M.s,m:nums.slice(1),p:nums[0]};
   if(editingCustom){const f=food(editingCustom);
-    if(f.u!==u){/* unit changed: convert stored quantities so the meals keep a sensible size */
-      const conv=q=>u==='g'?q*100:Math.max(1,r1(q/100));
+    if(f.u!==fields.u){/* g <-> unit: convert stored quantities so the meals keep a sensible size */
+      const conv=q=>fields.u==='g'?q*100:Math.max(1,r1(q/100));
       eachItem((it)=>{if(it[0]===f.id)it[1]=conv(it[1])});}
     Object.assign(f,fields);delete S.prices[f.id];editingCustom=null;save();render();toast(t('toast_saved'));return}
-  S.custom.push(Object.assign({id:'c_'+uid()},fields));save();render();toast(t('toast_custom',{n}))}
+  const nf=Object.assign({id:'c_'+uid()},fields);S.custom.push(nf);
+  if(sheetMeal&&sheetNew){sheetNew=false;addFood(nf.id);return}
+  save();render();toast(t('toast_custom',{n}))}
 function eachItem(fn){eachList(arr=>arr.forEach((it,i)=>fn(it,i,arr)))}
 function editCustom(id){editingCustom=id;render();const f=food(id);
   const set=(i,v)=>{const el=document.getElementById(i);if(el)el.value=v};
-  set('cN',f.n);set('cCat',f.cat);set('cU',f.u);set('cP',price(f));set('cK',f.m[0]);set('cPr',f.m[1]);set('cC',f.m[2]);set('cF',f.m[3]);
+  set('cN',f.n);set('cCat',f.cat);set('cU',muOf(f));muUpdate();set('cP',price(f));set('cK',f.m[0]);set('cPr',f.m[1]);set('cC',f.m[2]);set('cF',f.m[3]);
   const el=document.getElementById('customForm');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})}
 function delCustom(id){if(delArm!=='c_'+id){delArm='c_'+id;render();return}
   S.custom=S.custom.filter(f=>f.id!==id);delete S.prices[id];delete S.checked[id];
