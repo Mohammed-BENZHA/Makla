@@ -1332,6 +1332,8 @@ function menuPools(set){
   const by=sl=>(S.recipes||[]).filter(r=>recMeta(r).slots.includes(sl)&&ok(r));
   return {L:by('L'),D:by('D'),B:by('B'),F:by('F'),ftour:FTOUR.filter(([,it])=>okByExcl(itemIds(it),set.excl))}}
 const pick=a=>a[Math.floor(Math.random()*a.length)];
+/* Breakfast recipes are often counted per piece (one beghrir, one msemen): serve enough pieces for ~350 kcal */
+const bQty=r=>{const k=recipeFood(r).m[0]||300;return Math.max(1,Math.min(4,Math.round(350/k)))};
 function genWeek(set){
   const pl=menuPools(set);
   /* small pools (e.g. vegetarian) borrow from the other meal so the week does not repeat the same dish */
@@ -1342,7 +1344,7 @@ function genWeek(set){
   for(let t=0;t<400;t++){
     const days=[];let score=0,cost=0;const used={};
     for(let i=0;i<7;i++){const d={};
-      if(set.meals.ftour){const wk=i>=5&&pl.B.length&&Math.random()<.7;d.ftour=wk?[[pick(pl.B).id,1],['atay',1]]:pick(pl.ftour)[1].map(x=>x.slice())}
+      if(set.meals.ftour){const wk=i>=5&&pl.B.length&&Math.random()<.7;d.ftour=wk?(r=>[[r.id,bQty(r)],['atay',1]])(pick(pl.B)):pick(pl.ftour)[1].map(x=>x.slice())}
       if(set.meals.ghda){const pool=(i===4&&pl.F.length)?pl.F:lunch;const r=pick(pool);d.ghda=r.id}
       if(set.meals['3cha']){let r=pick(dinner);if(r.id===d.ghda)r=pick(dinner);d['3cha']=r.id}
       days.push(d)}
@@ -1385,6 +1387,24 @@ function swapOptions(i,k){const m=S.menu,set=m.set,pl=menuPools(set);
   else opts.sort((a,b)=>home(b)-home(a)||recCost(a)-recCost(b));
   opts.sort((a,b)=>(inWeek.has(a.id)?1:0)-(inWeek.has(b.id)?1:0));
   return opts.slice(0,6)}
+/* Breakfast options: the simple combos plus breakfast recipes (msemen, baghrir...) with tea */
+function ftourOptions(i){const m=S.menu,pl=menuPools(m.set),cur=JSON.stringify(m.days[i].ftour||[]);
+  const home=items=>itemIds(items).filter(id=>S.pantry[id]).length;
+  let o=pl.ftour.map(([key,it])=>({items:it.map(x=>x.slice()),name:t(key),time:5}))
+    .concat(pl.B.map(r=>({items:[[r.id,bQty(r)],['atay',1]],name:(bQty(r)>1?bQty(r)+' × ':'')+recName(r),time:recMeta(r).time})));
+  o.forEach(x=>{x.cost=sum(x.items).cost;x.home=home(x.items)});
+  o=o.filter(x=>JSON.stringify(x.items)!==cur);
+  if(swapMode==='cheaper')o.sort((a,b)=>a.cost-b.cost);else if(swapMode==='faster')o.sort((a,b)=>a.time-b.time||a.cost-b.cost);else o.sort((a,b)=>b.home-a.home||a.cost-b.cost);
+  return o.slice(0,8)}
+function setFtour(i,items){S.menu.days[i].ftour=items;swapAt=null;save();render()}
+function ftourCard(i){const d=S.menu.days[i];const open=swapAt===i+':ftour';const r=d.ftour.map(([id])=>recipe(id)).find(Boolean);
+  const tm=r?recMeta(r).time:5;const opts=open?ftourOptions(i):[];
+  return `<div class="mcard"><div class="mrow"><div style="min-width:0"><span class="mk">${mealBase('ftour')}</span><b>${esc(ftourName(d.ftour))}</b>
+    <span class="mm">⏱ ${t('time_lbl',{n:tm})} · ${dh(sum(d.ftour).cost)} ${t('per_pers')}</span></div>
+    <button class="btn sm" onclick="swapAt=${open?'null':`'${i}:ftour'`};render()">${t('swap')}</button></div>
+    ${open?`<div class="swap"><div class="chips">${['cheaper','faster','home'].map(md=>`<button class="chip" aria-pressed="${swapMode===md}" onclick="swapMode='${md}';render()">${t(md==='home'?'at_home_opt':md)}</button>`).join('')}
+      <button class="chip" onclick="setFtour(${i},pick(ftourOptions(${i})).items)">🎲 ${t('random_one')}</button></div>
+      ${opts.map((o,j)=>`<button class="fopt" onclick="setFtour(${i},ftourOptions(${i})[${j}].items)"><span><span class="nm">${esc(o.name)}</span><br><span class="mm">⏱ ${t('time_lbl',{n:o.time})} · ${dh(o.cost)} ${t('per_pers')}</span></span><span class="add">↺</span></button>`).join('')||`<p class="hint">${t('no_option')}</p>`}</div>`:''}</div>`}
 function setMeal(i,k,id){S.menu.days[i][k]=id;swapAt=null;save();render()}
 function randomMeal(i,k){const o=swapOptions(i,k);if(o.length)setMeal(i,k,pick(o).id)}
 function mealCard(i,k){const id=S.menu.days[i][k];const r=id&&recipe(id);if(!r)return '';const m=recMeta(r);const open=swapAt===i+':'+k;
@@ -1394,12 +1414,12 @@ function mealCard(i,k){const id=S.menu.days[i][k];const r=id&&recipe(id);if(!r)r
     ${open?`<div class="swap"><div class="chips">${['cheaper','faster','home'].map(md=>`<button class="chip" aria-pressed="${swapMode===md}" onclick="swapMode='${md}';render()">${t(md==='home'?'at_home_opt':md)}</button>`).join('')}
       <button class="chip" onclick="randomMeal(${i},'${k}')">🎲 ${t('random_one')}</button></div>
       ${swapOptions(i,k).map(o=>{const om=recMeta(o);return `<button class="fopt" onclick="setMeal(${i},'${k}','${o.id}')"><span><span class="nm">${esc(recName(o))}</span><br><span class="mm">⏱ ${t('time_lbl',{n:om.time})} · ${dh(recCost(o))} ${t('per_pers')}</span></span><span class="add">↺</span></button>`}).join('')||`<p class="hint">${t('no_option')}</p>`}</div>`:''}</div>`}
-const ftourName=items=>{const f=FTOUR.find(([,it])=>JSON.stringify(it)===JSON.stringify(items));if(f)return t(f[0]);return items.map(([id])=>{const x=food(id);return x?fname(x):''}).filter(Boolean).join(' + ')};
+const ftourName=items=>{const f=FTOUR.find(([,it])=>JSON.stringify(it)===JSON.stringify(items));if(f)return t(f[0]);return items.map(([id,q])=>{const x=food(id);if(!x)return '';const r=recipe(id);return r?(q>1?r1(q)+' × ':'')+recName(r):fname(x)}).filter(Boolean).join(' + ')};
 function vMenu(){
   if(!S.menu||menuEdit) return `<div class="stack">${menuSetForm()}</div>`;
   const m=S.menu,set=m.set,pp=menuCostPP(m),tot=pp*set.people,bud=+set.budget||0;
   const days=m.days.map((d,i)=>`<section class="mday"><h3>${tl('week_days',i)}</h3>
-    ${d.ftour?`<div class="mcard"><div class="mrow"><div style="min-width:0"><span class="mk">${mealBase('ftour')}</span><b>${esc(ftourName(d.ftour))}</b><span class="mm">${dh(sum(d.ftour).cost)} ${t('per_pers')}</span></div></div></div>`:''}
+    ${d.ftour?ftourCard(i):''}
     ${mealCard(i,'ghda')}${mealCard(i,'3cha')}</section>`).join('');
   return `<div class="stack">
     <section class="panel stack"><div class="sec-h"><h2>${t('menu_title')}</h2><button class="btn sm" onclick="menuEdit=true;render()">⚙ ${t('settings')}</button></div>
