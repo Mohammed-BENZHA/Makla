@@ -1,0 +1,4304 @@
+{
+"profiles": [
+{
+"id": "ylh3ehe",
+"name": "Mohammed",
+"sex": "m",
+"age": 28,
+"w": 80,
+"h": 178,
+"act": 1.55,
+"goal": "recomp",
+"protKg": 2,
+"fatPct": 27,
+"budget": "",
+"days": [
+{
+"id": "wbgilt0",
+"name": "Nhar A — training",
+"meals": {
+"ftour": [
+[
+"bid",
+4
+],
+[
+"choufan",
+70
+],
+[
+"hlib",
+1
+],
+[
+"banan",
+1
+]
+],
+"ghda": [
+[
+"fkhad",
+250
+],
+[
+"rouz",
+200
+],
+[
+"khodra",
+200
+],
+[
+"zit_t",
+1
+],
+[
+"r_g7g56e5",
+1.5
+]
+],
+"kaskrout": [
+[
+"perly",
+2
+],
+[
+"kawkaw",
+25
+],
+[
+"c_chrx1wa",
+150
+]
+],
+"3cha": [
+[
+"sardine",
+250
+],
+[
+"batata",
+300
+],
+[
+"khodra",
+150
+],
+[
+"zit_z",
+1
+]
+]
+}
+},
+{
+"id": "cxkx0uh",
+"name": "Nhar B — raha",
+"meals": {
+"ftour": [
+[
+"bid",
+3
+],
+[
+"khobz",
+0.5
+],
+[
+"zit_z",
+1
+],
+[
+"atay",
+1
+]
+],
+"ghda": [
+[
+"3des",
+300
+],
+[
+"kebda",
+150
+],
+[
+"khobz",
+0.5
+],
+[
+"khodra",
+200
+]
+],
+"kaskrout": [
+[
+"perly",
+1
+],
+[
+"tfa7",
+1
+]
+],
+"3cha": [
+[
+"merla",
+250
+],
+[
+"batata",
+250
+],
+[
+"khodra",
+150
+],
+[
+"zit_t",
+1
+]
+]
+}
+}
+],
+"week": [
+"wbgilt0",
+"cxkx0uh",
+"wbgilt0",
+"cxkx0uh",
+"wbgilt0",
+"cxkx0uh",
+"cxkx0uh"
+],
+"example": false,
+"weights": [
+{
+"d": "2026-09-20",
+"w": 81.2
+},
+{
+"d": "2026-10-01",
+"w": 80.6
+},
+{
+"d": "2026-10-10",
+"w": 80.1
+}
+],
+"train": true,
+"tdays": [
+0,
+2,
+4
+]
+},
+{
+"id": "oxtbwa0",
+"name": "Fatima",
+"sex": "f",
+"age": 34,
+"w": 62,
+"h": 163,
+"act": 1.55,
+"goal": "cut",
+"protKg": null,
+"fatPct": 27,
+"budget": "",
+"days": [
+{
+"id": "wyrdrzu",
+"name": "Nhar A",
+"meals": {
+"ftour": [],
+"ghda": [],
+"kaskrout": [],
+"3cha": []
+}
+}
+],
+"week": [
+"wyrdrzu",
+"wyrdrzu",
+"wyrdrzu",
+"wyrdrzu",
+"wyrdrzu",
+"wyrdrzu",
+"wyrdrzu"
+],
+"example": false
+}
+],
+"active": "ylh3ehe",
+"prices": {
+"sder": 75,
+"bid": 1.6
+},
+"custom": [
+{
+"id": "c_chrx1wa",
+"n": "Skyr Jaouda",
+"cat": "ftour",
+"mu": "g",
+"u": "g",
+"gu": null,
+"ul": "7ba",
+"bl": "7ba",
+"b": "kg",
+"f": 0.001,
+"d": 100,
+"s": 25,
+"m": [
+63,
+11,
+4,
+0.2
+],
+"p": 45
+},
+{
+"id": "c_j47f98v",
+"n": "Msemen dyal 7anout",
+"cat": "ftour",
+"mu": "u",
+"u": "u",
+"gu": null,
+"ul": "7ba",
+"bl": "7ba",
+"b": "u",
+"f": 1,
+"d": 1,
+"s": 1,
+"m": [
+300,
+6,
+40,
+13
+],
+"p": 2
+}
+],
+"theme": "dark",
+"meals": [
+{
+"k": "ftour"
+},
+{
+"k": "ghda"
+},
+{
+"k": "kaskrout",
+"n": "Goûter"
+},
+{
+"k": "3cha"
+}
+],
+"pantry": {
+"louz": 0.2,
+"rouz": 0.3,
+"sokar": true
+},
+"recipes": [
+{
+"id": "r_tajine",
+"key": "tajine",
+"cat": "main",
+"n": "Tajine djaj b l'khodra",
+"servings": 5,
+"items": [
+[
+"djaj_kamel",
+1500
+],
+[
+"batata",
+800
+],
+[
+"khizzou",
+300
+],
+[
+"bsla",
+200
+],
+[
+"maticha",
+200
+],
+[
+"zitoun",
+100
+],
+[
+"zit_t",
+3
+],
+[
+"zit_z",
+1
+]
+]
+},
+{
+"id": "r_khodra_djaj",
+"key": "khodra_djaj",
+"cat": "main",
+"n": "Khodra soti b djaj",
+"servings": 5,
+"items": [
+[
+"sder",
+700
+],
+[
+"batata",
+600
+],
+[
+"khizzou",
+300
+],
+[
+"9ar3a",
+400
+],
+[
+"felfla",
+300
+],
+[
+"bsla",
+150
+],
+[
+"zit_t",
+3
+]
+]
+},
+{
+"id": "r_rouz_kefta",
+"key": "rouz_kefta",
+"cat": "main",
+"n": "Rouz b l'kefta",
+"servings": 5,
+"items": [
+[
+"rouz_n",
+500
+],
+[
+"kefta",
+600
+],
+[
+"maticha",
+300
+],
+[
+"bsla",
+150
+],
+[
+"felfla",
+150
+],
+[
+"zit_t",
+2
+]
+]
+},
+{
+"id": "r_mar9a",
+"key": "mar9a",
+"cat": "main",
+"n": "Mar9a b l7em",
+"servings": 5,
+"items": [
+[
+"l7em_3dem",
+1000
+],
+[
+"bsla",
+300
+],
+[
+"maticha",
+300
+],
+[
+"zit_t",
+3
+],
+[
+"zit_z",
+1
+]
+]
+},
+{
+"id": "r_tajine_zbib",
+"key": "tajine_zbib",
+"cat": "main",
+"n": "Tajine b l7em, bsla w zbib",
+"servings": 5,
+"items": [
+[
+"l7em_3dem",
+1200
+],
+[
+"bsla",
+900
+],
+[
+"zbib",
+150
+],
+[
+"l3sel",
+2
+],
+[
+"louz",
+50
+],
+[
+"zit_t",
+3
+]
+]
+},
+{
+"id": "r_9hwa_7lib",
+"key": "9hwa_7lib",
+"cat": "drink",
+"n": "9hwa b l7lib",
+"servings": 1,
+"items": [
+[
+"hlib",
+0.75
+],
+[
+"9hwa",
+1
+],
+[
+"sokar",
+1
+]
+]
+},
+{
+"id": "r_couscous",
+"key": "couscous",
+"cat": "main",
+"n": "Seksu b sba3 khodari",
+"servings": 6,
+"items": [
+[
+"couscous_n",
+1000
+],
+[
+"l7em_3dem",
+1000
+],
+[
+"bsla",
+300
+],
+[
+"maticha",
+320
+],
+[
+"7mes_n",
+150
+],
+[
+"khizzou",
+300
+],
+[
+"left",
+300
+],
+[
+"9ar3a_7emra",
+400
+],
+[
+"9ar3a",
+250
+],
+[
+"mkouwer",
+250
+],
+[
+"batata7",
+200
+],
+[
+"9zbour",
+50
+],
+[
+"zit_z",
+5.33
+],
+[
+"zit_t",
+5.33
+],
+[
+"smen",
+10
+],
+[
+"mel7a",
+15
+],
+[
+"l3triya",
+25
+]
+]
+},
+{
+"id": "r_couscous_tfaya",
+"key": "couscous_tfaya",
+"cat": "main",
+"n": "Seksu b tfaya",
+"servings": 6,
+"items": [
+[
+"couscous_n",
+1000
+],
+[
+"l7em_3dem",
+1000
+],
+[
+"7mes_n",
+150
+],
+[
+"bsla",
+1500
+],
+[
+"zbib",
+250
+],
+[
+"zebda",
+3.57
+],
+[
+"zit_t",
+3.33
+],
+[
+"l3triya",
+18
+],
+[
+"sokar",
+20
+],
+[
+"ma_zhar",
+30
+],
+[
+"louz",
+150
+]
+]
+},
+{
+"id": "r_couscous_bidawi",
+"key": "couscous_bidawi",
+"cat": "main",
+"n": "Seksu bidawi",
+"servings": 6,
+"items": [
+[
+"couscous_n",
+1000
+],
+[
+"l7em_ras",
+1200
+],
+[
+"7mes_n",
+200
+],
+[
+"bsla",
+400
+],
+[
+"maticha",
+400
+],
+[
+"khizzou",
+250
+],
+[
+"left",
+250
+],
+[
+"9ar3a_7emra",
+250
+],
+[
+"mkouwer",
+250
+],
+[
+"touma",
+15
+],
+[
+"l3triya",
+25
+],
+[
+"smen",
+10
+],
+[
+"mel7a",
+15
+]
+]
+},
+{
+"id": "r_couscous_belboula",
+"key": "couscous_belboula",
+"cat": "main",
+"n": "Seksu b belboula d ch3ir",
+"servings": 6,
+"items": [
+[
+"belboula",
+1000
+],
+[
+"l7em_3dem",
+800
+],
+[
+"left",
+300
+],
+[
+"khizzou",
+300
+],
+[
+"9ar3a_7emra",
+300
+],
+[
+"mkouwer",
+200
+],
+[
+"foul_yabs",
+100
+],
+[
+"maticha",
+400
+],
+[
+"bsla",
+300
+],
+[
+"zit_z",
+10
+],
+[
+"l3triya",
+25
+],
+[
+"smen",
+10
+]
+]
+},
+{
+"id": "r_badaz",
+"key": "badaz",
+"cat": "main",
+"n": "Badaz (seksu d dra soussi)",
+"servings": 6,
+"items": [
+[
+"smida_dra",
+1000
+],
+[
+"7out_kamel",
+1000
+],
+[
+"khizzou",
+250
+],
+[
+"9ar3a_7emra",
+250
+],
+[
+"9ar3a",
+200
+],
+[
+"maticha",
+200
+],
+[
+"felfla",
+100
+],
+[
+"7mes_n",
+150
+],
+[
+"zit_argan",
+6.67
+],
+[
+"zit_z",
+5
+],
+[
+"9zbour",
+40
+],
+[
+"l3triya",
+25
+]
+]
+},
+{
+"id": "r_seksu_fassi",
+"key": "seksu_fassi",
+"cat": "main",
+"n": "Seksu fassi b l7lib, lbid w llouz",
+"servings": 8,
+"items": [
+[
+"couscous_n",
+1000
+],
+[
+"hlib",
+5
+],
+[
+"zebda",
+7.14
+],
+[
+"ma_zhar",
+45
+],
+[
+"louz",
+200
+],
+[
+"bid",
+6
+],
+[
+"sokar",
+20
+],
+[
+"l3triya",
+20
+]
+]
+},
+{
+"id": "r_tajine_ber9ou9",
+"key": "tajine_ber9ou9",
+"cat": "main",
+"n": "Tajine l7em b lber9ou9 w llouz",
+"servings": 5,
+"items": [
+[
+"l7em_3dem",
+1000
+],
+[
+"bsla",
+400
+],
+[
+"touma",
+12
+],
+[
+"zit_z",
+2.67
+],
+[
+"zit_t",
+2.33
+],
+[
+"smen",
+5
+],
+[
+"9zbour",
+30
+],
+[
+"l3triya",
+20
+],
+[
+"za3fran",
+0.5
+],
+[
+"mel7a",
+5
+],
+[
+"ber9ou9",
+250
+],
+[
+"sokar",
+9
+],
+[
+"zebda",
+1.07
+],
+[
+"ma_zhar",
+15
+],
+[
+"louz",
+100
+],
+[
+"znjlan",
+20
+]
+]
+},
+{
+"id": "r_tajine_djaj_msyer",
+"key": "tajine_djaj_msyer",
+"cat": "main",
+"n": "Djaj m7emmer b zitoun w l7amed msyer",
+"servings": 5,
+"items": [
+[
+"djaj_kamel",
+1650
+],
+[
+"bsla",
+750
+],
+[
+"kebda",
+150
+],
+[
+"touma",
+20
+],
+[
+"9zbour",
+40
+],
+[
+"l7amed_msyer",
+60
+],
+[
+"zitoun",
+150
+],
+[
+"zit_z",
+3.33
+],
+[
+"zit_t",
+3.33
+],
+[
+"smen",
+10
+],
+[
+"l3triya",
+24
+],
+[
+"za3fran",
+0.5
+],
+[
+"mel7a",
+3
+]
+]
+},
+{
+"id": "r_tajine_kefta",
+"key": "tajine_kefta",
+"cat": "main",
+"n": "Tajine kefta b maticha w lbid",
+"servings": 4,
+"items": [
+[
+"kefta",
+500
+],
+[
+"maticha",
+1020
+],
+[
+"bsla",
+150
+],
+[
+"touma",
+12
+],
+[
+"9zbour",
+40
+],
+[
+"bid",
+4
+],
+[
+"zit_z",
+5
+],
+[
+"l3triya",
+22
+],
+[
+"mel7a",
+5
+]
+]
+},
+{
+"id": "r_tajine_9o9",
+"key": "tajine_9o9",
+"cat": "main",
+"n": "Tajine l9o9 w jelbana b l7em",
+"servings": 5,
+"items": [
+[
+"l7em_3dem",
+750
+],
+[
+"l9o9",
+500
+],
+[
+"jelbana",
+300
+],
+[
+"bsla",
+200
+],
+[
+"touma",
+12
+],
+[
+"l7amed_msyer",
+30
+],
+[
+"9zbour",
+30
+],
+[
+"zit_z",
+2.67
+],
+[
+"zit_t",
+2.33
+],
+[
+"l3triya",
+13
+],
+[
+"mel7a",
+5
+]
+]
+},
+{
+"id": "r_tajine_sferjel",
+"key": "tajine_sferjel",
+"cat": "main",
+"n": "Tajine sferjel m3essel b l7em",
+"servings": 5,
+"items": [
+[
+"l7em_3dem",
+1000
+],
+[
+"sferjel",
+750
+],
+[
+"bsla",
+300
+],
+[
+"zit_t",
+4
+],
+[
+"zebda",
+2.5
+],
+[
+"l3triya",
+18
+],
+[
+"za3fran",
+0.5
+],
+[
+"mel7a",
+5
+],
+[
+"sokar",
+16
+]
+]
+},
+{
+"id": "r_tajine_khodra",
+"key": "tajine_khodra",
+"cat": "main",
+"n": "Tajine b lkhodra mchekla",
+"servings": 5,
+"items": [
+[
+"l7em_3dem",
+650
+],
+[
+"batata",
+300
+],
+[
+"khizzou",
+200
+],
+[
+"jelbana",
+100
+],
+[
+"9ar3a",
+150
+],
+[
+"maticha",
+150
+],
+[
+"bsla",
+150
+],
+[
+"zitoun",
+50
+],
+[
+"l7amed_msyer",
+30
+],
+[
+"zit_z",
+5
+],
+[
+"touma",
+8
+],
+[
+"9zbour",
+30
+],
+[
+"l3triya",
+18
+]
+]
+},
+{
+"id": "r_tajine_7out",
+"key": "tajine_7out",
+"cat": "fish",
+"n": "Tajine l7out b chermoula w lkhodra",
+"servings": 5,
+"items": [
+[
+"7out_kamel",
+1000
+],
+[
+"khizzou",
+250
+],
+[
+"batata",
+300
+],
+[
+"felfla",
+200
+],
+[
+"maticha",
+300
+],
+[
+"l7amed",
+145
+],
+[
+"zitoun",
+100
+],
+[
+"9zbour",
+60
+],
+[
+"touma",
+20
+],
+[
+"l3triya",
+25
+],
+[
+"zit_z",
+6.67
+],
+[
+"mel7a",
+5
+]
+]
+},
+{
+"id": "r_tajine_soussi",
+"key": "tajine_soussi",
+"cat": "main",
+"n": "Tajine soussi b lma3zi, bsla w zbib",
+"servings": 5,
+"items": [
+[
+"l7em_3dem",
+1000
+],
+[
+"bsla",
+750
+],
+[
+"zbib",
+150
+],
+[
+"zit_argan",
+5
+],
+[
+"zit_z",
+2.67
+],
+[
+"l3triya",
+15
+],
+[
+"za3fran",
+0.5
+],
+[
+"mel7a",
+5
+]
+]
+},
+{
+"id": "r_tajine_bouzroug",
+"key": "tajine_bouzroug",
+"cat": "fish",
+"n": "Tajine bbouzroug b maticha",
+"servings": 4,
+"items": [
+[
+"bbouzroug",
+500
+],
+[
+"maticha",
+520
+],
+[
+"touma",
+15
+],
+[
+"9zbour",
+40
+],
+[
+"zit_z",
+5
+],
+[
+"l3triya",
+17
+],
+[
+"l7amed",
+20
+]
+]
+},
+{
+"id": "r_tajine_meloukhia",
+"key": "tajine_meloukhia",
+"cat": "main",
+"n": "Tajine lmeloukhia b l7em",
+"servings": 5,
+"items": [
+[
+"l7em_3dem",
+750
+],
+[
+"meloukhia",
+500
+],
+[
+"bsla",
+200
+],
+[
+"maticha",
+300
+],
+[
+"touma",
+12
+],
+[
+"zit_z",
+2.67
+],
+[
+"zit_t",
+2.33
+],
+[
+"l3triya",
+13
+],
+[
+"9zbour",
+20
+],
+[
+"mel7a",
+5
+]
+]
+},
+{
+"id": "r_tanjia",
+"key": "tanjia",
+"cat": "main",
+"n": "Tanjia marrakchia",
+"servings": 5,
+"items": [
+[
+"l7em_3dem",
+1500
+],
+[
+"touma",
+40
+],
+[
+"l7amed_msyer",
+70
+],
+[
+"l3triya",
+10
+],
+[
+"smen",
+20
+],
+[
+"za3fran",
+1
+],
+[
+"zit_z",
+6.67
+]
+]
+},
+{
+"id": "r_rfissa",
+"key": "rfissa",
+"cat": "main",
+"n": "Rfissa (b trid)",
+"servings": 8,
+"items": [
+[
+"djaj_kamel",
+1800
+],
+[
+"bsla",
+1000
+],
+[
+"3des_n",
+200
+],
+[
+"7elba",
+50
+],
+[
+"touma",
+85
+],
+[
+"9zbour",
+50
+],
+[
+"zit_z",
+5
+],
+[
+"zit_t",
+15
+],
+[
+"smen",
+20
+],
+[
+"l3triya",
+37
+],
+[
+"za3fran",
+0.5
+],
+[
+"mel7a",
+17
+],
+[
+"d9i9",
+750
+],
+[
+"smida",
+250
+]
+]
+},
+{
+"id": "r_rfissa_3amya",
+"key": "rfissa_3amya",
+"cat": "main",
+"n": "Rfissa l3amya (b lkhobz)",
+"servings": 6,
+"items": [
+[
+"khobz_b",
+3.75
+],
+[
+"bsla",
+500
+],
+[
+"maticha",
+300
+],
+[
+"3des_n",
+100
+],
+[
+"7elba",
+30
+],
+[
+"foul_yabs",
+100
+],
+[
+"gueddid",
+150
+],
+[
+"touma",
+20
+],
+[
+"9zbour",
+40
+],
+[
+"zit_z",
+6.67
+],
+[
+"smen",
+10
+],
+[
+"l3triya",
+20
+]
+]
+},
+{
+"id": "r_bastilla_djaj",
+"key": "bastilla_djaj",
+"cat": "main",
+"n": "Bastilla fassiya d djaj w llouz",
+"servings": 12,
+"items": [
+[
+"lwr9a",
+500
+],
+[
+"djaj_kamel",
+3000
+],
+[
+"bsla",
+1500
+],
+[
+"bid",
+9
+],
+[
+"9zbour",
+100
+],
+[
+"louz",
+500
+],
+[
+"sokar",
+30
+],
+[
+"l3triya",
+45
+],
+[
+"ma_zhar",
+45
+],
+[
+"zebda",
+14.29
+],
+[
+"zit_t",
+6.67
+],
+[
+"smen",
+10
+],
+[
+"za3fran",
+1
+],
+[
+"mel7a",
+5
+]
+]
+},
+{
+"id": "r_bastilla_7out",
+"key": "bastilla_7out",
+"cat": "fish",
+"n": "Bastilla d l7out w fawakih lba7r",
+"servings": 12,
+"items": [
+[
+"lwr9a",
+500
+],
+[
+"merla",
+750
+],
+[
+"9imroun",
+500
+],
+[
+"calamar",
+500
+],
+[
+"cha3riya",
+250
+],
+[
+"fetr",
+450
+],
+[
+"9zbour",
+60
+],
+[
+"touma",
+25
+],
+[
+"l7amed_msyer",
+30
+],
+[
+"l7amed",
+45
+],
+[
+"soja",
+45
+],
+[
+"l3triya",
+45
+],
+[
+"zit_z",
+6.67
+],
+[
+"zebda",
+10.71
+],
+[
+"fromage_rouge",
+150
+]
+]
+},
+{
+"id": "r_bastilla_7lib",
+"key": "bastilla_7lib",
+"cat": "sweet",
+"n": "Bastilla b l7lib (knifa)",
+"servings": 8,
+"items": [
+[
+"lwr9a",
+250
+],
+[
+"hlib",
+5
+],
+[
+"maizena",
+60
+],
+[
+"sokar",
+22
+],
+[
+"ma_zhar",
+45
+],
+[
+"l3triya",
+11
+],
+[
+"louz",
+150
+],
+[
+"zit_t",
+3.33
+]
+]
+},
+{
+"id": "r_seffa",
+"key": "seffa",
+"cat": "main",
+"n": "Seffa medfouna b djaj",
+"servings": 6,
+"items": [
+[
+"cha3riya",
+500
+],
+[
+"zit_t",
+6.33
+],
+[
+"zebda",
+5.71
+],
+[
+"zbib",
+100
+],
+[
+"nestle",
+100
+],
+[
+"louz",
+150
+],
+[
+"l3triya",
+40
+],
+[
+"djaj_kamel",
+1000
+],
+[
+"bsla",
+500
+],
+[
+"smen",
+10
+],
+[
+"za3fran",
+0.5
+]
+]
+},
+{
+"id": "r_l7em_m7emmer",
+"key": "l7em_m7emmer",
+"cat": "main",
+"n": "L7em m7emmer b deghmira",
+"servings": 8,
+"items": [
+[
+"l7em_3dem",
+2000
+],
+[
+"bsla",
+500
+],
+[
+"touma",
+20
+],
+[
+"smen",
+10
+],
+[
+"zebda",
+2.14
+],
+[
+"zit_t",
+5
+],
+[
+"l3triya",
+38
+],
+[
+"za3fran",
+1
+],
+[
+"mel7a",
+12
+]
+]
+},
+{
+"id": "r_mechoui",
+"key": "mechoui",
+"cat": "main",
+"n": "Mechoui (ktef l7ouli)",
+"servings": 6,
+"items": [
+[
+"l7em_3dem",
+2000
+],
+[
+"zebda",
+5.71
+],
+[
+"smen",
+15
+],
+[
+"touma",
+12
+],
+[
+"l3triya",
+15
+],
+[
+"mel7a",
+15
+],
+[
+"za3fran",
+0.5
+]
+]
+},
+{
+"id": "r_mrouzia",
+"key": "mrouzia",
+"cat": "main",
+"n": "Mrouzia",
+"servings": 8,
+"items": [
+[
+"l7em_3dem",
+1500
+],
+[
+"zbib",
+250
+],
+[
+"louz",
+200
+],
+[
+"l3sel",
+10
+],
+[
+"touma",
+25
+],
+[
+"smen",
+20
+],
+[
+"zit_z",
+3.33
+],
+[
+"zit_t",
+3.33
+],
+[
+"l3triya",
+48
+],
+[
+"za3fran",
+1
+],
+[
+"mel7a",
+5
+]
+]
+},
+{
+"id": "r_t9lya",
+"key": "t9lya",
+"cat": "eid",
+"n": "T9lya (douwara)",
+"servings": 5,
+"items": [
+[
+"douwara",
+1000
+],
+[
+"bsla",
+250
+],
+[
+"maticha",
+210
+],
+[
+"touma",
+25
+],
+[
+"9zbour",
+50
+],
+[
+"l7amed_msyer",
+60
+],
+[
+"zitoun",
+150
+],
+[
+"zit_z",
+5
+],
+[
+"l3triya",
+38
+],
+[
+"mel7a",
+3
+]
+]
+},
+{
+"id": "r_kour3in",
+"key": "kour3in",
+"cat": "eid",
+"n": "Kour3in b l7emmes w zbib",
+"servings": 6,
+"items": [
+[
+"kour3in",
+1500
+],
+[
+"7mes_n",
+250
+],
+[
+"zbib",
+150
+],
+[
+"herbel",
+150
+],
+[
+"bsla",
+300
+],
+[
+"touma",
+25
+],
+[
+"zit_z",
+2.67
+],
+[
+"zit_t",
+2.33
+],
+[
+"l3triya",
+45
+],
+[
+"l3sel",
+2
+],
+[
+"mel7a",
+12
+]
+]
+},
+{
+"id": "r_boulfaf",
+"key": "boulfaf",
+"cat": "eid",
+"n": "Boulfaf (kebda f ch7ma)",
+"servings": 6,
+"items": [
+[
+"kebda_ghanmi",
+750
+],
+[
+"ch7ma",
+250
+],
+[
+"l3triya",
+32
+],
+[
+"mel7a",
+15
+]
+]
+},
+{
+"id": "r_rras_mbekher",
+"key": "rras_mbekher",
+"cat": "eid",
+"n": "Rras mbekher",
+"servings": 6,
+"items": [
+[
+"l7em_ras",
+1750
+],
+[
+"bsla",
+150
+],
+[
+"9zbour",
+50
+],
+[
+"l3triya",
+20
+],
+[
+"mel7a",
+15
+]
+]
+},
+{
+"id": "r_gueddid",
+"key": "gueddid",
+"cat": "eid",
+"n": "Gueddid",
+"servings": 20,
+"items": [
+[
+"lhem",
+2000
+],
+[
+"l3triya",
+90
+],
+[
+"touma",
+40
+],
+[
+"mel7a",
+80
+],
+[
+"khal",
+60
+],
+[
+"zit_z",
+5
+]
+]
+},
+{
+"id": "r_ti7al",
+"key": "ti7al",
+"cat": "eid",
+"n": "Ti7al m3emmer",
+"servings": 6,
+"items": [
+[
+"ti7al",
+600
+],
+[
+"kefta",
+350
+],
+[
+"kebda_ghanmi",
+100
+],
+[
+"ch7ma",
+100
+],
+[
+"bsla",
+150
+],
+[
+"rouz_n",
+60
+],
+[
+"9zbour",
+40
+],
+[
+"bid",
+2
+],
+[
+"l3triya",
+27
+],
+[
+"touma",
+12
+],
+[
+"mel7a",
+5
+]
+]
+},
+{
+"id": "r_mkh",
+"key": "mkh",
+"cat": "eid",
+"n": "Mkh mchermel b maticha",
+"servings": 4,
+"items": [
+[
+"mkh",
+400
+],
+[
+"maticha",
+410
+],
+[
+"touma",
+15
+],
+[
+"9zbour",
+30
+],
+[
+"zit_z",
+4
+],
+[
+"khal",
+30
+],
+[
+"l3triya",
+12
+],
+[
+"mel7a",
+3
+]
+]
+},
+{
+"id": "r_sardine_mla9i",
+"key": "sardine_mla9i",
+"cat": "fish",
+"n": "Sardine mchermel w m9li",
+"servings": 5,
+"items": [
+[
+"sardine",
+1000
+],
+[
+"9zbour",
+60
+],
+[
+"touma",
+20
+],
+[
+"l7amed",
+45
+],
+[
+"l3triya",
+25
+],
+[
+"mel7a",
+5
+],
+[
+"d9i9",
+150
+],
+[
+"zit_t",
+5.33
+]
+]
+},
+{
+"id": "r_kwari",
+"key": "kwari",
+"cat": "fish",
+"n": "Kwari d sardine",
+"servings": 5,
+"items": [
+[
+"sardine",
+1000
+],
+[
+"rouz_n",
+60
+],
+[
+"ch7ma",
+40
+],
+[
+"maticha",
+520
+],
+[
+"felfla",
+100
+],
+[
+"l7amed_msyer",
+30
+],
+[
+"zitoun",
+80
+],
+[
+"9zbour",
+60
+],
+[
+"touma",
+20
+],
+[
+"l3triya",
+20
+],
+[
+"zit_z",
+5
+]
+]
+},
+{
+"id": "r_7outa_m3emra",
+"key": "7outa_m3emra",
+"cat": "fish",
+"n": "7outa m3emra f lferran",
+"servings": 6,
+"items": [
+[
+"7out_kamel",
+1750
+],
+[
+"cha3riya",
+150
+],
+[
+"9imroun",
+200
+],
+[
+"zitoun",
+50
+],
+[
+"l7amed_msyer",
+30
+],
+[
+"batata",
+200
+],
+[
+"khizzou",
+150
+],
+[
+"felfla",
+125
+],
+[
+"maticha",
+125
+],
+[
+"9zbour",
+80
+],
+[
+"touma",
+25
+],
+[
+"l7amed",
+60
+],
+[
+"zit_z",
+6.67
+],
+[
+"l3triya",
+33
+]
+]
+},
+{
+"id": "r_paella",
+"key": "paella",
+"cat": "fish",
+"n": "Paella chmaliya",
+"servings": 6,
+"items": [
+[
+"rouz_n",
+500
+],
+[
+"9imroun",
+200
+],
+[
+"calamar",
+200
+],
+[
+"bbouzroug",
+200
+],
+[
+"sder",
+300
+],
+[
+"jelbana",
+100
+],
+[
+"felfla",
+150
+],
+[
+"bsla",
+150
+],
+[
+"maticha",
+200
+],
+[
+"touma",
+15
+],
+[
+"zit_z",
+5
+],
+[
+"l3triya",
+10
+],
+[
+"za3fran",
+0.3
+]
+]
+},
+{
+"id": "r_harira",
+"key": "harira",
+"cat": "soup",
+"n": "L7rira",
+"servings": 8,
+"items": [
+[
+"7mes_n",
+150
+],
+[
+"3des_n",
+80
+],
+[
+"foul_yabs",
+40
+],
+[
+"lhem",
+200
+],
+[
+"maticha",
+1040
+],
+[
+"bsla",
+150
+],
+[
+"9zbour",
+150
+],
+[
+"cha3riya",
+60
+],
+[
+"smen",
+10
+],
+[
+"zit_t",
+2
+],
+[
+"l3triya",
+15
+],
+[
+"mel7a",
+15
+],
+[
+"d9i9",
+120
+]
+]
+},
+{
+"id": "r_bissara",
+"key": "bissara",
+"cat": "soup",
+"n": "Bissara",
+"servings": 6,
+"items": [
+[
+"foul_yabs",
+500
+],
+[
+"touma",
+40
+],
+[
+"zit_z",
+10
+],
+[
+"l3triya",
+14
+],
+[
+"mel7a",
+8
+]
+]
+},
+{
+"id": "r_loubia",
+"key": "loubia",
+"cat": "soup",
+"n": "Loubia b maticha",
+"servings": 4,
+"items": [
+[
+"loubia_n",
+500
+],
+[
+"maticha",
+420
+],
+[
+"bsla",
+100
+],
+[
+"touma",
+15
+],
+[
+"9zbour",
+30
+],
+[
+"zit_z",
+5
+],
+[
+"l3triya",
+28
+],
+[
+"mel7a",
+5
+]
+]
+},
+{
+"id": "r_3des",
+"key": "3des",
+"cat": "soup",
+"n": "L3des mchermel",
+"servings": 4,
+"items": [
+[
+"3des_n",
+500
+],
+[
+"maticha",
+310
+],
+[
+"bsla",
+100
+],
+[
+"touma",
+20
+],
+[
+"9zbour",
+30
+],
+[
+"khizzou",
+150
+],
+[
+"zit_z",
+5
+],
+[
+"l3triya",
+20
+],
+[
+"mel7a",
+5
+]
+]
+},
+{
+"id": "r_7ssouwa",
+"key": "7ssouwa",
+"cat": "soup",
+"n": "7ssouwa d belboula",
+"servings": 5,
+"items": [
+[
+"belboula",
+250
+],
+[
+"hlib",
+2.5
+],
+[
+"bsla",
+50
+],
+[
+"zit_z",
+3
+],
+[
+"l3triya",
+18
+],
+[
+"mel7a",
+5
+]
+]
+},
+{
+"id": "r_herbel",
+"key": "herbel",
+"cat": "soup",
+"n": "Herbel",
+"servings": 5,
+"items": [
+[
+"herbel",
+250
+],
+[
+"hlib",
+2.5
+],
+[
+"zebda",
+2.86
+],
+[
+"mel7a",
+5
+]
+]
+},
+{
+"id": "r_berkoukech",
+"key": "berkoukech",
+"cat": "soup",
+"n": "Berkoukech chergi",
+"servings": 6,
+"items": [
+[
+"berkoukech",
+500
+],
+[
+"lhem",
+250
+],
+[
+"7mes_n",
+100
+],
+[
+"3des_n",
+100
+],
+[
+"foul_yabs",
+50
+],
+[
+"maticha",
+300
+],
+[
+"bsla",
+150
+],
+[
+"9zbour",
+50
+],
+[
+"l3triya",
+10
+],
+[
+"zit_z",
+4
+]
+]
+},
+{
+"id": "r_berkoukech_soussi",
+"key": "berkoukech_soussi",
+"cat": "soup",
+"n": "Berkoukech soussi b amlou",
+"servings": 6,
+"items": [
+[
+"berkoukech",
+500
+],
+[
+"hlib",
+2.5
+],
+[
+"amlou",
+6
+],
+[
+"zit_argan",
+3.33
+],
+[
+"l3sel",
+3.5
+]
+]
+},
+{
+"id": "r_tagoula",
+"key": "tagoula",
+"cat": "soup",
+"n": "Tagoula",
+"servings": 5,
+"items": [
+[
+"belboula",
+350
+],
+[
+"hlib",
+1.5
+],
+[
+"mel7a",
+5
+],
+[
+"zit_argan",
+5
+],
+[
+"l3sel",
+3
+]
+]
+},
+{
+"id": "r_khobz_ddar",
+"key": "khobz_ddar",
+"cat": "bread",
+"n": "Khobz ddar",
+"servings": 8,
+"items": [
+[
+"d9i9_kamel",
+500
+],
+[
+"d9i9",
+500
+],
+[
+"khmira",
+15
+],
+[
+"sokar",
+3
+],
+[
+"mel7a",
+15
+],
+[
+"zit_z",
+3
+],
+[
+"znjlan",
+20
+]
+]
+},
+{
+"id": "r_msmen",
+"key": "msmen",
+"cat": "bread",
+"n": "Msmen / meloui (l 7ebba)",
+"servings": 16,
+"items": [
+[
+"d9i9",
+500
+],
+[
+"smida",
+310
+],
+[
+"mel7a",
+8
+],
+[
+"sokar",
+1
+],
+[
+"khmira",
+4
+],
+[
+"zit_t",
+10
+],
+[
+"zebda",
+7.14
+]
+]
+},
+{
+"id": "r_rziza",
+"key": "rziza",
+"cat": "bread",
+"n": "Rziza",
+"servings": 6,
+"items": [
+[
+"d9i9",
+500
+],
+[
+"smida",
+250
+],
+[
+"mel7a",
+5
+],
+[
+"zebda",
+14.29
+],
+[
+"zit_t",
+10
+]
+]
+},
+{
+"id": "r_beghrir",
+"key": "beghrir",
+"cat": "bread",
+"n": "Beghrir (l 7ebba)",
+"servings": 20,
+"items": [
+[
+"smida",
+250
+],
+[
+"d9i9",
+100
+],
+[
+"khmira",
+26
+],
+[
+"mel7a",
+5
+],
+[
+"sokar",
+1
+],
+[
+"khal",
+5
+]
+]
+},
+{
+"id": "r_harcha",
+"key": "harcha",
+"cat": "bread",
+"n": "Harcha (l 7ebba)",
+"servings": 12,
+"items": [
+[
+"smida",
+550
+],
+[
+"zit_t",
+3.67
+],
+[
+"zebda",
+3.93
+],
+[
+"sokar",
+3
+],
+[
+"khmira",
+9
+],
+[
+"mel7a",
+5
+],
+[
+"hlib",
+1.12
+]
+]
+},
+{
+"id": "r_sfenj",
+"key": "sfenj",
+"cat": "bread",
+"n": "Sfenj (l 7ebba)",
+"servings": 15,
+"items": [
+[
+"d9i9",
+500
+],
+[
+"khmira",
+12
+],
+[
+"sokar",
+1
+],
+[
+"mel7a",
+8
+],
+[
+"khal",
+15
+],
+[
+"zit_t",
+8
+]
+]
+},
+{
+"id": "r_medfouna",
+"key": "medfouna",
+"cat": "bread",
+"n": "Medfouna filaliya",
+"servings": 6,
+"items": [
+[
+"d9i9",
+400
+],
+[
+"smida",
+200
+],
+[
+"khmira",
+10
+],
+[
+"mel7a",
+8
+],
+[
+"lhem",
+400
+],
+[
+"bsla",
+300
+],
+[
+"ch7ma",
+100
+],
+[
+"9zbour",
+50
+],
+[
+"louz",
+100
+],
+[
+"bid",
+3
+],
+[
+"l3triya",
+25
+]
+]
+},
+{
+"id": "r_trid",
+"key": "trid",
+"cat": "bread",
+"n": "Trid",
+"servings": 6,
+"items": [
+[
+"d9i9",
+500
+],
+[
+"smida",
+250
+],
+[
+"mel7a",
+8
+],
+[
+"zit_t",
+10
+]
+]
+},
+{
+"id": "r_merdouma",
+"key": "merdouma",
+"cat": "bread",
+"n": "Merdouma (khobz rramla)",
+"servings": 8,
+"items": [
+[
+"d9i9_kamel",
+1000
+],
+[
+"khmira",
+15
+],
+[
+"mel7a",
+15
+]
+]
+},
+{
+"id": "r_za3louk",
+"key": "za3louk",
+"cat": "salad",
+"n": "Za3louk",
+"servings": 5,
+"items": [
+[
+"dnjal",
+500
+],
+[
+"maticha",
+310
+],
+[
+"touma",
+15
+],
+[
+"9zbour",
+30
+],
+[
+"zit_z",
+4
+],
+[
+"l3triya",
+11
+],
+[
+"khal",
+15
+],
+[
+"mel7a",
+5
+]
+]
+},
+{
+"id": "r_taktouka",
+"key": "taktouka",
+"cat": "salad",
+"n": "Taktouka",
+"servings": 5,
+"items": [
+[
+"felfla",
+500
+],
+[
+"maticha",
+400
+],
+[
+"touma",
+12
+],
+[
+"9zbour",
+20
+],
+[
+"zit_z",
+4
+],
+[
+"l3triya",
+10
+],
+[
+"mel7a",
+5
+]
+]
+},
+{
+"id": "r_bekkoula",
+"key": "bekkoula",
+"cat": "salad",
+"n": "Bekkoula (khoubbiza)",
+"servings": 5,
+"items": [
+[
+"bekkoula",
+1000
+],
+[
+"touma",
+25
+],
+[
+"9zbour",
+60
+],
+[
+"l7amed_msyer",
+60
+],
+[
+"l7amed",
+30
+],
+[
+"zitoun",
+100
+],
+[
+"zit_z",
+6.67
+],
+[
+"l3triya",
+24
+]
+]
+},
+{
+"id": "r_chlada",
+"key": "chlada",
+"cat": "salad",
+"n": "Chlada meghribiya",
+"servings": 4,
+"items": [
+[
+"maticha",
+300
+],
+[
+"khyar",
+150
+],
+[
+"bsla",
+100
+],
+[
+"felfla",
+100
+],
+[
+"zit_z",
+2
+],
+[
+"khal",
+15
+],
+[
+"l3triya",
+3
+],
+[
+"mel7a",
+2
+]
+]
+},
+{
+"id": "r_chlada_jarda",
+"key": "chlada_jarda",
+"cat": "salad",
+"n": "Chlada d jarda (royale)",
+"servings": 6,
+"items": [
+[
+"rouz_n",
+50
+],
+[
+"ton",
+1
+],
+[
+"mais",
+100
+],
+[
+"khizzou",
+200
+],
+[
+"batata",
+200
+],
+[
+"loubia_khedra",
+150
+],
+[
+"barba",
+150
+],
+[
+"mayo",
+45
+]
+]
+},
+{
+"id": "r_khizou_mchermel",
+"key": "khizou_mchermel",
+"cat": "salad",
+"n": "Khizou mchermel",
+"servings": 5,
+"items": [
+[
+"khizzou",
+500
+],
+[
+"touma",
+12
+],
+[
+"9zbour",
+20
+],
+[
+"zit_z",
+3
+],
+[
+"l7amed",
+15
+],
+[
+"l3triya",
+10
+]
+]
+},
+{
+"id": "r_foul_mchermel",
+"key": "foul_mchermel",
+"cat": "salad",
+"n": "Foul mchermel",
+"servings": 5,
+"items": [
+[
+"foul_yabs",
+230
+],
+[
+"touma",
+12
+],
+[
+"9zbour",
+20
+],
+[
+"zit_z",
+3
+],
+[
+"l7amed",
+15
+],
+[
+"l3triya",
+10
+],
+[
+"maticha",
+10
+]
+]
+},
+{
+"id": "r_9ar3a_m3essla",
+"key": "9ar3a_m3essla",
+"cat": "salad",
+"n": "L9r3a l7emra m3essla",
+"servings": 5,
+"items": [
+[
+"9ar3a_7emra",
+500
+],
+[
+"zebda",
+2.14
+],
+[
+"l3sel",
+3
+],
+[
+"l3triya",
+5
+],
+[
+"znjlan",
+20
+]
+]
+},
+{
+"id": "r_barba",
+"key": "barba",
+"cat": "salad",
+"n": "Barba mchermla",
+"servings": 4,
+"items": [
+[
+"barba",
+400
+],
+[
+"bsla",
+30
+],
+[
+"9zbour",
+20
+],
+[
+"zit_z",
+2
+],
+[
+"khal",
+15
+],
+[
+"mel7a",
+2
+]
+]
+},
+{
+"id": "r_karane",
+"key": "karane",
+"cat": "street",
+"n": "Karane / kalinti",
+"servings": 8,
+"items": [
+[
+"d9i9_7mes",
+250
+],
+[
+"zit_t",
+6.67
+],
+[
+"bid",
+2
+],
+[
+"hlib",
+0.75
+],
+[
+"mel7a",
+12
+],
+[
+"l3triya",
+5
+]
+]
+},
+{
+"id": "r_bocadillo",
+"key": "bocadillo",
+"cat": "street",
+"n": "Bocadillo / khobza 3ajiba",
+"servings": 1,
+"items": [
+[
+"khobz_b",
+0.6
+],
+[
+"ton",
+1
+],
+[
+"bid",
+1
+],
+[
+"batata",
+100
+],
+[
+"zitoun",
+30
+],
+[
+"maticha",
+30
+],
+[
+"kachir",
+15
+],
+[
+"mayo",
+15
+],
+[
+"l3triya",
+5
+]
+]
+},
+{
+"id": "r_tayb_hari",
+"key": "tayb_hari",
+"cat": "street",
+"n": "Tayb w hari (7emmes mslou9)",
+"servings": 6,
+"items": [
+[
+"7mes_n",
+500
+],
+[
+"mel7a",
+15
+],
+[
+"l3triya",
+20
+]
+]
+},
+{
+"id": "r_9etban",
+"key": "9etban",
+"cat": "street",
+"n": "9etban (brochettes)",
+"servings": 4,
+"items": [
+[
+"lhem",
+500
+],
+[
+"bsla",
+100
+],
+[
+"9zbour",
+30
+],
+[
+"zit_z",
+2
+],
+[
+"l3triya",
+18
+],
+[
+"mel7a",
+5
+]
+]
+},
+{
+"id": "r_kaab_ghzal",
+"key": "kaab_ghzal",
+"cat": "sweet",
+"n": "Kaab ghzal (l 7ebba)",
+"servings": 60,
+"items": [
+[
+"d9i9",
+500
+],
+[
+"zebda",
+10
+],
+[
+"sokar",
+44
+],
+[
+"ma_zhar",
+195
+],
+[
+"louz",
+500
+],
+[
+"l3triya",
+4
+]
+]
+},
+{
+"id": "r_briwat_louz",
+"key": "briwat_louz",
+"cat": "sweet",
+"n": "Briwat b llouz (l 7ebba)",
+"servings": 40,
+"items": [
+[
+"lwr9a",
+500
+],
+[
+"louz",
+500
+],
+[
+"sokar",
+36
+],
+[
+"zebda",
+2.86
+],
+[
+"ma_zhar",
+45
+],
+[
+"l3triya",
+6
+],
+[
+"zit_t",
+10
+],
+[
+"l3sel",
+20
+]
+]
+},
+{
+"id": "r_ghriba",
+"key": "ghriba",
+"cat": "sweet",
+"n": "Ghriba lbehla (l 7ebba)",
+"servings": 50,
+"items": [
+[
+"d9i9",
+500
+],
+[
+"zebda",
+8.93
+],
+[
+"zit_t",
+10
+],
+[
+"sokar",
+25
+],
+[
+"znjlan",
+100
+],
+[
+"louz",
+100
+],
+[
+"l3triya",
+3
+],
+[
+"khmira",
+16
+]
+]
+},
+{
+"id": "r_ghriba_koko",
+"key": "ghriba_koko",
+"cat": "sweet",
+"n": "Ghriba d lkoko (l 7ebba)",
+"servings": 40,
+"items": [
+[
+"smida",
+250
+],
+[
+"koko",
+250
+],
+[
+"sokar",
+70
+],
+[
+"bid",
+3
+],
+[
+"zit_t",
+7.33
+],
+[
+"confiture",
+1
+],
+[
+"khmira",
+8
+]
+]
+},
+{
+"id": "r_fekkas",
+"key": "fekkas",
+"cat": "sweet",
+"n": "Fekkas (l 7ebba)",
+"servings": 80,
+"items": [
+[
+"d9i9",
+850
+],
+[
+"bid",
+6
+],
+[
+"sokar",
+50
+],
+[
+"zit_t",
+20
+],
+[
+"louz",
+150
+],
+[
+"znjlan",
+100
+],
+[
+"l3triya",
+20
+],
+[
+"ma_zhar",
+60
+],
+[
+"khmira",
+16
+]
+]
+},
+{
+"id": "r_chebakia",
+"key": "chebakia",
+"cat": "sweet",
+"n": "Chebakia (l 7ebba)",
+"servings": 100,
+"items": [
+[
+"d9i9",
+1000
+],
+[
+"znjlan",
+300
+],
+[
+"louz",
+100
+],
+[
+"l3triya",
+33
+],
+[
+"zebda",
+9.64
+],
+[
+"zit_t",
+30
+],
+[
+"ma_zhar",
+225
+],
+[
+"khal",
+60
+],
+[
+"bid",
+1
+],
+[
+"khmira",
+9
+],
+[
+"l3sel",
+75
+]
+]
+},
+{
+"id": "r_sellou",
+"key": "sellou",
+"cat": "sweet",
+"n": "Sellou (l portion ~40 g)",
+"servings": 90,
+"items": [
+[
+"d9i9",
+1000
+],
+[
+"znjlan",
+1000
+],
+[
+"louz",
+1000
+],
+[
+"l3triya",
+93
+],
+[
+"sokar",
+75
+],
+[
+"zebda",
+25.71
+]
+]
+},
+{
+"id": "r_blighat",
+"key": "blighat",
+"cat": "sweet",
+"n": "BliGhat b znjlan (l 7ebba)",
+"servings": 50,
+"items": [
+[
+"znjlan",
+500
+],
+[
+"d9i9",
+500
+],
+[
+"zebda",
+4.29
+],
+[
+"zit_t",
+3
+],
+[
+"bid",
+1
+],
+[
+"l3triya",
+5
+],
+[
+"khmira",
+8
+],
+[
+"ma_zhar",
+200
+]
+]
+},
+{
+"id": "r_ma9rout",
+"key": "ma9rout",
+"cat": "sweet",
+"n": "Ma9rout b tmer (l 7ebba)",
+"servings": 30,
+"items": [
+[
+"smida",
+500
+],
+[
+"zebda",
+10.71
+],
+[
+"ma_zhar",
+75
+],
+[
+"tmer",
+300
+],
+[
+"l3triya",
+5
+],
+[
+"znjlan",
+20
+],
+[
+"zit_t",
+6.67
+],
+[
+"l3sel",
+10
+]
+]
+},
+{
+"id": "r_amlou_beldi",
+"key": "amlou_beldi",
+"cat": "sweet",
+"n": "Amlou beldi (l m3el9a)",
+"servings": 50,
+"items": [
+[
+"louz",
+500
+],
+[
+"zit_argan",
+25
+],
+[
+"l3sel",
+8.5
+],
+[
+"mel7a",
+1
+]
+]
+},
+{
+"id": "r_jben_beldi",
+"key": "jben_beldi",
+"cat": "sweet",
+"n": "Jben beldi",
+"servings": 6,
+"items": [
+[
+"hlib",
+5
+],
+[
+"lben",
+500
+],
+[
+"mel7a",
+3
+]
+]
+},
+{
+"id": "r_raib",
+"key": "raib",
+"cat": "sweet",
+"n": "Raib ddar",
+"servings": 8,
+"items": [
+[
+"hlib",
+5
+],
+[
+"perly",
+1
+],
+[
+"sokar",
+12
+],
+[
+"l3triya",
+8
+]
+]
+},
+{
+"id": "r_atay",
+"key": "atay",
+"cat": "drink",
+"n": "Atay (l kas)",
+"servings": 6,
+"items": [
+[
+"atay7boub",
+20
+],
+[
+"nna3na3",
+40
+],
+[
+"sokar",
+12
+]
+]
+},
+{
+"id": "r_sikouk",
+"key": "sikouk",
+"cat": "drink",
+"n": "Sikouk (belboula b lben)",
+"servings": 4,
+"items": [
+[
+"belboula",
+250
+],
+[
+"lben",
+1000
+],
+[
+"mel7a",
+3
+]
+]
+},
+{
+"id": "r_za3za3",
+"key": "za3za3",
+"cat": "drink",
+"n": "Za3za3 / panaché",
+"servings": 2,
+"items": [
+[
+"avoka",
+200
+],
+[
+"hlib",
+2.5
+],
+[
+"tmer",
+50
+],
+[
+"perly",
+1
+],
+[
+"louz",
+50
+],
+[
+"zbib",
+50
+],
+[
+"banan",
+0.5
+],
+[
+"sauce_choco",
+30
+]
+]
+},
+{
+"id": "r_9hwa_m3etra",
+"key": "9hwa_m3etra",
+"cat": "drink",
+"n": "9hwa m3etra (l kas)",
+"servings": 1,
+"items": [
+[
+"9hwa",
+1.71
+],
+[
+"hlib",
+0.75
+],
+[
+"l3triya",
+0.2
+]
+]
+},
+{
+"id": "r_g7g56e5",
+"n": "Tajine dyali",
+"cat": "mine",
+"servings": 4,
+"items": [
+[
+"sder",
+600
+],
+[
+"batata",
+500
+],
+[
+"zit_z",
+3
+],
+[
+"c_chrx1wa",
+200
+]
+]
+}
+],
+"recipeSeed": 3,
+"lang": "fr",
+"ov": {
+"bid": {
+"cat": "ftour",
+"m": [
+70,
+6.1,
+0.4,
+4.7
+]
+}
+},
+"checked": {
+"sder": true
+},
+"spend": [
+{
+"id": "s1",
+"d": "2026-10-01",
+"a": 420,
+"e": 400
+},
+{
+"id": "s2",
+"d": "2026-10-09",
+"a": 388.5,
+"e": 410
+}
+],
+"shop": {
+"ylh3ehe": false,
+"oxtbwa0": true,
+"menu": true
+},
+"budget": "2500",
+"menuSet": {
+"people": 4,
+"budget": 600,
+"time": 60,
+"excl": [],
+"meals": {
+"ftour": true,
+"ghda": true,
+"3cha": true
+},
+"hp": true
+},
+"menu": {
+"set": {
+"people": 4,
+"budget": 600,
+"time": 60,
+"excl": [],
+"meals": {
+"ftour": true,
+"ghda": true,
+"3cha": true
+},
+"hp": true
+},
+"days": [
+{
+"ftour": [
+[
+"khobz",
+0.25
+],
+[
+"bid",
+2
+],
+[
+"atay",
+1
+]
+],
+"ghda": "r_khodra_djaj",
+"3cha": "r_tayb_hari",
+"snack": [
+[
+"ton_ma",
+1
+]
+],
+"snack2": []
+},
+{
+"ftour": [
+[
+"choufan",
+60
+],
+[
+"hlib",
+1
+],
+[
+"banan",
+1
+]
+],
+"ghda": "r_9etban",
+"3cha": "r_khodra_djaj",
+"snack": [],
+"snack2": [],
+"side": [
+[
+"khobz",
+0.5
+],
+[
+"banan",
+1
+],
+[
+"tmer",
+30
+]
+]
+},
+{
+"ftour": [
+[
+"khobz",
+0.25
+],
+[
+"bid",
+2
+],
+[
+"atay",
+1
+]
+],
+"ghda": "r_paella",
+"3cha": "r_berkoukech",
+"snack": [
+[
+"ton_ma",
+1
+]
+],
+"snack2": [],
+"pf": 2.25
+},
+{
+"ftour": [
+[
+"choufan",
+60
+],
+[
+"hlib",
+1
+],
+[
+"banan",
+1
+]
+],
+"ghda": "r_khodra_djaj",
+"3cha": "r_tajine_bouzroug",
+"snack": [
+[
+"ton_ma",
+1
+]
+],
+"snack2": []
+},
+{
+"ftour": [
+[
+"choufan",
+60
+],
+[
+"hlib",
+1
+],
+[
+"banan",
+1
+]
+],
+"ghda": "r_sardine_mla9i",
+"3cha": "r_loubia",
+"snack": [],
+"snack2": []
+},
+{
+"ftour": [
+[
+"r_beghrir",
+4
+],
+[
+"atay",
+1
+]
+],
+"ghda": "r_khodra_djaj",
+"3cha": "r_bissara",
+"snack": [
+[
+"ton_ma",
+1
+]
+],
+"snack2": []
+},
+{
+"ftour": [
+[
+"khobz",
+0.25
+],
+[
+"bid",
+2
+],
+[
+"atay",
+1
+]
+],
+"ghda": "r_3des",
+"3cha": "r_khodra_djaj",
+"snack": [],
+"snack2": []
+}
+],
+"at": 1792277617994
+},
+"oil": 0.67,
+"lastBackup": 1760000000000
+}

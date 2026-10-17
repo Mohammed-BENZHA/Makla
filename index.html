@@ -20,11 +20,11 @@
 /* Soft UI (neumorphism): surfaces share the page colour and are lifted or pressed with paired light/dark shadows; one deep-teal accent */
 :root{
   --bg:#ece5da; --surface:#ece5da; --sunk:#e3dbcf; --line:#d6ccbd;
-  --ink:#1f2a2b; --muted:#6e6a62;
+  --ink:#1f2a2b; --muted:#625e57;
   --accent:#0f5257; --accent-ink:#ffffff; --accent-soft:#dfe6e1;
-  --money:#8f5f14; --money-soft:#e7dccb;
-  --p:#2c7a5c; --c:#b07f12; --f:#b2474f; --kcal:#bf5f26;
-  --danger:#b2363f;
+  --money:#825612; --money-soft:#e7dccb;
+  --p:#276b51; --c:#7b590d; --f:#a04047; --kcal:#944a1e;
+  --danger:#ac343d;
   --hi:rgba(255,255,255,.85); --lo:rgba(163,146,120,.55);
   --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
   --body:"Instrument Sans", "Segoe UI", system-ui, sans-serif;
@@ -324,6 +324,16 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .tday,.rday{font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;margin-inline-start:6px;vertical-align:middle}
 .tday{background:var(--accent);color:#fff}
 .rday{background:var(--sunk);color:var(--muted)}
+
+.sysbar{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:60;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;
+  padding:12px 14px;border-radius:14px;background:var(--danger);color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.25);max-width:720px;margin:0 auto;font-size:14px}
+.sysbar[hidden]{display:none}
+.sysbar .btn{background:#fff;color:#7a1d24;box-shadow:none}
+.sysbar .btn.ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.6)}
+#loadWarn{background:#7a4b00}
+#loadWarn .btn{color:#5a3800}
+
+.esttag{display:inline-block;font-size:11px;font-weight:700;line-height:1;padding:2px 5px;border-radius:6px;background:var(--sunk);color:var(--muted);vertical-align:middle;cursor:help}
 </style>
 </head>
 <body>
@@ -353,7 +363,9 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
   <main id="view"></main>
 </div>
 <div id="sheetRoot"></div>
-<div id="toastRoot"></div>
+<div id="toastRoot" role="status" aria-live="polite"></div>
+<div id="saveErr" class="sysbar" role="alert" hidden></div>
+<div id="loadWarn" class="sysbar" role="alert" hidden></div>
 
 <script>
 /* ---------- Languages ----------
@@ -363,6 +375,7 @@ const LANGS=[['dj','Darija'],['da','الدارجة'],['fr','Français'],['ar','�
 const RTL={da:1,ar:1};
 const I18N={
 dj:{
+ save_fail:'Ma tsjjelch! L\'memoire dyal telephone 3amra wla l\'navigateur mamnou3 mn l\'tasjil. Dir backup daba bach ma tdi3ch l\'data.',storage_off:'Had l\'navigateur ma kaykhllich l\'app tsjjel: ay 7aja katdirha ghadi tmchi mli tsedd. Dir backup b l\'fichier (Prix).',load_corrupt:'L\'data li kanet msjjla ma t9ratch (ma kamlach wla mkhsra). Khbbinaha f blasa w bdina b data jdida. 7mmelha bach ma tdi3ch.',dl_raw:'7mmel l\'data l9dima',dismiss:'Fhemt',crash_title:'Wa9e3 chi mochkil f l\'affichage',crash_msg:'L\'data dyalek ba9ya. 7mmel nos5a daba, w men ba3d sifetha bach nchoufou l\'mochkil.',imp_q:'Had l\'backup fih {p} profil, {r} recettes w {c} mawad dyalek. Ila kemmelti, ghadi ybeddel l\'data li 3endek daba.',imp_fixed:'{n} 7wayej ma kanouch s7a7 f l\'fichier w tsla7o (b7al ar9am khawyin wla mamfhoumin).',imp_warn:'L\'data l7aliya ghadi tkhbba f telephone, w t9der trje3 liha b "Rje3 l\'data li kanet 9bel".',imp_yes:'Beddel b had l\'backup',restore_prev:'Rje3 l\'data li kanet 9bel',restore_confirm:'Mt2akked? Brek merra khra',custom_err_100:'Had l\'ar9am ma ymkench: 100 g ma fihach ktar men 100 g d protein+karb+dhoun, wla ktar men 900 kcal.',est_tip:'Ar9am ta9ribiya (makla m9adda, dyal zan9a wla dyal marque). Ila 3endek l\'étiquette, beddelhom b ✎.',oil_note:'L\'7sab b l\'zit m9ellel ({x}).',save_ok:'Tsjjel',
  for_n_x:'L {n} d nass ({x} lik)',for_n_hint:'Tayb {t} d l\'portions: kol wa7ed kayakhod portion kamla, w nta katakhod {x}. Lista dyal t9edya m7soubin fiha hadchi.',
  oil_lbl:'L\'zit f les recettes',oil_1:'3adi',oil_67:'9ellel (2/3)',oil_5:'Ness',oil_hint:'Kay9ellel l\'zit f ga3 les recettes, f l\'7sab w f lista dyal t9edya. L\'zit howa a9wa masdar d dhoun f makla dyalna.',lf_opt:'Khaf f dhoun',fat_hi:'Dhoun zaydin b {x} g. {m} hiya li fiha ktar.',fat_fix:'Beddelha b khafifa',carb_gap:'Na9s {g} g karb',add_carb:'+ Kemmel l\'karb',side_lbl:'Zyada d karb',snack1_lbl:'Lmlja 1',snack2_lbl:'Lmlja 2',snack1_when:'(f s-sba7 wla f l3chiya)',snack1_train:'(9bel wla men ba3d tamrin)',snack2_when:'(f lil)',train_lbl:'Tadrib (ikhtiyari)',train_on:'Katrini',train_days:'Ayyam tadrib',train_hint:'F nhar tadrib l\'app katzid ~50 g karb (+200 kcal) bach ykoun 3endek ta9a. F ayyam ra7a katn99es chwiya, bach l\'majmou3 dyal simana yb9a howa howa.',train_day:'🏋 Nhar tadrib',rest_day:'Nhar ra7a',cook_lbl:'Tayb',
  prot_still:'Lmlja b wa7dha ma kafiyach. Jerreb "💪 Protein 3ali" f l\'ikhtiyarat dyal l\'menu, wla beddel l\'wjbat b "Ktar protein", wla n99es l\'hadaf dyal l\'protein f l\'profil.',
@@ -439,11 +452,12 @@ dj:{
  goals:['Tnchif (n9es chhem)','Recomp (3dalat + n9es chhem)','7afed 3la lwazn','Zid 3dalat (b chwiya)','Zid lwazn (bzzerba)'],
  acts:['Bureau, 9lil l7araka','Khfif (1–3 d les séances f simana)','Mtwasset (3–5 f simana)','3ali (6–7 f simana)','Khdma te9ila + sport kol nhar'],
  
- notes:{bone:'Dkhel l\'wazn li katakol, bla l3dem. L\'app katzid l3dem (~25%) f lista dyal t9edya.',sardine:'Dkhel l\'wazn li katakol, bla ras w chouk. L\'app katzid l\'ba9i (~40%) f lista dyal t9edya.',merla:'Dkhel l\'wazn dyal l\'filet. L\'app kat7seb l7out kamel (~2×) f lista dyal t9edya.',dry:'Prix dyal kg nay',oil:'Zid lzit li katdir f tayb, 7it hiya li kat-khrej l7sab',whole:'Dkhel l\'wazn kima chritiha (b l3dem). L\'macros m7soubin 3la ~65% li katakol.'},
+ notes:{bone:'Dkhel l\'wazn li katakol, bla l3dem. L\'app katzid l3dem (~25%) f lista dyal t9edya.',sardine:'Dkhel l\'wazn li katakol, bla ras w chouk. L\'app katzid l\'ba9i (~40%) f lista dyal t9edya.',merla:'Dkhel l\'wazn dyal l\'filet. L\'app kat7seb l7out kamel (~2×) f lista dyal t9edya.',dry:'Prix dyal kg nay',oil:'Zid lzit li katdir f tayb, 7it hiya li kat-khrej l7sab',whole:'Dkhel l\'wazn kima chritiha (b l3dem). L\'macros m7soubin 3la ~65% li katakol.',asbought:'Dkhel l\'wazn kima chritih (b l3dem). L\'macros m7soubin ghir 3la li katakol.'},
  sugar:'Sokar (dyal atay)',
  foods:["Bid roumi","Bid beldi","Khobz kamel (khobza ~200g)","Khobz byed (khobza ~200g)","Msemen","Harcha","Choufan (flocons d'avoine)","7lib (kas 200 ml)","Perly / yaourt (7ok)","Fromage mtellat","Whey (scoop 30g)","Atay b sokar (kas)","Sder djaj (nay)","Fkhad djaj bla jeld (nay)","Sardine (nay, li katakol)","Merla / 7out byed (nay, filet)","L7em bgri habra (nay)","Kefta bgri (nay)","Kefta dinde (nay)","Kebda djaj (nay)","Ton (7ok, ~80g msfi)","Rouz (tayeb)","Ma9arouna (tayba)","3des (tayeb)","Loubia (tayba)","7mes (tayeb)","Batata (nay)","Batata 7lowa (nay)","Khodra (maticha, khyar, bsla…)","Banan","Tfa7a / limouna","Tmer","Avoka","Zit dyal tayb (mo3al9a kbira)","Zit zitoun (mo3al9a kbira)","Louz","Kawkaw","Amlou (mo3al9a 20g)",'Rouz (nay)','Ma9arouna (nay)','3des (nay)','Loubia (nay)','7mes (nay)','Maticha','Bsla','Khizzou','9ar3a','Zitoun','Djaja kamla (b l3dem)','Jben (mo3al9a 20g)','Confiture (mo3al9a 20g)','L3sel (mo3al9a 20g)','Zebda (mo3al9a 14g)','Sokar (mo3al9a sghira 5g)','9hwa mto7na (l kas)','L7em b l3dem (ghanmi/bgri)','7out kamel (b l3dem)','Zbib','Felfla','Kesksou (nay)','Tacos (M, l7em wa7ed)','Burger','Panini','Chawarma (sandwich)','Sandwich kefta','Pizza (sghira)','Rfissa (plat)','T3am / kesksou (plat)','Bissara (zlafa)','Sfenj','Briwat (kefta wla 7out)','Ma9ouda','Pastilla (portion)','7rira (zlafa)','Smida','D9i9 lfors (farine)','D9i9 kamel','D9i9 l7emmes','Smida d dra','Belboula d ch3ir','Herbel (9em7 mfssekh)','Berkoukech','Cha3riya (vermicelle)','Foul yabs','Left','L9r3a l7emra','Lkrom (chou)','Dnjal','Jelbana','Touma','9zbour w m3dnous','L7amed (limoun)','L7amed msyer','Ber9ou9 yabes','Sferjel','L9o9','Meloukhia','Khyar','Barba','Loubia khedra','Bekkoula (khoubbiza)','Champignon','Mais (7ok)','Nna3na3','Bbouzroug (moules)','9imroun (crevettes)','Calamar','Douwara (kercha w ...)','Kour3in','Kebda d l7ouli','Lmkh','L7em rras','Ti7al','Gueddid','Kachir','Fromage rouge','Lben','Znjlan','Koko','Ch7ma','Smen','Zit argan (m3el9a kbira)','L3triya (tawabil)','Mel7a','Za3fran 7orr','Khmira','Maizena','L7elba','Ma zhar','Khal','Sauce soja','Mayonnaise','7lib m7elli (Nestlé)','Sauce chocolat','Atay 7boub','Lwr9a d lbastilla','Khess','Selk','Sbanekh','Krafes','Besbas','Fjel','Chouflour','Brocoli','Poro (poireau)','Felfla 7arra','Foul tari','Khorchef','Bsla khedra','Skinjbir tari','Slawiya (courge)','L9el9as','Tfa7a','Limouna (orange)','Mandarina','L3neb','Ddla7','Lbetikh (melon)','Lkhoukh','Lmchmach','Lbr9ou9 tari','Lkarmous','Lhendiya','Rrman','Lfrawla','Lanjas (poire)','7ebb lmlouk','Ananas','Kiwi','Mangue','Zfzouf','Mzah (nèfle)','Limoun l7lou / citron vert','Karmous yabes','Mchmach yabes','Gergaa','Pistache','Kajou','Bndo9 (noisette)','Zri3a d lkettan','Zri3a d l9er3a','Chia','Jelbana yabsa','3des 7mer (corail)','Loubia 7amra','7emmes (7ok, tayeb)','Quinoa','Boulgour','Ch3ir (7bob)','Dra (7bob)','Rouz kamel (brun)','Ton b l\'ma (7ok, ~80g msfi)']
 },
 da:{
+ save_fail:'ما تسجلش! الميموار ديال التيليفون عامرة ولا النافيگاتور ممنوع من التسجيل. دير باكاپ دابا باش ما تضيعش الداتا.',storage_off:'هاد النافيگاتور ما كيخليش الأپليكاسيون تسجل: أي حاجة كديرها غادي تمشي ملي تسد. دير باكاپ بالفيشي (الأثمنة).',load_corrupt:'الداتا لي كانت مسجلة ما تقراتش (ما كاملاش ولا مخسرة). خبيناها فبلاصة وبدينا بداتا جديدة. حملها باش ما تضيعش.',dl_raw:'حمل الداتا القديمة',dismiss:'فهمت',crash_title:'وقع شي مشكل فالأفيشاج',crash_msg:'الداتا ديالك باقية. حمل نسخة دابا، ومن بعد صيفطها باش نشوفو المشكل.',imp_q:'هاد الباكاپ فيه {p} بروفيل، {r} وصفات و{c} مواد ديالك. إلا كملتي، غادي يبدل الداتا لي عندك دابا.',imp_fixed:'{n} حوايج ما كانوش صحاح فالفيشي وتصلحو (بحال أرقام خاويين ولا ما مفهومينش).',imp_warn:'الداتا الحالية غادي تخبا فالتيليفون، وتقدر ترجع ليها بـ"رجع الداتا لي كانت قبل".',imp_yes:'بدل بهاد الباكاپ',restore_prev:'رجع الداتا لي كانت قبل',restore_confirm:'متأكد؟ بركـ مرة أخرى',custom_err_100:'هاد الأرقام ما يمكنش: 100 غ ما فيهاش كثر من 100 غ ديال بروتين+كارب+دهون، ولا كثر من 900 سعرة.',est_tip:'أرقام تقريبية (ماكلة مقادة، ديال الزنقة ولا ديال ماركة). إلا عندك الإتيكيت، بدلهم بـ✎.',oil_note:'الحساب بالزيت المقلل ({x}).',save_ok:'تسجل',
  for_n_x:'لـ{n} ديال الناس ({x} ليك)',for_n_hint:'طيب {t} ديال الپورسيونات: كل واحد كياخد پورسيون كاملة، ونتا كتاخد {x}. لائحة التقضية محسوب فيها هادشي.',
  oil_lbl:'الزيت فالوصفات',oil_1:'عادي',oil_67:'قلل (2/3)',oil_5:'النص',oil_hint:'كيقلل الزيت فگاع الوصفات، فالحساب وفلائحة التقضية. الزيت هو أكبر مصدر ديال الدهون فالماكلة ديالنا.',lf_opt:'خفيف فالدهون',fat_hi:'الدهون زايدين بـ{x} غ. {m} هي لي فيها كثر.',fat_fix:'بدلها بخفيفة',carb_gap:'ناقص {g} غ كارب',add_carb:'+ كمل الكارب',side_lbl:'زيادة ديال الكارب',snack1_lbl:'اللمجة 1',snack2_lbl:'اللمجة 2',snack1_when:'(فالصباح ولا فالعشية)',snack1_train:'(قبل ولا من بعد التمرين)',snack2_when:'(فالليل)',train_lbl:'التدريب (اختياري)',train_on:'كنتريني',train_days:'أيام التدريب',train_hint:'فنهار التدريب الأپليكاسيون كتزيد ~50 غ كارب (+200 سعرة) باش تكون عندك الطاقة. فأيام الراحة كتنقص شوية، باش المجموع ديال السيمانة يبقى هو هو.',train_day:'🏋 نهار التدريب',rest_day:'نهار الراحة',cook_lbl:'الطياب',
  prot_still:'اللمجة بوحدها ما كافياش. جرب "💪 بروتين عالي" فالاختيارات ديال المنيو، ولا بدل الوجبات بـ"كثر بروتين"، ولا نقص الهدف ديال البروتين فالبروفيل.',
@@ -525,6 +539,7 @@ da:{
  foods:['بيض رومي','بيض بلدي','خبز كامل (خبزة ~200 غ)','خبز أبيض (خبزة ~200 غ)','مسمن','حرشة','الشوفان','حليب (كاس 200 مل)','بيرلي / ياغورت (حك)','فرماج مثلث','واي (سكوب 30 غ)','أتاي بالسكر (كاس)','صدر الدجاج (ناي)','فخاد الدجاج بلا جلد (ناي)','سردين (ناي، لي كتاكل)','ميرلا / حوت بيض (ناي، فيلي)','لحم بگري هبرة (ناي)','كفتة بگري (ناية)','كفتة الداند (ناية)','كبدة الدجاج (ناية)','طون (حك، ~80 غ مصفي)','روز (طايب)','مقارونة (طايبة)','عدس (طايب)','لوبيا (طايبة)','حمص (طايب)','بطاطا (ناية)','بطاطا حلوة (ناية)','خضرة (ماطيشة، خيار، بصلة…)','بنان','تفاحة / ليمونة','تمر','أفوكا','زيت ديال الطيب (معيلقة كبيرة)','زيت الزيتون (معيلقة كبيرة)','لوز','كاوكاو','أملو (معيلقة 20 غ)','روز (ناي)','مقارونة (ناية)','عدس (ناي)','لوبيا (ناية)','حمص (ناي)','ماطيشة','بصلة','خيزو','قرعة','زيتون','دجاجة كاملة (بالعظم)','جبن (معيلقة 20 غ)','كونفيتور (معيلقة 20 غ)','العسل (معيلقة 20 غ)','الزبدة (معيلقة 14 غ)','السكر (معيلقة صغيرة 5 غ)','القهوة المطحونة (للكاس)','اللحم بالعظم (غنمي/بگري)','حوت كامل (بالعظم)','الزبيب','الفلفلة','الكسكسو (ناي)','تاكوس (M، لحم واحد)','بورگر','پانيني','شاورما (ساندويتش)','ساندويتش كفتة','پيتزا (صغيرة)','الرفيسة (طبسيل)','الطعام / الكسكسو (طبسيل)','البيصارة (زلافة)','السفنج','البريوات (كفتة ولا حوت)','المقودة','البسطيلة (حصة)','الحريرة (زلافة)','السميدة','دقيق الفورص','الدقيق الكامل','دقيق الحمص','سميدة الذرة','بلبولة الشعير','الهربل (القمح)','البركوكش','الشعرية','الفول اليابس','اللفت','القرعة الحمراء','الكرنب','الدنجال','الجلبانة','الثومة','القزبور والمعدنوس','الحامض','الحامض المصير','البرقوق اليابس','السفرجل','القوق','الملوخية','الخيار','الباربا','اللوبيا الخضرا','البقولة','الفطر','المايس','النعناع','بوزروك','القمرون','الكالامار','الدوارة','الكرعين','كبدة الحولي','المخ','لحم الراس','الطيحال','القديد','الكاشير','فرماج روج','اللبن','الزنجلان','الكوكو','الشحمة','السمن','زيت أركان (معيلقة كبيرة)','العطرية','الملحة','الزعفران الحر','الخميرة','الميزينا','الحلبة','ما الزهر','الخل','صوص صوجا','المايونيز','الحليب المحلي','صوص الشوكولا','أتاي حبوب','ورقة البسطيلة','الخس','السلق','السبانخ','الكرافس','البسباس','الفجل','الشوفلور','البروكولي','البورو','الفلفلة الحارة','الفول الطري','الخرشف','البصلة الخضرا','السكنجبير الطري','السلاوية','القلقاس','التفاحة','الليمونة','المندرينة','العنب','الدلاح','البطيخ','الخوخ','المشماش','البرقوق الطري','الكرموس','الهندية','الرمان','الفراولة','الإجاص','حب الملوك','الأناناس','الكيوي','المانگا','الزفزوف','المزاح','الحامض الحلو','الكرموس اليابس','المشماش اليابس','الكركاع','الپيسطاش','الكاجو','البندق','زريعة الكتان','زريعة القرعة','الشيا','الجلبانة اليابسة','العدس الحمر','اللوبيا الحمرا','الحمص (حك، طايب)','الكينوا','البرغل','الشعير','الذرة','الروز الكامل','طون بالما (حك، ~80 غ مصفي)']
 },
 fr:{
+ save_fail:'Non enregistré ! La mémoire du téléphone est pleine ou le navigateur bloque l\'enregistrement. Faites une sauvegarde maintenant pour ne rien perdre.',storage_off:'Ce navigateur n\'autorise pas l\'enregistrement : tout sera perdu à la fermeture. Faites une sauvegarde en fichier (Prix).',load_corrupt:'Les données enregistrées sont illisibles (incomplètes ou abîmées). Elles ont été mises de côté et l\'app repart à zéro. Téléchargez-les pour ne pas les perdre.',dl_raw:'Télécharger les anciennes données',dismiss:'Compris',crash_title:'Problème d\'affichage',crash_msg:'Vos données sont intactes. Téléchargez une copie maintenant, puis envoyez-la pour qu\'on trouve le problème.',imp_q:'Cette sauvegarde contient {p} profil(s), {r} recettes et {c} aliments perso. Continuer remplacera vos données actuelles.',imp_fixed:'{n} éléments invalides dans le fichier ont été corrigés (nombres vides ou illisibles, par exemple).',imp_warn:'Vos données actuelles seront gardées sur le téléphone ; vous pourrez y revenir avec « Revenir aux données précédentes ».',imp_yes:'Remplacer par cette sauvegarde',restore_prev:'Revenir aux données précédentes',restore_confirm:'Sûr ? Touchez encore',custom_err_100:'Valeurs impossibles : 100 g ne peuvent pas contenir plus de 100 g de protéines+glucides+lipides, ni plus de 900 kcal.',est_tip:'Valeurs approximatives (plat préparé, cuisine de rue ou produit de marque). Si vous avez l\'étiquette, corrigez-les avec ✎.',oil_note:'Calcul avec moins d\'huile ({x}).',save_ok:'Enregistré',
  for_n_x:'Pour {n} ({x} pour vous)',for_n_hint:'Cuisinez {t} portions : chacun a une portion entière, vous en prenez {x}. La liste de courses en tient compte.',
  oil_lbl:'Huile dans les recettes',oil_1:'Normale',oil_67:'Réduite (2/3)',oil_5:'Moitié',oil_hint:'Réduit l\'huile dans toutes les recettes (calculs et liste de courses). L\'huile est la principale source de lipides de notre cuisine.',lf_opt:'Léger en gras',fat_hi:'Lipides en trop de {x} g. {m} en contient le plus.',fat_fix:'Remplacer par plus léger',carb_gap:'Il manque {g} g de glucides',add_carb:'+ Compléter les glucides',side_lbl:'Glucides en plus',snack1_lbl:'Collation 1',snack2_lbl:'Collation 2',snack1_when:'(matin ou après-midi)',snack1_train:'(avant ou après l\'entraînement)',snack2_when:'(soir)',train_lbl:'Entraînement (facultatif)',train_on:'Je m\'entraîne',train_days:'Jours d\'entraînement',train_hint:'Les jours d\'entraînement, l\'app ajoute ~50 g de glucides (+200 kcal) pour l\'énergie. Les jours de repos, elle en retire un peu pour garder le même total sur la semaine.',train_day:'🏋 Jour d\'entraînement',rest_day:'Jour de repos',cook_lbl:'Cuisine',
  prot_still:'La collation seule ne suffit pas. Essayez « 💪 Riche en protéines » dans les choix du menu, changez des repas avec « Plus de protéines », ou baissez l\'objectif de protéines dans le profil.',
@@ -606,6 +621,7 @@ fr:{
  foods:["Œufs","Œufs beldi","Pain complet (~200 g)","Pain blanc (~200 g)","Msemen","Harcha","Flocons d'avoine","Lait (verre 200 ml)","Yaourt / Perly (pot)","Fromage portion","Whey (dose 30 g)","Thé sucré (verre)","Blanc de poulet (cru)","Cuisse de poulet sans peau (crue)","Sardine (crue, partie comestible)","Merlan / poisson blanc (filet cru)","Bœuf maigre (cru)","Kefta de bœuf (crue)","Kefta de dinde (crue)","Foie de poulet (cru)","Thon (boîte, ~80 g égoutté)","Riz (cuit)","Pâtes (cuites)","Lentilles (cuites)","Haricots blancs (cuits)","Pois chiches (cuits)","Pomme de terre (crue)","Patate douce (crue)","Légumes (tomate, concombre, oignon…)","Banane","Pomme / orange","Dattes","Avocat","Huile de cuisson (c. à soupe)","Huile d'olive (c. à soupe)","Amandes","Cacahuètes","Amlou (c. à soupe 20 g)",'Riz (cru)','Pâtes (crues)','Lentilles (crues)','Haricots blancs (crus)','Pois chiches (crus)','Tomate','Oignon','Carotte','Courgette','Olives','Poulet entier (avec os)','Fromage frais jben (c. à s. 20 g)','Confiture (c. à s. 20 g)','Miel (c. à s. 20 g)','Beurre (c. à s. 14 g)','Sucre (c. à c. 5 g)','Café moulu (par tasse)','Viande avec os (agneau/bœuf)','Poisson entier (avec arêtes)','Raisins secs','Poivron','Couscous (sec)','Tacos (M, 1 viande)','Burger','Panini','Chawarma (sandwich)','Sandwich kefta','Pizza (petite)','Rfissa (assiette)','Couscous (assiette)','Bissara (bol)','Sfenj (beignet)','Briouates (kefta ou poisson)','Maakouda','Pastilla (part)','Harira (bol)','Semoule fine','Farine blanche','Farine complète','Farine de pois chiches','Semoule de maïs','Orge concassée','Blé décortiqué','Berkoukech (gros grains)','Vermicelles','Fèves sèches','Navet','Potiron','Chou','Aubergine','Petits pois','Ail','Coriandre et persil','Citron','Citron confit','Pruneaux','Coing','Artichaut','Gombo','Concombre','Betterave','Haricots verts','Mauve (bakoula)','Champignons','Maïs (boîte)','Menthe fraîche','Moules','Crevettes','Calamar','Tripes et abats','Pieds de veau','Foie d\'agneau','Cervelle','Tête (viande)','Rate','Viande séchée (gueddid)','Cachir (mortadelle)','Fromage rouge (édam)','Lben (lait fermenté)','Sésame','Noix de coco râpée','Graisse (ch7ma)','Smen (beurre rance)','Huile d\'argan (c. à s.)','Épices (mélange)','Sel','Safran','Levure','Maïzena','Fenugrec','Eau de fleur d\'oranger','Vinaigre','Sauce soja','Mayonnaise','Lait concentré sucré','Sauce chocolat','Thé vert','Feuilles de pastilla (warqa)','Laitue','Blettes','Épinards','Céleri','Fenouil','Radis','Chou-fleur','Brocoli','Poireau','Piment','Fèves fraîches','Cardon','Oignon vert','Gingembre frais','Courge','Taro','Pomme','Orange','Mandarine / clémentine','Raisin','Pastèque','Melon','Pêche','Abricot','Prune fraîche','Figue','Figue de Barbarie','Grenade','Fraise','Poire','Cerises','Ananas','Kiwi','Mangue','Jujube','Nèfle','Citron vert','Figues sèches','Abricots secs','Noix','Pistaches','Noix de cajou','Noisettes','Graines de lin','Graines de courge','Graines de chia','Pois cassés','Lentilles corail','Haricots rouges','Pois chiches en boîte','Quinoa','Boulgour','Orge (grains)','Maïs (grains secs)','Riz complet','Thon au naturel (boîte, ~80 g égoutté)']
 },
 ar:{
+ save_fail:'لم يتم الحفظ! ذاكرة الهاتف ممتلئة أو المتصفح يمنع الحفظ. أنشئ نسخة احتياطية الآن حتى لا تضيع بياناتك.',storage_off:'هذا المتصفح لا يسمح بالحفظ: سيضيع كل شيء عند الإغلاق. أنشئ نسخة احتياطية في ملف (الأسعار).',load_corrupt:'تعذرت قراءة البيانات المحفوظة (ناقصة أو تالفة). وُضعت جانبًا وبدأ التطبيق من جديد. نزّلها حتى لا تضيع.',dl_raw:'تنزيل البيانات القديمة',dismiss:'فهمت',crash_title:'حدثت مشكلة في العرض',crash_msg:'بياناتك سليمة. نزّل نسخة الآن، ثم أرسلها لمعرفة سبب المشكلة.',imp_q:'تحتوي هذه النسخة على {p} ملف شخصي و{r} وصفة و{c} مادة خاصة. المتابعة ستستبدل بياناتك الحالية.',imp_fixed:'تم تصحيح {n} عنصرًا غير صالح في الملف (مثل أرقام فارغة أو غير مفهومة).',imp_warn:'ستُحفظ بياناتك الحالية على الهاتف، ويمكنك الرجوع إليها بـ«الرجوع إلى البيانات السابقة».',imp_yes:'استبدال بهذه النسخة',restore_prev:'الرجوع إلى البيانات السابقة',restore_confirm:'متأكد؟ اضغط مرة أخرى',custom_err_100:'قيم مستحيلة: 100 غ لا يمكن أن تحتوي على أكثر من 100 غ من البروتين والنشويات والدهون معًا، ولا أكثر من 900 سعرة.',est_tip:'قيم تقريبية (طبق جاهز أو أكل الشارع أو منتج تجاري). إذا كان لديك الملصق، صحّحها بـ✎.',oil_note:'الحساب بزيت أقل ({x}).',save_ok:'تم الحفظ',
  for_n_x:'لـ{n} أشخاص ({x} لك)',for_n_hint:'اطبخ {t} حصة: كل شخص يأخذ حصة كاملة، وأنت تأخذ {x}. لائحة المشتريات تحسب ذلك.',
  oil_lbl:'الزيت في الوصفات',oil_1:'عادي',oil_67:'أقل (2/3)',oil_5:'النصف',oil_hint:'يقلل الزيت في كل الوصفات، في الحساب وفي لائحة المشتريات. الزيت هو أكبر مصدر للدهون في مطبخنا.',lf_opt:'خفيف الدهون',fat_hi:'الدهون زائدة بـ{x} غ. {m} فيها الأكثر.',fat_fix:'استبدلها بأخف',carb_gap:'ينقص {g} غ نشويات',add_carb:'+ أكمل النشويات',side_lbl:'نشويات إضافية',snack1_lbl:'اللمجة 1',snack2_lbl:'اللمجة 2',snack1_when:'(صباحًا أو عصرًا)',snack1_train:'(قبل التمرين أو بعده)',snack2_when:'(ليلًا)',train_lbl:'التدريب (اختياري)',train_on:'أتدرب',train_days:'أيام التدريب',train_hint:'في يوم التدريب يضيف التطبيق ~50 غ نشويات (+200 سعرة) للطاقة. في أيام الراحة ينقص قليلًا ليبقى مجموع الأسبوع كما هو.',train_day:'🏋 يوم تدريب',rest_day:'يوم راحة',cook_lbl:'الطبخ',
  prot_still:'اللمجة وحدها لا تكفي. جرّب «💪 غني بالبروتين» في خيارات القائمة، أو غيّر الوجبات بـ«بروتين أكثر»، أو اخفض هدف البروتين في الملف.',
@@ -687,6 +703,7 @@ ar:{
  foods:['بيض عادي','بيض بلدي','خبز كامل (رغيف ~200 غ)','خبز أبيض (رغيف ~200 غ)','مسمن','حرشة','رقائق الشوفان','حليب (كأس 200 مل)','ياغورت (علبة)','جبن مثلث','واي بروتين (مغرفة 30 غ)','شاي بالسكر (كأس)','صدر دجاج (نيء)','فخذ دجاج بدون جلد (نيء)','سردين (نيء، الجزء المأكول)','سمك أبيض (فيليه نيء)','لحم بقري هبرة (نيء)','كفتة بقري (نيئة)','كفتة ديك رومي (نيئة)','كبد دجاج (نيء)','تونة (علبة، ~80 غ مصفاة)','أرز (مطبوخ)','معكرونة (مطبوخة)','عدس (مطبوخ)','لوبيا بيضاء (مطبوخة)','حمص (مطبوخ)','بطاطس (نيئة)','بطاطا حلوة (نيئة)','خضر (طماطم، خيار، بصل…)','موز','تفاح / برتقال','تمر','أفوكادو','زيت الطبخ (ملعقة كبيرة)','زيت الزيتون (ملعقة كبيرة)','لوز','فول سوداني','أملو (ملعقة 20 غ)','أرز (نيء)','معكرونة (نيئة)','عدس (نيء)','لوبيا بيضاء (نيئة)','حمص (نيء)','طماطم','بصل','جزر','كوسة','زيتون','دجاجة كاملة (بالعظم)','جبن طري (ملعقة 20 غ)','مربى (ملعقة 20 غ)','عسل (ملعقة 20 غ)','زبدة (ملعقة 14 غ)','سكر (ملعقة صغيرة 5 غ)','قهوة مطحونة (للكوب)','لحم بالعظم (غنم/بقر)','سمك كامل (بالعظم)','زبيب','فلفل حلو','كسكس (جاف)','تاكوس (وسط، لحم واحد)','برغر','بانيني','شاورما (ساندويتش)','ساندويتش كفتة','بيتزا (صغيرة)','رفيسة (صحن)','كسكس (صحن)','بيصارة (زلافة)','سفنج','بريوات (كفتة أو سمك)','معقودة','بسطيلة (حصة)','حريرة (زلافة)','سميد','دقيق أبيض','دقيق كامل','دقيق الحمص','سميد الذرة','بلبولة الشعير','قمح مقشور','بركوكش','شعرية','فول يابس','لفت','قرع أحمر','ملفوف','باذنجان','بازلاء','ثوم','قزبر ومعدنوس','ليمون حامض','ليمون مصبر','برقوق مجفف','سفرجل','قرنون','بامية','خيار','شمندر','فاصوليا خضراء','خبيزة','فطر','ذرة (علبة)','نعناع','بلح البحر','قمرون','حبار','كرشة ومصارين','كوارع','كبد الخروف','مخ','لحم الرأس','طحال','قديد','كاشير','جبن أحمر','لبن رائب','سمسم','جوز الهند','شحم','سمن','زيت الأركان (ملعقة)','توابل','ملح','زعفران','خميرة','نشا الذرة','حلبة','ماء الزهر','خل','صلصة الصويا','مايونيز','حليب مكثف محلى','صلصة الشوكولاتة','شاي أخضر','أوراق البسطيلة','خس','سلق','سبانخ','كرفس','شمر','فجل','قرنبيط','بروكلي','كراث','فلفل حار','فول أخضر','خرشوف بري','بصل أخضر','زنجبيل طازج','قرع','قلقاس','تفاح','برتقال','يوسفي','عنب','بطيخ أحمر','شمام','خوخ','مشمش','برقوق','تين','تين شوكي','رمان','فراولة','إجاص','كرز','أناناس','كيوي','مانجو','عناب','زعرور','ليمون أخضر','تين مجفف','مشمش مجفف','جوز','فستق','كاجو','بندق','بذور الكتان','بذور اليقطين','بذور الشيا','بازلاء مجففة','عدس أحمر','فاصوليا حمراء','حمص معلب','كينوا','برغل','شعير','ذرة','أرز بني','تونة بالماء (علبة، ~80 غ مصفاة)']
 },
 en:{
+ save_fail:'Not saved! The phone\'s storage is full or the browser blocks saving. Make a backup now so nothing is lost.',storage_off:'This browser doesn\'t allow saving: everything will be lost when you close it. Make a file backup (Prices).',load_corrupt:'The saved data could not be read (incomplete or damaged). It has been set aside and the app started fresh. Download it so it is not lost.',dl_raw:'Download the old data',dismiss:'Got it',crash_title:'Something went wrong on screen',crash_msg:'Your data is still here. Download a copy now, then send it so the problem can be found.',imp_q:'This backup has {p} profile(s), {r} recipes and {c} custom foods. Continuing will replace your current data.',imp_fixed:'{n} invalid entries in the file were repaired (empty or unreadable numbers, for example).',imp_warn:'Your current data will be kept on the phone; you can go back with "Restore previous data".',imp_yes:'Replace with this backup',restore_prev:'Restore previous data',restore_confirm:'Sure? Tap again',custom_err_100:'Impossible values: 100 g cannot hold more than 100 g of protein+carbs+fat, or more than 900 kcal.',est_tip:'Approximate values (prepared dish, street food or branded product). If you have the label, correct them with ✎.',oil_note:'Calculated with less oil ({x}).',save_ok:'Saved',
  for_n_x:'For {n} ({x} for you)',for_n_hint:'Cook {t} portions: everyone gets a full portion, you take {x}. The shopping list already counts it.',
  oil_lbl:'Oil in recipes',oil_1:'Normal',oil_67:'Less (2/3)',oil_5:'Half',oil_hint:'Cuts the oil in every recipe, in the numbers and the shopping list. Oil is the biggest source of fat in our cooking.',lf_opt:'Lower fat',fat_hi:'{x} g too much fat. {m} has the most.',fat_fix:'Swap for a lighter one',carb_gap:'{g} g carbs short',add_carb:'+ Top up carbs',side_lbl:'Extra carbs',snack1_lbl:'Snack 1',snack2_lbl:'Snack 2',snack1_when:'(morning or afternoon)',snack1_train:'(before or after training)',snack2_when:'(evening)',train_lbl:'Training (optional)',train_on:'I train',train_days:'Training days',train_hint:'On training days the app adds ~50 g carbs (+200 kcal) for energy. On rest days it takes a little off, so the weekly total stays the same.',train_day:'🏋 Training day',rest_day:'Rest day',cook_lbl:'Cooking',
  prot_still:'The snack alone isn\'t enough. Try "💪 High protein" in the menu settings, swap meals with "More protein", or lower the protein target in the profile.',
@@ -790,7 +807,7 @@ const FOODS=[
  {id:'fromage',cat:'ftour',u:'u',ul:'7ba',d:2,s:1,m:[42,2,.8,3.5],b:'u',bl:'7ba',f:1,p:1.5},
  {id:'whey',cat:'ftour',u:'u',ul:'scoop',d:1,s:.5,m:[120,24,3,1.5],b:'kg',f:.03,p:350},
  {id:'atay',cat:'ftour',u:'u',ul:'kas',d:1,s:1,m:[60,0,15,0],b:'kg',f:.015,p:10,sn:1},
- {id:'sder',cat:'prot',u:'g',d:200,s:25,m:[120,23,0,2.6],b:'kg',f:.001,p:70},
+ {id:'sder',cat:'prot',u:'g',d:200,s:25,m:[120,22.5,0,2.6],b:'kg',f:.001,p:70},
  {id:'fkhad',cat:'prot',u:'g',d:200,s:25,m:[119,19.7,0,4.1],b:'kg',f:.001/.75,p:38,nt:'bone'},
  {id:'sardine',cat:'prot',u:'g',d:200,s:25,m:[170,20,0,10],b:'kg',f:.001/.6,p:25,nt:'sardine'},
  {id:'merla',cat:'prot',u:'g',d:200,s:25,m:[90,18.3,0,1.3],b:'kg',f:.001/.5,p:45,nt:'merla'},
@@ -969,12 +986,18 @@ const FOODS=[
  {id:'ch3ir',cat:'carb',u:'g',d:70,s:25,m:[354,12.5,73.5,2.3],b:'kg',f:.001,p:8},
  {id:'dra',cat:'carb',u:'g',d:70,s:25,m:[365,9.4,74,4.7],b:'kg',f:.001,p:8},
  {id:'rouz_kamel',cat:'carb',u:'g',d:70,s:25,m:[362,7.5,76,2.7],b:'kg',f:.001,p:25},
- {id:'ton_ma',cat:'prot',u:'u',ul:'7ok',d:1,s:1,m:[100,23,0,1],b:'u',bl:'7ok',f:1,p:13}
+ {id:'ton_ma',cat:'prot',u:'u',ul:'7ok',d:1,s:1,m:[93,20.4,0,0.7],b:'u',bl:'7ok',f:1,p:13}
 ];
 /* Bought once a month (dry goods that keep) and the pack size they are sold in, in buy units */
 const STAPLE=new Set(['karmous_yabes','mchmach_yabes','gergaa','pistache','kajou','bndo9','kettan','zri3a_9er3a','chia','jelbana_yabsa','3des_7mer','loubia_7amra','quinoa','boulgour','ch3ir','dra','rouz_kamel','smida','d9i9','d9i9_kamel','d9i9_7mes','smida_dra','belboula','herbel','berkoukech','cha3riya','foul_yabs','l3triya','mel7a','za3fran','smen','khmira','maizena','7elba','ma_zhar','khal','soja','nestle','atay7boub','znjlan','koko','zit_argan','ber9ou9','gueddid','mayo','lwr9a','rouz_n','makarona_n','3des_n','loubia_n','7mes_n','rouz','makarona','3des','loubia','7mes','choufan','atay','zit_t','zit_z','whey','louz','kawkaw','tmer','amlou','ton','zitoun','confiture','l3sel','sokar','9hwa','zbib','couscous_n']);
 const PACK={jelbana_yabsa:.5,'3des_7mer':.5,loubia_7amra:.5,quinoa:.5,boulgour:.5,ch3ir:1,dra:1,rouz_kamel:1,gergaa:.25,pistache:.25,kajou:.25,bndo9:.25,chia:.25,kettan:.25,smida:1,d9i9:1,d9i9_kamel:1,belboula:1,berkoukech:.5,cha3riya:.5,foul_yabs:.5,mel7a:1,za3fran:.001,ma_zhar:.5,khal:1,znjlan:.25,koko:.25,zit_argan:.25,ber9ou9:.5,smen:.25,nestle:.4,mayo:.25,lwr9a:.5,rouz_n:1,makarona_n:.5,'3des_n':.5,loubia_n:.5,'7mes_n':.5,rouz:1,makarona:.5,'3des':.5,loubia:.5,'7mes':.5,choufan:.5,atay:1,zit_t:1,zit_z:1,hlib:.5,whey:1,louz:.25,kawkaw:.25,tmer:.5,amlou:.25,zitoun:.25,confiture:.5,l3sel:.5,zebda:.25,sokar:1,'9hwa':.25,zbib:.25,couscous_n:1};
 const FOOD_IDX={};FOODS.forEach((f,i)=>FOOD_IDX[f.id]=i);
+/* Data quality. Raw ingredients use typical food-composition values (USDA FoodData Central SR Legacy style figures for
+   the raw food); the foods below are estimates — Moroccan prepared items, street food, branded or as-bought weights —
+   and are shown with "≈" so nobody mistakes them for measured values. See FOOD_DATA.md. */
+const EST=new Set(['khobz','khobz_b','msemen','harcha','perly','fromage','whey','atay','jben','amlou','confiture','tfa7','khodra','sardine','bid_beldi','ton',
+  'djaj_kamel','l7em_3dem','7out_kamel','l7em_ras','douwara','kour3in','gueddid','kachir','l3triya','lwr9a','sauce_choco','l7amed_msyer']);
+const isEst=f=>!f.isOv&&!f.isRec&&FOOD_IDX[f.id]!=null&&(EST.has(f.id)||f.cat==='zan9a');
 const MEAL_KEYS=['ftour','ghda','kaskrout','3cha'];
 const GOAL_KEYS=['cut','recomp','maintain','leanbulk','bulk'];
 const GOALS={cut:[.8,2.2],recomp:[.92,2.2],maintain:[1,1.8],leanbulk:[1.1,1.8],bulk:[1.15,1.8]};
@@ -991,8 +1014,9 @@ const uLab=f=>f.u==='g'?(f.gu==='ml'?t('u_ml'):t('u_g')):unitName(f.ul);
 const buyLab=f=>f.b==='kg'?t('u_kg'):f.b==='L'?t('u_L'):unitName(f.bl||'7ba');
 const unitName=k=>{const u=I18N[lang()].un||I18N.dj.un;return u[k]||I18N.dj.un[k]||k};
 /* Which weight to enter, shown as a tag next to meat and fish */
+const estTag=f=>isEst(f)?`<span class="esttag" title="${esc(t('est_tip'))}" aria-label="${esc(t('est_tip'))}">≈</span>`:'';
 const wTag=f=>['bone','sardine','merla'].includes(f.nt)?`<span class="wtag" title="${esc(noteOf(f))}">⚖ ${t('w_eat')}</span>`:['whole','asbought'].includes(f.nt)?`<span class="wtag buy" title="${esc(noteOf(f))}">⚖ ${t('w_buy')}</span>`:'';
-const noteOf=f=>f.nt==='street'?t('street_note'):f.nt?((I18N[lang()].notes||{})[f.nt]||I18N.dj.notes[f.nt]):'';
+const noteOf=f=>f.nt==='street'?t('street_note'):f.nt?((I18N[lang()].notes||{})[f.nt]||I18N.dj.notes[f.nt]||''):'';
 const catName=k=>k==='rec'?t('cat_rec'):tl('cats',CAT_KEYS.indexOf(k));
 const DEFAULT_MEALS=()=>[{k:'ftour'},{k:'ghda'},{k:'kaskrout'},{k:'3cha'}];
 const mealKeys=()=>S.meals.map(m=>m.k);
@@ -1015,7 +1039,106 @@ function sampleProfile(){
   const b={id:uid(),name:'Nhar B — raha',meals:{ftour:[['bid',3],['khobz',.5],['zit_z',1],['atay',1]],ghda:[['3des',300],['kebda',150],['khobz',.5],['khodra',200]],kaskrout:[['perly',1],['tfa7',1]],'3cha':[['merla',250],['batata',250],['khodra',150],['zit_t',1]]}};
   return {id:uid(),name:'Mital (beddlo)',sex:'m',age:28,w:74,h:176,act:1.55,goal:'recomp',protKg:null,fatPct:27,budget:'',days:[a,b],week:[a.id,b.id,a.id,b.id,a.id,b.id,b.id],example:true};
 }
+/* ---------- Data validation ----------
+ Saved data and imported backups go through the same checks. Anything unusable is repaired with a safe default
+ (and counted in _fixes, shown when importing) instead of crashing the app later. Ids are restricted to
+ [A-Za-z0-9_-] because they end up inside onclick="..." attributes. */
+const OKID=/^[A-Za-z0-9_-]{1,40}$/;
+const isObj=x=>!!x&&typeof x==='object'&&!Array.isArray(x);
+let _fixes=0;const fx=()=>{_fixes++};
+const numIn=(v,def,lo,hi)=>{const n=+v;if(v===''||v==null||!Number.isFinite(n)){fx();return def}if(n<lo||n>hi){fx();return Math.min(hi,Math.max(lo,n))}return n};
+const cleanList=l=>{if(!Array.isArray(l)){if(l!=null)fx();return []}
+  return l.filter(it=>{const ok=Array.isArray(it)&&typeof it[0]==='string'&&OKID.test(it[0]);if(!ok)fx();return ok}).map(([id,q])=>[id,numIn(q,0,0,1e5)])};
+function sanitizeIds(){
+  const map={},seen=new Set();
+  const fresh=(old,prefix,test)=>{let n=old;if(typeof n!=='string'||!OKID.test(n)||!test(n)||seen.has(n)){n=prefix+uid();fx()}seen.add(n);if(n!==old)map[old]=n;return n};
+  S.custom.forEach(f=>{f.id=fresh(f.id,'c_',x=>x.startsWith('c_'))});
+  S.recipes.forEach(r=>{r.id=fresh(r.id,'r_',x=>x.startsWith('r_'))});
+  const mapId=id=>map[id]!=null?map[id]:id;
+  const remap=l=>l.forEach(it=>{it[0]=mapId(it[0])});
+  /* meal slots: keys are used in onclick handlers too */
+  const kmap={},kseen=new Set();
+  S.meals=S.meals.filter(m=>{const ok=isObj(m)&&typeof m.k==='string';if(!ok)fx();return ok});
+  S.meals.forEach(m=>{let k=m.k;if(!OKID.test(k)||kseen.has(k)){k='m_'+uid();fx()}kseen.add(k);if(k!==m.k){kmap[m.k]=k;m.k=k}if(m.n!=null&&typeof m.n!=='string')m.n=null});
+  if(!S.meals.length)S.meals=DEFAULT_MEALS();
+  const pmap={};
+  S.profiles.forEach(p=>{const old=p.id;p.id=fresh(p.id,'p_',()=>true);if(p.id!==old)pmap[old]=p.id;
+    const dmap={};p.days.forEach(d=>{const o=d.id;d.id=fresh(d.id,'d_',()=>true);if(d.id!==o)dmap[o]=d.id;
+      Object.keys(d.meals).forEach(k=>{if(kmap[k]){d.meals[kmap[k]]=d.meals[k];delete d.meals[k]}else if(!OKID.test(k)){delete d.meals[k];fx()}});
+      Object.values(d.meals).forEach(remap)});
+    p.week=p.week.map(w=>dmap[w]!=null?dmap[w]:w)});
+  if(pmap[S.active])S.active=pmap[S.active];
+  const shop={};Object.keys(S.shop).forEach(k=>{const n=pmap[k]||k;if(OKID.test(n))shop[n]=!!S.shop[k]});S.shop=shop;
+  S.recipes.forEach(r=>remap(r.items));
+  if(S.menu){S.menu.days.forEach(d=>{['ftour','snack','snack2','side'].forEach(k=>{if(d[k])remap(d[k])});['ghda','3cha'].forEach(k=>{if(d[k]!=null)d[k]=mapId(d[k]);if(d[k]!=null&&!(typeof d[k]==='string'&&OKID.test(d[k]))){d[k]=null;fx()}})})}
+  ['prices','pantry','checked'].forEach(key=>{const o={};Object.keys(S[key]).forEach(k=>{const n=mapId(k);if(OKID.test(n))o[n]=S[key][k];else fx()});S[key]=o});
+  S.spend.forEach(x=>{if(!OKID.test(String(x.id))){x.id=uid();fx()}});
+}
+function sanitizeMenu(m){
+  if(!isObj(m)||!isObj(m.set)||!Array.isArray(m.days)||!m.days.length){if(m!=null)fx();return null}
+  const st=m.set;st.people=Math.round(numIn(st.people,4,1,20));st.time=numIn(st.time,60,5,999);st.budget=st.budget===''||st.budget==null?'':numIn(st.budget,'',0,1e6);
+  st.excl=Array.isArray(st.excl)?st.excl.filter(e=>EXCL.includes(e)):[];if(!isObj(st.meals))st.meals={ftour:true,ghda:true,'3cha':true};
+  if(st.hp!=null)st.hp=!!st.hp;if(st.lf!=null)st.lf=!!st.lf;
+  m.days=m.days.slice(0,7).map(d=>{if(!isObj(d)){fx();d={}}
+    ['ftour','snack','snack2','side'].forEach(k=>{if(d[k]!=null)d[k]=cleanList(d[k])});
+    ['ghda','3cha'].forEach(k=>{if(d[k]!=null&&typeof d[k]!=='string'){d[k]=null;fx()}});
+    if(d.pf!=null){const v=+d.pf;if(!(v>=.5&&v<=3)){delete d.pf;fx()}}return d});
+  while(m.days.length<7)m.days.push({});
+  return m}
+function sanitize(){
+  if(!Array.isArray(S.recipes)){if(S.recipes!=null)fx();S.recipes=sampleRecipes();S.recipeSeed=SEED_VERSION}
+  S.recipes=S.recipes.filter(r=>{const ok=isObj(r);if(!ok)fx();return ok});
+  S.recipes.forEach(r=>{if(typeof r.n!=='string')r.n=r.key&&I18N.dj.rec_names[r.key]||'?';if(r.key&&!I18N.dj.rec_names[r.key])delete r.key;
+    r.servings=Math.round(numIn(r.servings,4,1,500));r.items=cleanList(r.items);if(typeof r.cat!=='string')r.cat='mine';
+    if(r.time!=null)r.time=numIn(r.time,60,5,600);if(r.diff!=null)r.diff=Math.round(numIn(r.diff,2,1,3))});
+  if(!Array.isArray(S.custom)){if(S.custom!=null)fx();S.custom=[]}
+  S.custom=S.custom.filter(f=>{const ok=isObj(f);if(!ok)fx();return ok});
+  S.custom.forEach(f=>{const mu=MU[f.mu]?f.mu:(f.u==='g'?'g':'u');const M=MU[mu];
+    if(!Array.isArray(f.m)||f.m.length!==4||f.m.some(v=>!Number.isFinite(+v)||+v<0)){f.m=[0,0,0,0];fx()}else f.m=f.m.map(Number);
+    if(!['g','u'].includes(f.u))Object.assign(f,{u:M.u,gu:M.gu||null,ul:M.ul||'7ba'});
+    if(!['kg','L','u'].includes(f.b)||!(+f.f>0))Object.assign(f,{b:M.b,f:M.f,bl:M.bl||'7ba'});
+    if(!(+f.d>0))f.d=M.d;if(!(+f.s>0))f.s=M.s;f.p=numIn(f.p,0,0,1e6);if(!CAT_KEYS.includes(f.cat))f.cat='extra'});
+  if(!isObj(S.ov))S.ov={};Object.keys(S.ov).forEach(id=>{const o=S.ov[id];if(FOOD_IDX[id]==null||!isObj(o)||!Array.isArray(o.m)||o.m.length!==4||o.m.some(v=>!Number.isFinite(+v)||+v<0)){delete S.ov[id];fx()}});
+  ['prices','pantry','checked','shop'].forEach(k=>{if(!isObj(S[k])){if(S[k]!=null)fx();S[k]={}}});
+  Object.keys(S.prices).forEach(k=>{const v=+S.prices[k];if(!Number.isFinite(v)||v<0){delete S.prices[k];fx()}});
+  Object.keys(S.pantry).forEach(k=>{const v=S.pantry[k];if(v!==true&&!(Number.isFinite(+v)&&+v>0&&+v<1e5)){delete S.pantry[k];fx()}else if(v!==true)S.pantry[k]=+v});
+  if(!Array.isArray(S.spend)){if(S.spend!=null)fx();S.spend=[]}
+  S.spend=S.spend.filter(x=>{const ok=isObj(x)&&/^\d{4}-\d{2}-\d{2}$/.test(x.d)&&Number.isFinite(+x.a)&&+x.a>=0;if(!ok)fx();return ok}).map(x=>({id:x.id,d:x.d,a:+x.a,e:Number.isFinite(+x.e)&&+x.e>0?+x.e:0}));
+  S.profiles.forEach((p,i)=>{
+    if(typeof p.name!=='string'||!p.name.trim()){p.name=t('new_profile_name',{n:i+1});fx()}
+    if(p.sex!=='m'&&p.sex!=='f'){p.sex='m';fx()}
+    p.age=numIn(p.age,30,14,90);p.w=numIn(p.w,70,35,250);p.h=numIn(p.h,170,120,230);
+    const a=+p.act;if(!ACTS.includes(a)){p.act=Number.isFinite(a)&&a>0?ACTS.reduce((x,y)=>Math.abs(y-a)<Math.abs(x-a)?y:x):1.55;fx()}else p.act=a;
+    if(!GOALS[p.goal]){p.goal='maintain';fx()}
+    p.fatPct=numIn(p.fatPct,27,20,40);
+    if(p.protKg!=null&&p.protKg!==''){const v=+p.protKg;p.protKg=Number.isFinite(v)?Math.min(3.3,Math.max(1,v)):(fx(),null)}else p.protKg=null;
+    if(p.tdeeAdj!=null&&!(+p.tdeeAdj>900&&+p.tdeeAdj<6000)){delete p.tdeeAdj;fx()}
+    if(p.train!=null)p.train=!!p.train;if(p.tdays!=null)p.tdays=Array.isArray(p.tdays)?[...new Set(p.tdays.map(Number).filter(x=>Number.isInteger(x)&&x>=0&&x<7))]:[];
+    p.weights=(Array.isArray(p.weights)?p.weights:[]).filter(e=>{const ok=isObj(e)&&/^\d{4}-\d{2}-\d{2}$/.test(e.d)&&+e.w>=35&&+e.w<=250;if(!ok)fx();return ok}).map(e=>({d:e.d,w:+e.w}));
+    if(!Array.isArray(p.days)){if(p.days!=null)fx();p.days=[]}
+    p.days=p.days.filter(d=>{const ok=isObj(d);if(!ok)fx();return ok});
+    p.days.forEach((d,j)=>{if(typeof d.name!=='string'){d.name=t('day_prefix')+' '+(j+1);fx()}if(!isObj(d.meals)){d.meals=emptyMeals();fx()}Object.keys(d.meals).forEach(k=>{d.meals[k]=cleanList(d.meals[k])})});
+    if(!p.days.length)p.days.push({id:uid(),name:t('day_prefix')+' A',meals:emptyMeals()});
+    if(!Array.isArray(p.week)){if(p.week!=null)fx();p.week=[]}
+  });
+  S.menu=S.menu?sanitizeMenu(S.menu):null;if(!S.menu)delete S.menu;
+  if(S.menuSet!=null&&!(isObj(S.menuSet)&&Array.isArray(S.menuSet.excl)&&isObj(S.menuSet.meals)))delete S.menuSet;
+  if(![1,.67,.5].includes(+S.oil))S.oil=1;else S.oil=+S.oil;
+  if(!['auto','light','dark'].includes(S.theme))S.theme='auto';
+  if(S.budget!==''&&!(Number.isFinite(+S.budget)&&+S.budget>=0)){S.budget='';fx()}
+  if(S.lastBackup!=null&&!Number.isFinite(+S.lastBackup))delete S.lastBackup;
+  sanitizeIds();
+  S.profiles.forEach(p=>{p.week=[0,1,2,3,4,5,6].map(i=>p.days.some(d=>d.id===p.week[i])?p.week[i]:null)});
+  if(!S.profiles.some(p=>p.id===S.active))S.active=S.profiles[0].id;
+  /* cooked forms are bought dry (see BUY_AS): move "at home" and ticks to the purchase row */
+  Object.keys(BUY_AS).forEach(k=>{const tgt=BUY_AS[k];['pantry','checked'].forEach(key=>{if(S[key][k]!=null&&S[key][tgt]==null)S[key][tgt]=S[key][k];delete S[key][k]})});
+}
 function normalize(){
+  if(!isObj(S))S={};
+  if(!Array.isArray(S.profiles))S.profiles=[];
+  S.profiles=S.profiles.filter(p=>{const ok=isObj(p);if(!ok)fx();return ok});
+  if(!S.profiles.length)S.profiles=[sampleProfile()];
+  if(!Array.isArray(S.recipes)&&S.recipes!=null){S.recipes=null;fx()}
   S.theme=S.theme||'auto'; if(!Array.isArray(S.meals)||!S.meals.length)S.meals=DEFAULT_MEALS(); S.pantry=S.pantry||{}; if(!S.recipes){S.recipes=sampleRecipes();S.recipeSeed=SEED_VERSION}
   if((S.recipeSeed||1)<2){const have=new Set(S.recipes.map(r=>r.id));
     S.recipes.forEach(r=>{const k=r.id.slice(2);if(!r.key&&I18N.dj.rec_names[k]===r.n)r.key=k});
@@ -1024,18 +1147,40 @@ function normalize(){
     /* built-ins the user has not renamed get the detailed quantities; new ones are added */
     S.recipes.forEach(r=>{const n=byId[r.id];if(n&&r.key&&SEED_UPDATED.includes(r.key)){r.items=n.items;r.servings=n.servings}});
     seed.forEach(r=>{if(!have.has(r.id))S.recipes.push(r)});S.recipeSeed=SEED_VERSION}
+  S.recipes=S.recipes.filter(isObj);S.recipes.forEach(r=>{if(typeof r.id!=='string')r.id='r_'+uid();if(!Array.isArray(r.items))r.items=[]});
   {const cats={};SEED_RECIPES.forEach(x=>cats['r_'+x[0]]=x[1]);S.recipes.forEach(r=>{if(!r.cat)r.cat=(r.key&&cats[r.id])||'mine'})} S.lang=I18N[S.lang]?S.lang:'dj';
   _foods=null; S.ov=S.ov||{}; S.prices=S.prices||{}; S.custom=S.custom||[]; S.checked=S.checked||{}; if(!Array.isArray(S.spend))S.spend=[];
-  S.custom.forEach(f=>{if(!f.mu)f.mu=f.u==='g'?'g':'u';if(typeof f.n!=='string')f.n='?';if(f.ul==='7ba'||!f.ul)f.ul='7ba';if(!f.bl)f.bl='7ba';delete f.nt});
-  if(!S.shop) S.shop={};
+  if(!Array.isArray(S.custom))S.custom=[];S.custom=S.custom.filter(isObj);S.custom.forEach(f=>{if(!f.mu)f.mu=f.u==='g'?'g':'u';if(typeof f.n!=='string')f.n='?';if(f.ul==='7ba'||!f.ul)f.ul='7ba';if(!f.bl)f.bl='7ba';delete f.nt});
+  if(!isObj(S.shop)) S.shop={};
   if(S.budget==null)S.budget=(S.house&&S.house.budget)||(S.profiles.find(p=>p.budget)||{}).budget||''; delete S.shop.house;
   S.profiles.forEach(p=>{if(p.fatPct==null)p.fatPct=27;delete p.eatsHouse;delete p.hf;if(!Array.isArray(p.weights))p.weights=[];if(S.shop[p.id]==null)S.shop[p.id]=!p.example;delete p.checked});
+  sanitize();
 }
+const KEY_BAD=KEY+'_corrupt', KEY_PREV=KEY+'_prev';
+let _loadIssue=null, _saveErr=false;
+/* Unreadable saved data is copied aside before anything can overwrite it, and the user is told */
 function load(){
-  try{const r=localStorage.getItem(KEY); if(r){const o=JSON.parse(r); if(o&&o.profiles&&o.profiles.length){S=o;normalize();return;}}}catch(e){}
+  let raw=null;
+  try{raw=localStorage.getItem(KEY)}catch(e){_loadIssue='nostore'}
+  if(raw){
+    try{const o=JSON.parse(raw);if(!isObj(o)||!Array.isArray(o.profiles)||!o.profiles.length)throw new Error('shape');S=o;_fixes=0;normalize();return}
+    catch(e){_loadIssue='corrupt';
+      try{const old=localStorage.getItem(KEY_BAD);localStorage.setItem(old&&old!==raw?KEY_BAD+'_'+Date.now():KEY_BAD,raw)}catch(_){_loadIssue='corrupt_nocopy';_rawBad=raw}}
+  }
   const p=sampleProfile(); S={profiles:[p],active:p.id,prices:{},custom:[]}; normalize();
 }
-function save(){_foods=null;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+let _rawBad=null;
+function save(){_foods=null;
+  try{localStorage.setItem(KEY,JSON.stringify(S));if(_saveErr){_saveErr=false;sysBars()}}
+  catch(e){_saveErr=true;sysBars()}}
+function sysBars(){
+  const se=document.getElementById('saveErr'),lw=document.getElementById('loadWarn');if(!se||!lw)return;
+  se.hidden=!_saveErr;if(_saveErr)se.innerHTML=`<span>${t('save_fail')}</span><button class="btn sm" onclick="exportFile()">${t('export_file')}</button>`;
+  lw.hidden=!_loadIssue;
+  if(_loadIssue)lw.innerHTML=`<span>${t(_loadIssue==='nostore'?'storage_off':'load_corrupt')}</span>${_loadIssue==='nostore'?'':`<button class="btn sm" onclick="downloadRaw()">${t('dl_raw')}</button>`}<button class="btn sm ghost" onclick="_loadIssue=null;sysBars()">${t('dismiss')}</button>`}
+function downloadText(text,name){try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'application/json'}));a.download=name;
+  document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);return true}catch(e){return false}}
+function downloadRaw(){let raw=_rawBad;try{raw=raw||localStorage.getItem(KEY_BAD)}catch(e){}if(raw)downloadText(raw,'makla-mizan-old-data.txt')}
 const P=()=>S.profiles.find(p=>p.id===S.active)||S.profiles[0];
 /* Built-in foods can be overridden per user (S.ov[id]): name, category, unit, macros. Prices stay in S.prices. */
 let _foods=null,_fidx=null;
@@ -1074,15 +1219,21 @@ const clamp=(k,v,def)=>{v=+v;if(!isFinite(v)||v<=0)return def;return Math.min(LI
  - Protein: g/kg of a reference weight = actual weight, capped at the weight for BMI 25, because protein
    needs track lean mass, not fat mass.
  - Fat: % of calories (default 27%), never below 0.6 g/kg of reference weight. Carbs fill the rest. */
-/* Training days get ~50 g more carbs; rest days give the same amount back so the weekly total is unchanged */
+/* Training days get more carbs and rest days fewer, so the weekly total is unchanged:
+   n·up = (7−n)·down, neither above 50 g, and a rest day never drops under the calorie floor (1200 / 1500 kcal). */
 function targets(p,wd){const tg=targetsBase(p);const td=p.train&&Array.isArray(p.tdays)?p.tdays:[];
   if(wd==null||wd<0||!td.length||td.length>=7)return tg;const n=td.length,o=Object.assign({},tg);
-  if(td.includes(wd)){o.carbs+=50;o.kcal+=200;o.trainDay=true}else{const d=Math.round(50*n/(7-n));o.carbs=Math.max(0,o.carbs-d);o.kcal-=d*4;o.restDay=true}return o}
+  const floor=p.sex==='f'?1200:1500;
+  let down=Math.min(n<=3?50*n/(7-n):50,Math.max(0,(tg.kcal-floor)/4),tg.carbs);
+  const up=Math.min(50,down*(7-n)/n);down=up*n/(7-n);
+  if(td.includes(wd)){o.carbs=Math.round(tg.carbs+up);o.kcal=Math.round(tg.kcal+up*4);o.trainDay=true}
+  else{o.carbs=Math.round(tg.carbs-down);o.kcal=Math.round(tg.kcal-down*4);o.restDay=true}return o}
 function targetsBase(p){
   const w=clamp('w',p.w,70), h=clamp('h',p.h,170), age=clamp('age',p.age,30);
   const bmr=10*w+6.25*h-5*age+(p.sex==='m'?5:-161);
-  const tdeeF=bmr*p.act; const tdee=p.tdeeAdj?p.tdeeAdj:tdeeF; const minor=age<18;
-  const goal=(minor&&GOALS[p.goal][0]<1)?'maintain':p.goal;
+  const minor=age<18; const tdeeF=bmr*(ACTS.includes(+p.act)?+p.act:1.55); const tdee=(+p.tdeeAdj>900&&+p.tdeeAdj<6000)?+p.tdeeAdj:tdeeF;
+  const g0=GOALS[p.goal]?p.goal:'maintain';
+  const goal=(minor&&GOALS[g0][0]<1)?'maintain':g0;
   let kcal=Math.round(tdee*GOALS[goal][0]); let floored=false;
   const floor=p.sex==='f'?1200:1500;
   if(GOALS[goal][0]<1&&kcal<floor){const k2=Math.min(floor,Math.round(tdee));floored=k2>kcal;kcal=k2;}
@@ -1188,9 +1339,13 @@ function renderHeader(){
 }
 /* Re-entrancy guard: replacing the view blurs the focused input, whose change handler calls render() again */
 let _rendering=false,_again=false;
-function render(){if(_rendering){_again=true;return}_rendering=true;try{renderNow()}finally{_rendering=false}if(_again){_again=false;render()}}
+function render(){if(_rendering){_again=true;return}_rendering=true;try{renderNow()}catch(e){console.error(e);renderCrash(e)}finally{_rendering=false}if(_again){_again=false;render()}}
+function renderCrash(e){const v=document.getElementById('view');if(!v)return;
+  v.innerHTML=`<section class="panel stack" id="crash"><h2>${t('crash_title')}</h2><p>${t('crash_msg')}</p>
+    <div class="row"><button class="btn pri" onclick="downloadText(JSON.stringify(S,null,1),'makla-mizan-'+new Date().toISOString().slice(0,10)+'.json')">${t('export_file')}</button>
+    <button class="btn" onclick="tab='prix';render()">${t('go_backup')}</button></div><pre class="hint" style="white-space:pre-wrap;margin:0">${esc(e&&e.message||e)}</pre></section>`}
 function renderNow(){
-  renderHeader();
+  renderHeader();sysBars();
   const p=P();
   document.getElementById('profSel').innerHTML=S.profiles.map(x=>`<option value="${x.id}" ${x.id===p.id?'selected':''}>${esc(x.name)}</option>`).join('');
   const T=['menu','t9edya','recettes','ayyam','simana','profil','prix'];
@@ -1224,10 +1379,10 @@ function vProfil(p){
       <div><label class="lbl" for="pGoal">${t('goal')}</label><select id="pGoal" class="in" onchange="upd('goal',this.value)">${GOAL_KEYS.map((k,i)=>o(k,tl('goals',i),p.goal)).join('')}</select></div>
     </div>
     <div class="grid">
-      <div><label class="lbl" for="pPk">${t('prot_kg')}</label><input id="pPk" class="in num" type="number" step="0.1" min="1" max="3.3" placeholder="${GOALS[p.goal][1]}" value="${p.protKg??''}" onchange="upd('protKg',this.value?this.value:null)"></div>
+      <div><label class="lbl" for="pPk">${t('prot_kg')}</label><input id="pPk" class="in num" type="number" step="0.1" min="1" max="3.3" placeholder="${(GOALS[p.goal]||GOALS.maintain)[1]}" value="${p.protKg??''}" onchange="upd('protKg',this.value?this.value:null)"></div>
       <div><label class="lbl" for="pFp">${t('fat_pct')}</label><input id="pFp" class="in num" type="number" step="1" min="20" max="40" value="${p.fatPct}" onchange="upd('fatPct',this.value)"></div>
     </div>
-    <p class="hint">${t('prot_hint',{g:GOALS[p.goal][1]})}</p>
+    <p class="hint">${t('prot_hint',{g:(GOALS[p.goal]||GOALS.maintain)[1]})}</p>
   </section>
   ${vWeight(p)}
   <section class="panel stack"><h2 style="font-size:19px">${t('train_lbl')}</h2>
@@ -1302,7 +1457,7 @@ function vMeal(d,k,mult){
       <button class="x" aria-label="${t('remove')}" onclick="rmItem('${k}',${i})">✕</button>
       ${f.isRec&&ingOpen[k+'_'+i]?recBreak(id,q,k+'_'+i):''}
     </div>`}).join('');
-  return `<section class="meal"><div class="meal-h"><div><h3>${mealName(k)}</h3><div class="m mm">${fam?t('per_person')+' ':''}${macroFull(tot)}</div><div class="m">${fam?t('house_cost')+' ':''}${dh(tot.cost*mult)}</div></div>
+  return `<section class="meal"><div class="meal-h"><div><h3>${esc(mealName(k))}</h3><div class="m mm">${fam?t('per_person')+' ':''}${macroFull(tot)}</div><div class="m">${fam?t('house_cost')+' ':''}${dh(tot.cost*mult)}</div></div>
     <button class="btn sm pri" onclick="openSheet('${k}')">${t('add_food')}</button></div>
     <div class="items">${rows||`<div class="empty">${t('empty_meal')}</div>`}</div></section>`;
 }
@@ -1328,8 +1483,10 @@ function moveMeal(i,d){const j=i+d;if(j<0||j>=S.meals.length)return;const a=S.me
 function rmMeal(k){S.meals=S.meals.filter(m=>m.k!==k);save();render()}
 function addMeal(){S.meals.push({k:'m_'+uid(),n:null});save();render()}
 function presetMeals(w){S.meals=w==='ramadan'?[{k:'ftour'},{k:'3cha'},{k:'s7our'}]:DEFAULT_MEALS();save();render()}
-function setQ(k,i,v){D().meals[k][i][1]=Math.max(0,parseFloat(v)||0);save();render()}
-function step(k,i,dir){const it=D().meals[k][i];const f=food(it[0]);it[1]=Math.max(0,r1(it[1]+dir*f.s));save();render()}
+/* A meal line holds at most 5 kg / 100 pieces, a recipe pot 50 kg / 500 pieces; empty or negative becomes 0 */
+function capQ(f,v,pot){v=parseFloat(v);if(!Number.isFinite(v)||v<0)v=0;const max=f&&f.u==='g'?(pot?50000:5000):(pot?500:100);return Math.min(max,v)}
+function setQ(k,i,v){const it=D().meals[k][i];it[1]=capQ(food(it[0]),v);save();render()}
+function step(k,i,dir){const it=D().meals[k][i];const f=food(it[0]);it[1]=capQ(f,r2(it[1]+dir*f.s));save();render()}
 function rmItem(k,i){D().meals[k].splice(i,1);save();render()}
 function newDay(){const c=P();const d={id:uid(),name:t('day_prefix')+' '+String.fromCharCode(65+c.days.length),meals:emptyMeals()};c.days.push(d);setCur(d.id);save();render()}
 function dupDay(){const c=P();const d=JSON.parse(JSON.stringify(D()));d.id=uid();d.name+=t('copy_suffix');c.days.push(d);setCur(d.id);save();render();toast(t('toast_dup'))}
@@ -1348,7 +1505,7 @@ function renderSheet(){
   if(!sheetMeal) return;
   const title=sheetRecipe?t('sheet_recipe')+' · '+esc(recipe(sheetRecipe)?recName(recipe(sheetRecipe)):''):t('sheet_title',{meal:esc(mealName(sheetMeal))})
   document.getElementById('sheetRoot').innerHTML=`<div class="sheet-bg" onclick="closeSheet()"></div>
-  <div class="sheet" role="dialog" aria-label="${t('add_food')}">
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="${t('add_food')}">
     <div class="sec-h"><h2 style="font-size:18px">${title}</h2><button class="btn sm" onclick="closeSheet()">${t('close')}</button></div>
     ${sheetNew?`<div class="list stack" style="padding-top:10px">${customFormHTML()}
       <div class="row"><button class="btn pri" onclick="addCustom()">${t('add')}</button><button class="btn" onclick="sheetNew=false;renderSheet()">${t('cancel')}</button><span id="cErr" class="hint" style="color:var(--danger)"></span></div></div></div>`:
@@ -1372,15 +1529,15 @@ function renderSheetList(){
   const pool=(sheetRecipe?[]:recipeFoods()).concat(allFoods());
   const list=pool.filter(f=>(sheetCat==='all'||f.cat===sheetCat)&&(!q||nmatch(searchable(f),q)));
   document.getElementById('sList').innerHTML=list.length?list.map(f=>`<button class="fopt" onclick="addFood('${f.id}')">
-    <span><span class="nm">${f.isRec?'🍲 ':''}${esc(fname(f))}</span> ${wTag(f)}<br><span class="mm">${nu(f.u==='g'?100:1,esc(uLab(f)))}: ${macro({k:f.m[0],p:f.m[1],c:f.m[2],f:f.m[3]})}${f.isRec?' · '+dh(f.p):''}</span></span>
+    <span><span class="nm">${f.isRec?'🍲 ':''}${esc(fname(f))}</span> ${estTag(f)}${wTag(f)}<br><span class="mm">${nu(f.u==='g'?100:1,esc(uLab(f)))}: ${macro({k:f.m[0],p:f.m[1],c:f.m[2],f:f.m[3]})}${f.isRec?' · '+dh(f.p):''}</span></span>
     <span class="add">+</span></button>`).join(''):`<p class="hint" style="padding:12px 0">${t('no_result')}</p>`;
 }
 function addFood(id){const f=food(id);
   if(sheetRecipe){const r=recipe(sheetRecipe);const ex=r.items.find(x=>x[0]===id);
-    if(ex) ex[1]=r1(ex[1]+(f.u==='g'?50:f.s)); else r.items.push([id,f.u==='g'?Math.round(f.d*r.servings/50)*50||50:Math.max(1,r1(f.d*r.servings))]);
+    if(ex) ex[1]=capQ(f,r2(ex[1]+(f.u==='g'?50:f.s)),true); else r.items.push([id,f.u==='g'?Math.round(f.d*r.servings/50)*50||50:Math.max(1,r1(f.d*r.servings))]);
     save();render();toast(t('toast_added',{n:fname(f)}));return}
   const d=D(); if(!d.meals[sheetMeal]) d.meals[sheetMeal]=[]; const arr=d.meals[sheetMeal];const ex=arr.find(x=>x[0]===id);
-  if(ex) ex[1]=r1(ex[1]+f.s); else arr.push([id,f.d]); save();render();toast(t('toast_added',{n:fname(f)}))}
+  if(ex) ex[1]=capQ(f,r2(ex[1]+f.s)); else arr.push([id,f.d]); save();render();toast(t('toast_added',{n:fname(f)}))}
 
 
 /* ---------- Weekly menu ----------
@@ -1628,7 +1785,7 @@ function vRecipes(){
     <p class="hint">${t('rec_n',{n:shown.length})}</p>
     <div class="rgrid">${list||`<div class="empty">${t('no_result')}</div>`}</div>`;
   let ed='';
-  if(r){const tot=sum(r.items);const n=Math.max(1,+r.servings||1);
+  if(r){const tot=sum(recItems(r));const n=Math.max(1,+r.servings||1);
     const rows=r.items.map(([id,q],i)=>{const f=food(id);if(!f)return '';const m=itemM(id,q);
       return `<div class="item"><div style="min-width:0"><div class="nm">${esc(fname(f))} ${wTag(f)}</div><div class="mm">${macro(m)}</div>${f.nt?`<div class="mm">${esc(noteOf(f))}</div>`:''}
         <div class="mm pedit"><label for="rp_${i}">${t('dh')}/${esc(buyLab(f))}</label><input id="rp_${i}" class="pin num" type="number" inputmode="decimal" step="0.1" min="0" value="${r2(price(f))}" onchange="setP('${f.id}',this.value)"></div></div>
@@ -1641,10 +1798,10 @@ function vRecipes(){
         <div style="flex:1;min-width:160px"><label class="lbl" for="rName">${t('recipe_name')}</label><input id="rName" class="in" value="${esc(recName(r))}" onchange="renameRecipe(this.value)"></div>
         <div style="width:110px"><label class="lbl" for="rTime">${t('rec_time')}</label><input id="rTime" class="in num" type="number" min="5" max="600" step="5" value="${recMeta(r).time}" onchange="R().time=Math.max(5,+this.value||60);save();render()"></div>
         <div style="width:120px"><label class="lbl" for="rDiff">${t('rec_diff')}</label><select id="rDiff" class="in" onchange="R().diff=+this.value;save();render()">${[1,2,3].map(v=>`<option value="${v}" ${recMeta(r).diff===v?'selected':''}>${t('diff_'+v)}</option>`).join('')}</select></div>
-        <div style="width:100px"><label class="lbl" for="rServ">${t('servings')}</label><input id="rServ" class="in num" type="number" min="1" max="40" step="1" value="${r.servings}" onchange="setServings(this.value)"></div></div>
+        <div style="width:100px"><label class="lbl" for="rServ">${t('servings')}</label><input id="rServ" class="in num" type="number" min="1" max="500" step="1" value="${r.servings}" onchange="setServings(this.value)"></div></div>
       <div class="items">${rows||`<div class="empty">${t('recipe_empty')}</div>`}</div>
       <div class="meal-h" style="border-top:1px solid var(--line);border-bottom:0;flex-wrap:wrap">
-        <div class="m"><b>${t('per_portion')}</b> ${macro({k:tot.k/n,p:tot.p/n,c:tot.c/n,f:tot.f/n})} · ${dh(tot.cost/n)}<br><b>${t('whole_pot')}</b> ${kc(r0(tot.k))} · ${dh(tot.cost)}</div>
+        <div class="m"><b>${t('per_portion')}</b> ${macro({k:tot.k/n,p:tot.p/n,c:tot.c/n,f:tot.f/n})} · ${dh(tot.cost/n)}<br><b>${t('whole_pot')}</b> ${kc(r0(tot.k))} · ${dh(tot.cost)}${(+S.oil||1)<1?`<br><small>${t('oil_note',{x:t(+S.oil<.6?'oil_5':'oil_67')})}</small>`:''}</div>
         <div class="row"><button class="btn sm pri" onclick="openSheetRecipe('${r.id}')">${t('add_ingredient')}</button>
           <button class="btn sm danger" onclick="delRecipe('${r.id}')">${delArm==='rec'+r.id?t('confirm_del'):t('del')}</button></div></div></div>`}
   return `<section class="stack"><div class="sec-h"><h2>${t('recipes')}</h2><button class="btn sm" onclick="newRecipe()">${t('new_recipe')}</button></div>
@@ -1654,15 +1811,18 @@ function vRecipes(){
 const R=()=>recipe(editRec);
 function newRecipe(){const r={id:'r_'+uid(),n:t('recipe_default'),cat:'mine',servings:4,items:[]};S.recipes.push(r);editRec=r.id;save();render();setTimeout(()=>{const e=document.getElementById('rName');e&&e.select()},50)}
 function renameRecipe(v){const r=R();v=(v||'').trim();if(r.key&&v===recName(r))return;r.n=v||t('recipe_default');delete r.key;save();render()}
-function setServings(v){R().servings=Math.min(40,Math.max(1,Math.round(+v||1)));save();render()}
-function rSetQ(i,v){R().items[i][1]=Math.max(0,parseFloat(v)||0);save();render()}
-function rStep(i,dir){const it=R().items[i];const f=food(it[0]);it[1]=Math.max(0,r1(it[1]+dir*(f.u==='g'?50:f.s)));save();render()}
+function setServings(v){R().servings=Math.min(500,Math.max(1,Math.round(+v||1)));save();render()}
+function rSetQ(i,v){const it=R().items[i];it[1]=capQ(food(it[0]),v,true);save();render()}
+function rStep(i,dir){const it=R().items[i];const f=food(it[0]);it[1]=capQ(f,r2(it[1]+dir*(f.u==='g'?50:f.s)),true);save();render()}
 function rRm(i){R().items.splice(i,1);save();render()}
 function delRecipe(id){if(delArm!=='rec'+id){delArm='rec'+id;render();return}
   S.recipes=S.recipes.filter(r=>r.id!==id);eachList(arr=>{for(let i=arr.length-1;i>=0;i--)if(arr[i][0]===id)arr.splice(i,1)});
+  if(S.menu)S.menu.days.forEach((d,i)=>{['ghda','3cha'].forEach(k=>{if(d[k]===id){const o=swapOptions(i,k);d[k]=o.length?o[0].id:null}});
+    if(Array.isArray(d.ftour)&&!d.ftour.length&&S.menu.set.meals.ftour)d.ftour=FTOUR[0][1].map(x=>x.slice())});
   editRec=null;delArm=null;save();render();toast(t('toast_deleted'))}
 /* Every list of [foodId, qty]: meals of all profile days and recipes */
-function eachList(fn){S.profiles.flatMap(p=>p.days).forEach(d=>Object.keys(d.meals).forEach(k=>fn(d.meals[k])));(S.recipes||[]).forEach(r=>fn(r.items))}
+function eachList(fn){S.profiles.flatMap(p=>p.days).forEach(d=>Object.keys(d.meals).forEach(k=>fn(d.meals[k])));(S.recipes||[]).forEach(r=>fn(r.items));menuLists().forEach(fn)}
+function menuLists(){if(!S.menu||!Array.isArray(S.menu.days))return [];return S.menu.days.flatMap(d=>['ftour','snack','snack2','side'].filter(k=>Array.isArray(d[k])).map(k=>d[k]))}
 
 /* ---------- Week (one profile) ---------- */
 function weekSelect(c,setter){
@@ -1697,10 +1857,13 @@ const txtAmt=(f,x)=>amtParts(f,x).join(' ');
 /* What you actually take home: whole packs for packaged goods, whole units for counted items */
 function buyQty(f,x){const p=PACK[f.id];if(p)return Math.ceil(x/p-1e-9)*p;if(f.b==='u')return Math.ceil(x-1e-9);return x}
 let showPantry=false;
+/* One purchase, several ways of eating it: tea is counted as its sugar, cooked rice/pasta/legumes as the dry product.
+   Their quantities already convert to the same buy unit (kg) through f, so they are merged on the purchase row
+   — but only while both foods are still bought in the same unit (a user override could change that). */
+const BUY_AS={atay:'sokar',rouz:'rouz_n',makarona:'makarona_n','3des':'3des_n',loubia:'loubia_n','7mes':'7mes_n'};
 function shopData(){
   const agg={}; const parts=[];
-  /* sugar for tea and sugar on its own are the same purchase */
-  const add=(id,amt)=>{if(id==='atay')id='sokar';agg[id]=(agg[id]||0)+amt};
+  const add=(id,amt)=>{const tg=BUY_AS[id];if(tg){const a=food(id),b=food(tg);if(a&&b&&a.b===b.b)id=tg}agg[id]=(agg[id]||0)+amt};
   const addDay=(d,mult)=>{let c=0;if(!d)return 0;mealKeys().forEach(k=>(d.meals[k]||[]).forEach(([id,q])=>{const f=food(id);if(!f)return;
     if(f.isRec){const r=recipe(id);const n=Math.max(1,+r.servings||1);r.items.forEach(([iid,iq])=>{const g=food(iid);if(g)add(iid,oilQ(iid,iq)*(q/n)*g.f*mult)})}
     else add(id,q*f.f*mult);
@@ -1761,7 +1924,7 @@ function vT9edya(){
     </div>
     ${rows.length?`<div class="row"><a class="btn pri" href="https://wa.me/?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">${t('share_wa')}</a><button class="btn" onclick="copyList()">${t('copy_list')}</button></div>`:''}
     <p class="hint">${t('new_week_hint')}</p>
-    <div style="max-width:260px"><label class="lbl" for="hBud">${t('budget_in')}</label><input id="hBud" class="in num" type="number" min="0" value="${S.budget}" onchange="S.budget=this.value;save();render()"></div>
+    <div style="max-width:260px"><label class="lbl" for="hBud">${t('budget_in')}</label><input id="hBud" class="in num" type="number" min="0" value="${S.budget}" onchange="{const v=parseFloat(this.value);S.budget=v>0?String(v):'';save();render()}"></div>
   </section>
   ${spendHTML(rows,cost)}</div>`;
 }
@@ -1828,9 +1991,9 @@ function vPrix(){
   const unitL=f=>t('dh')+'/'+(f.b==='kg'?t('u_kg'):f.b==='L'?t('u_L'):unitName(f.bl||'7ba'));
   return `<div class="stack">
   <div class="warn">${t('price_warn')}</div>
-  <section class="panel"><div class="sec-h"><h2>${t('prices')}</h2><button class="btn sm ghost" onclick="S.prices={};save();render();toast(t('toast_reset'))">${t('reset_prices')}</button></div>
+  <section class="panel"><div class="sec-h"><h2>${t('prices')}</h2><button class="btn sm ghost" onclick="if(delArm!=='prices'){delArm='prices';render();return}delArm=null;S.prices={};save();render();toast(t('toast_reset'))">${delArm==='prices'?t('restore_confirm'):t('reset_prices')}</button></div>
   ${CAT_KEYS.map(c=>`<h3 style="font-size:14px;margin-top:14px;color:var(--muted)">${catName(c)}</h3><div class="ptable">${allFoods().filter(f=>f.cat===c).map(f=>`
-    <div class="prow"><div style="min-width:0"><div style="font-weight:600">${esc(fname(f))}${f.isOv?` <span class="tagx">${t('edited')}</span>`:''}</div><small>${nu(f.u==='g'?100:1,esc(uLab(f)))}: ${macro({k:f.m[0],p:f.m[1],c:f.m[2],f:f.m[3]})}</small>${f.nt?`<small style="display:block">${esc(noteOf(f))}</small>`:''}</div>
+    <div class="prow"><div style="min-width:0"><div style="font-weight:600">${esc(fname(f))} ${estTag(f)}${f.isOv?` <span class="tagx">${t('edited')}</span>`:''}</div><small>${nu(f.u==='g'?100:1,esc(uLab(f)))}: ${macro({k:f.m[0],p:f.m[1],c:f.m[2],f:f.m[3]})}</small>${f.nt?`<small style="display:block">${esc(noteOf(f))}</small>`:''}</div>
     <div class="pi"><input id="pr_${f.id}" class="in" type="number" step="0.1" min="0" value="${price(f)}" onchange="setP('${f.id}',this.value)"><small>${esc(unitL(f))}</small><button class="x" aria-label="${t('edit')}" title="${t('edit')}" onclick="editCustom('${f.id}')">✎</button></div></div>`).join('')}</div>`).join('')}
   </section>
   ${S.custom.length?`<section class="panel stack"><h2 style="font-size:19px">${t('custom_list')}</h2>
@@ -1848,7 +2011,11 @@ function vPrix(){
       <label class="btn" for="impF" style="cursor:pointer">${t('import_file')}</label><input id="impF" type="file" accept="application/json,.json" hidden onchange="importFile(this)">
       <button class="btn" onclick="exportData()">${t('copy_backup')}</button></div>
     <textarea id="impT" class="in num" rows="3" placeholder="${t('paste_ph')}"></textarea>
-    <div class="row"><button class="btn" onclick="importData()">${t('import')}</button><span id="impMsg" class="hint"></span></div>
+    <div class="row"><button class="btn" onclick="importData()">${t('import')}</button><span id="impMsg" class="hint" role="status"></span></div>
+    ${_pendingImport?`<div class="warn stack" id="impConfirm" style="gap:8px"><b>${t('imp_q',{p:bdi(_pendingImport.state.profiles.length),r:bdi(_pendingImport.state.recipes.length),c:bdi(_pendingImport.state.custom.length)})}</b>
+      ${_pendingImport.fixes?`<span class="hint">${t('imp_fixed',{n:bdi(_pendingImport.fixes)})}</span>`:''}<span class="hint">${t('imp_warn')}</span>
+      <div class="row"><button class="btn pri" onclick="importConfirm()">${t('imp_yes')}</button><button class="btn" onclick="_pendingImport=null;render()">${t('cancel')}</button></div></div>`:''}
+    ${hasPrev()?`<div class="row"><button class="btn sm" onclick="restorePrev()">${delArm==='prev'?t('restore_confirm'):t('restore_prev')}</button></div>`:''}
     <div class="row" style="border-top:1px solid var(--line);padding-top:12px"><button class="btn danger" onclick="resetAll()">${delArm==='all'?t('reset_confirm'):t('reset_all')}</button></div>
   </section></div>`;
 }
@@ -1882,17 +2049,22 @@ function addCustom(){
   const nums=['cP','cK','cPr','cC','cF'].map(i=>parseFloat(g(i)));
   if(mu==='keep'&&!editingCustom)return;
   if(!n||nums.some(x=>isNaN(x)||x<0)){document.getElementById('cErr').textContent=t('custom_err');return}
+  /* per 100 g (or 100 ml): protein + carbs + fat cannot exceed 100 g, energy cannot exceed ~900 kcal (pure fat) */
+  const per100=mu==='g'||mu==='ml'||(mu==='keep'&&editingCustom&&food(editingCustom).u==='g');
+  if((per100&&(nums[2]+nums[3]+nums[4]>100||nums[1]>900))||nums[1]>20000||nums.some(x=>x>1e6)){document.getElementById('cErr').textContent=t('custom_err_100');return}
   const fields={n,cat:g('cCat'),mu,u:M.u,gu:M.gu||null,ul:M.ul||'7ba',bl:M.bl||'7ba',b:M.b,f:M.f,d:M.d,s:M.s,m:nums.slice(1),p:nums[0]};
   if(editingCustom&&FOOD_IDX[editingCustom]!=null){const id=editingCustom,cur=food(id),base=baseFood(id);
     const o={cat:fields.cat,m:fields.m};if(n!==fname(base))o.n=n;
     if(mu!=='keep'){['mu','u','gu','ul','bl','b','f','d','s'].forEach(k=>o[k]=fields[k]);
       if(cur.u!==fields.u){const conv=q=>fields.u==='g'?q*100:Math.max(1,r1(q/100));eachItem(it=>{if(it[0]===id)it[1]=conv(it[1])})}}
     else ['mu','u','gu','ul','bl','b','f','d','s'].forEach(k=>{if(S.ov[id]&&S.ov[id][k]!==undefined)o[k]=S.ov[id][k]});
+    if(o.b&&o.b!==cur.b&&typeof S.pantry[id]==='number')delete S.pantry[id];
     S.ov[id]=o;S.prices[id]=fields.p;editingCustom=null;save();render();toast(t('toast_saved'));return}
   if(editingCustom){const f=food(editingCustom);
     if(f.u!==fields.u){/* g <-> unit: convert stored quantities so the meals keep a sensible size */
       const conv=q=>fields.u==='g'?q*100:Math.max(1,r1(q/100));
       eachItem((it)=>{if(it[0]===f.id)it[1]=conv(it[1])});}
+    if(f.b!==fields.b&&typeof S.pantry[f.id]==='number')delete S.pantry[f.id];
     Object.assign(f,fields);delete S.prices[f.id];editingCustom=null;save();render();toast(t('toast_saved'));return}
   const nf=Object.assign({id:'c_'+uid()},fields);S.custom.push(nf);
   if(sheetMeal&&sheetNew){sheetNew=false;addFood(nf.id);return}
@@ -1904,28 +2076,48 @@ function editCustom(id){editingCustom=id;render();const f=food(id);
   const el=document.getElementById('customForm');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})}
 function resetFood(id){const cur=food(id),base=baseFood(id);
   if(cur.u!==base.u){const conv=q=>base.u==='g'?q*100:Math.max(1,r1(q/100));eachItem(it=>{if(it[0]===id)it[1]=conv(it[1])})}
+  if(cur.b!==base.b&&typeof S.pantry[id]==='number')delete S.pantry[id];
   delete S.ov[id];delete S.prices[id];editingCustom=null;save();render();toast(t('toast_reset_food'))}
 function delCustom(id){if(delArm!=='c_'+id){delArm='c_'+id;render();return}
   S.custom=S.custom.filter(f=>f.id!==id);delete S.prices[id];delete S.checked[id];
   eachList(arr=>{for(let i=arr.length-1;i>=0;i--)if(arr[i][0]===id)arr.splice(i,1)});
   if(editingCustom===id)editingCustom=null;delArm=null;save();render();toast(t('toast_deleted'))}
 function resetAll(){if(delArm!=='all'){delArm='all';render();return}
-  const keep={lang:S.lang,theme:S.theme};try{localStorage.removeItem(KEY)}catch(e){}
+  const keep={lang:S.lang,theme:S.theme};try{localStorage.setItem(KEY_PREV,JSON.stringify(S));localStorage.removeItem(KEY)}catch(e){}
   load();Object.assign(S,keep);save();delArm=null;curDay=null;tab='menu';render();toast(t('toast_reset_all'))}
 function backupNag(){const old=!S.lastBackup||(Date.now()-S.lastBackup>30*864e5);
   return old?`<div class="warn row" style="justify-content:space-between"><span>${S.lastBackup?t('backup_old'):t('never_backup')}</span><button class="btn sm" onclick="go('prix');setTimeout(()=>{const e=document.getElementById('impF');e&&e.closest('section').scrollIntoView({behavior:'smooth'})},50)">${t('go_backup')}</button></div>`:''}
 function exportFile(){
   S.lastBackup=Date.now();save();
   const s=JSON.stringify(S,null,1); const d=new Date().toISOString().slice(0,10);
-  try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([s],{type:'application/json'}));a.download='makla-mizan-'+d+'.json';
-    document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
-    render();toast(t('toast_saved'))}catch(e){exportData()}}
+  if(downloadText(s,'makla-mizan-'+d+'.json')){render();toast(t('toast_saved'))}else exportData()}
 function importFile(inp){const f=inp.files&&inp.files[0];if(!f)return;const r=new FileReader();
   r.onload=()=>{document.getElementById('impT').value=r.result;importData()};r.readAsText(f)}
 function exportData(){S.lastBackup=Date.now();save();const s=JSON.stringify(S);const el=document.getElementById('impT');
   const ok=()=>toast(t('toast_copied'));const fb=()=>{el.value=s;el.select();toast(t('toast_select'))};
   try{navigator.clipboard.writeText(s).then(ok,fb)}catch(e){fb()}}
-function importData(){try{const o=JSON.parse(document.getElementById('impT').value);if(!o.profiles||!o.profiles.length)throw 0;S=o;normalize();save();applyTheme();curDay=null;render();toast(t('toast_import'))}catch(e){document.getElementById('impMsg').textContent=t('import_err')}}
+let _pendingImport=null;
+/* Pure calculations every view relies on; an exception here means the data cannot be used */
+function checkState(){S.profiles.forEach(p=>{targets(p);p.days.forEach(d=>dayTot(d))});recipeFoods();shopData()}
+function importData(){const msg=document.getElementById('impMsg');if(msg)msg.textContent='';
+  let o;try{o=JSON.parse(document.getElementById('impT').value)}catch(e){if(msg)msg.textContent=t('import_err');return}
+  if(!isObj(o)||!Array.isArray(o.profiles)||!o.profiles.length){if(msg)msg.textContent=t('import_err');return}
+  const prev=S;let cand=null;
+  try{S=JSON.parse(JSON.stringify(o));_fixes=0;normalize();checkState();cand=S}catch(e){console.error(e)}
+  S=prev;_foods=null;
+  if(!cand){if(msg)msg.textContent=t('import_err');return}
+  _pendingImport={state:cand,fixes:_fixes};render();
+  const el=document.getElementById('impConfirm');if(el)el.scrollIntoView({block:'center'})}
+function importConfirm(){if(!_pendingImport)return;
+  try{localStorage.setItem(KEY_PREV,JSON.stringify(S))}catch(e){}
+  S=_pendingImport.state;_pendingImport=null;_foods=null;save();applyTheme();curDay=null;editRec=null;render();toast(t('toast_import'))}
+function hasPrev(){try{return !!localStorage.getItem(KEY_PREV)}catch(e){return false}}
+/* Swaps current data with the copy kept before the last import / reset, so it can be undone again */
+function restorePrev(){if(delArm!=='prev'){delArm='prev';render();return}delArm=null;
+  let o=null;try{o=JSON.parse(localStorage.getItem(KEY_PREV))}catch(e){}
+  if(!isObj(o)||!Array.isArray(o.profiles)||!o.profiles.length){toast(t('import_err'));return}
+  const cur=JSON.stringify(S),prev=S;try{S=o;_fixes=0;normalize();checkState()}catch(e){S=prev;_foods=null;toast(t('import_err'));return}
+  try{localStorage.setItem(KEY_PREV,cur)}catch(e){}save();applyTheme();curDay=null;editRec=null;render();toast(t('toast_import'))}
 
 /* ---------- Toast ---------- */
 let tt;function toast(m){const r=document.getElementById('toastRoot');r.innerHTML=`<div class="toast">${esc(m)}</div>`;clearTimeout(tt);tt=setTimeout(()=>r.innerHTML='',1800)}

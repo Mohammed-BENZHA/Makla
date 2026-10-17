@@ -1,0 +1,12 @@
+{
+  "name": "makla-mizan",
+  "private": true,
+  "description": "Makla Mizan PWA — automated checks (the app itself has no build step)",
+  "scripts": {
+    "test": "node tests/run.js",
+    "check-i18n": "node tools/check-i18n.js"
+  },
+  "devDependencies": {
+    "playwright": "1.56.0"
+  }
+}
