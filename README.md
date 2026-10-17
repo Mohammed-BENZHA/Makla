@@ -1,4 +1,4 @@
-# Makla & Mizan
+# Makla Mizan
 
 App (PWA) dyal macros, planning dyal simana w lista dyal t9edya b dirham, m3a l'makla mghribiya.
 

@@ -8,12 +8,12 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Makla & Mizan">
+<meta name="apple-mobile-web-app-title" content="Makla Mizan">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="color-scheme" content="light dark">
-<title>Makla & Mizan</title>
+<title>Makla Mizan</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
 <style>
@@ -330,7 +330,7 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 <div class="wrap">
   <header class="top">
     <div class="brand">
-      <h1>Makla & Mizan</h1>
+      <h1>Makla Mizan</h1>
       <p id="tagline"></p>
     </div>
     <div class="ctrls">
@@ -362,6 +362,7 @@ const LANGS=[['dj','Darija'],['da','الدارجة'],['fr','Français'],['ar','�
 const RTL={da:1,ar:1};
 const I18N={
 dj:{
+ for_n_x:'L {n} d nass ({x} lik)',for_n_hint:'Tayb {t} d l\'portions: kol wa7ed kayakhod portion kamla, w nta katakhod {x}. Lista dyal t9edya m7soubin fiha hadchi.',
  oil_lbl:'L\'zit f les recettes',oil_1:'3adi',oil_67:'9ellel (2/3)',oil_5:'Ness',oil_hint:'Kay9ellel l\'zit f ga3 les recettes, f l\'7sab w f lista dyal t9edya. L\'zit howa a9wa masdar d dhoun f makla dyalna.',lf_opt:'Khaf f dhoun',fat_hi:'Dhoun zaydin b {x} g. {m} hiya li fiha ktar.',fat_fix:'Beddelha b khafifa',carb_gap:'Na9s {g} g karb',add_carb:'+ Kemmel l\'karb',side_lbl:'Zyada d karb',snack1_lbl:'Lmlja 1',snack2_lbl:'Lmlja 2',snack1_when:'(f s-sba7 wla f l3chiya)',snack1_train:'(9bel wla men ba3d tamrin)',snack2_when:'(f lil)',train_lbl:'Tadrib (ikhtiyari)',train_on:'Katrini',train_days:'Ayyam tadrib',train_hint:'F nhar tadrib l\'app katzid ~50 g karb (+200 kcal) bach ykoun 3endek ta9a. F ayyam ra7a katn99es chwiya, bach l\'majmou3 dyal simana yb9a howa howa.',train_day:'🏋 Nhar tadrib',rest_day:'Nhar ra7a',cook_lbl:'Tayb',
  prot_still:'Lmlja b wa7dha ma kafiyach. Jerreb "💪 Protein 3ali" f l\'ikhtiyarat dyal l\'menu, wla beddel l\'wjbat b "Ktar protein", wla n99es l\'hadaf dyal l\'protein f l\'profil.',
  portion_short:'portion f l\'ghda w l\'3cha',pf_sug:'L\'app kanass7ek b {x}.',use_sug:'Rje3 l nas7a',snack_lbl:'Lmlja dyal l\'protein',prot_gap:'Na9s {g} g protein',add_prot:'+ Kemmel l\'protein',fit_good:'✓ Nhar mtakamel m3a l\'ahdaf dyalek',hp_lbl:'Tafdil',hp_opt:'Protein 3ali',more_prot:'Ktar protein',prot_none:'Ma l9itch lmlja katnasseb l\'mamnou3at dyalek.',
@@ -442,6 +443,7 @@ dj:{
  foods:["Bid roumi","Bid beldi","Khobz kamel (khobza ~200g)","Khobz byed (khobza ~200g)","Msemen","Harcha","Choufan (flocons d'avoine)","7lib (kas 200 ml)","Perly / yaourt (7ok)","Fromage mtellat","Whey (scoop 30g)","Atay b sokar (kas)","Sder djaj (nay)","Fkhad djaj bla jeld (nay)","Sardine (nay, li katakol)","Merla / 7out byed (nay, filet)","L7em bgri habra (nay)","Kefta bgri (nay)","Kefta dinde (nay)","Kebda djaj (nay)","Ton (7ok, ~80g msfi)","Rouz (tayeb)","Ma9arouna (tayba)","3des (tayeb)","Loubia (tayba)","7mes (tayeb)","Batata (nay)","Batata 7lowa (nay)","Khodra (maticha, khyar, bsla…)","Banan","Tfa7a / limouna","Tmer","Avoka","Zit dyal tayb (mo3al9a kbira)","Zit zitoun (mo3al9a kbira)","Louz","Kawkaw","Amlou (mo3al9a 20g)",'Rouz (nay)','Ma9arouna (nay)','3des (nay)','Loubia (nay)','7mes (nay)','Maticha','Bsla','Khizzou','9ar3a','Zitoun','Djaja kamla (b l3dem)','Jben (mo3al9a 20g)','Confiture (mo3al9a 20g)','L3sel (mo3al9a 20g)','Zebda (mo3al9a 14g)','Sokar (mo3al9a sghira 5g)','9hwa mto7na (l kas)','L7em b l3dem (ghanmi/bgri)','7out kamel (b l3dem)','Zbib','Felfla','Kesksou (nay)','Tacos (M, l7em wa7ed)','Burger','Panini','Chawarma (sandwich)','Sandwich kefta','Pizza (sghira)','Rfissa (plat)','T3am / kesksou (plat)','Bissara (zlafa)','Sfenj','Briwat (kefta wla 7out)','Ma9ouda','Pastilla (portion)','7rira (zlafa)','Smida','D9i9 lfors (farine)','D9i9 kamel','D9i9 l7emmes','Smida d dra','Belboula d ch3ir','Herbel (9em7 mfssekh)','Berkoukech','Cha3riya (vermicelle)','Foul yabs','Left','L9r3a l7emra','Lkrom (chou)','Dnjal','Jelbana','Touma','9zbour w m3dnous','L7amed (limoun)','L7amed msyer','Ber9ou9 yabes','Sferjel','L9o9','Meloukhia','Khyar','Barba','Loubia khedra','Bekkoula (khoubbiza)','Champignon','Mais (7ok)','Nna3na3','Bbouzroug (moules)','9imroun (crevettes)','Calamar','Douwara (kercha w ...)','Kour3in','Kebda d l7ouli','Lmkh','L7em rras','Ti7al','Gueddid','Kachir','Fromage rouge','Lben','Znjlan','Koko','Ch7ma','Smen','Zit argan (m3el9a kbira)','L3triya (tawabil)','Mel7a','Za3fran 7orr','Khmira','Maizena','L7elba','Ma zhar','Khal','Sauce soja','Mayonnaise','7lib m7elli (Nestlé)','Sauce chocolat','Atay 7boub','Lwr9a d lbastilla','Khess','Selk','Sbanekh','Krafes','Besbas','Fjel','Chouflour','Brocoli','Poro (poireau)','Felfla 7arra','Foul tari','Khorchef','Bsla khedra','Skinjbir tari','Slawiya (courge)','L9el9as','Tfa7a','Limouna (orange)','Mandarina','L3neb','Ddla7','Lbetikh (melon)','Lkhoukh','Lmchmach','Lbr9ou9 tari','Lkarmous','Lhendiya','Rrman','Lfrawla','Lanjas (poire)','7ebb lmlouk','Ananas','Kiwi','Mangue','Zfzouf','Mzah (nèfle)','Limoun l7lou / citron vert','Karmous yabes','Mchmach yabes','Gergaa','Pistache','Kajou','Bndo9 (noisette)','Zri3a d lkettan','Zri3a d l9er3a','Chia','Jelbana yabsa','3des 7mer (corail)','Loubia 7amra','7emmes (7ok, tayeb)','Quinoa','Boulgour','Ch3ir (7bob)','Dra (7bob)','Rouz kamel (brun)','Ton b l\'ma (7ok, ~80g msfi)']
 },
 da:{
+ for_n_x:'لـ{n} ديال الناس ({x} ليك)',for_n_hint:'طيب {t} ديال الپورسيونات: كل واحد كياخد پورسيون كاملة، ونتا كتاخد {x}. لائحة التقضية محسوب فيها هادشي.',
  oil_lbl:'الزيت فالوصفات',oil_1:'عادي',oil_67:'قلل (2/3)',oil_5:'النص',oil_hint:'كيقلل الزيت فگاع الوصفات، فالحساب وفلائحة التقضية. الزيت هو أكبر مصدر ديال الدهون فالماكلة ديالنا.',lf_opt:'خفيف فالدهون',fat_hi:'الدهون زايدين بـ{x} غ. {m} هي لي فيها كثر.',fat_fix:'بدلها بخفيفة',carb_gap:'ناقص {g} غ كارب',add_carb:'+ كمل الكارب',side_lbl:'زيادة ديال الكارب',snack1_lbl:'اللمجة 1',snack2_lbl:'اللمجة 2',snack1_when:'(فالصباح ولا فالعشية)',snack1_train:'(قبل ولا من بعد التمرين)',snack2_when:'(فالليل)',train_lbl:'التدريب (اختياري)',train_on:'كنتريني',train_days:'أيام التدريب',train_hint:'فنهار التدريب الأپليكاسيون كتزيد ~50 غ كارب (+200 سعرة) باش تكون عندك الطاقة. فأيام الراحة كتنقص شوية، باش المجموع ديال السيمانة يبقى هو هو.',train_day:'🏋 نهار التدريب',rest_day:'نهار الراحة',cook_lbl:'الطياب',
  prot_still:'اللمجة بوحدها ما كافياش. جرب "💪 بروتين عالي" فالاختيارات ديال المنيو، ولا بدل الوجبات بـ"كثر بروتين"، ولا نقص الهدف ديال البروتين فالبروفيل.',
  portion_short:'پورسيون فالغدا والعشا',pf_sug:'الأپليكاسيون كتنصحك بـ{x}.',use_sug:'رجع للنصيحة',snack_lbl:'اللمجة ديال البروتين',prot_gap:'ناقص {g} غ بروتين',add_prot:'+ كمل البروتين',fit_good:'✓ النهار متكامل مع الأهداف ديالك',hp_lbl:'التفضيل',hp_opt:'بروتين عالي',more_prot:'كثر بروتين',prot_none:'ما لقيتش لمجة كتناسب الممنوعات ديالك.',
@@ -522,6 +524,7 @@ da:{
  foods:['بيض رومي','بيض بلدي','خبز كامل (خبزة ~200 غ)','خبز أبيض (خبزة ~200 غ)','مسمن','حرشة','الشوفان','حليب (كاس 200 مل)','بيرلي / ياغورت (حك)','فرماج مثلث','واي (سكوب 30 غ)','أتاي بالسكر (كاس)','صدر الدجاج (ناي)','فخاد الدجاج بلا جلد (ناي)','سردين (ناي، لي كتاكل)','ميرلا / حوت بيض (ناي، فيلي)','لحم بگري هبرة (ناي)','كفتة بگري (ناية)','كفتة الداند (ناية)','كبدة الدجاج (ناية)','طون (حك، ~80 غ مصفي)','روز (طايب)','مقارونة (طايبة)','عدس (طايب)','لوبيا (طايبة)','حمص (طايب)','بطاطا (ناية)','بطاطا حلوة (ناية)','خضرة (ماطيشة، خيار، بصلة…)','بنان','تفاحة / ليمونة','تمر','أفوكا','زيت ديال الطيب (معيلقة كبيرة)','زيت الزيتون (معيلقة كبيرة)','لوز','كاوكاو','أملو (معيلقة 20 غ)','روز (ناي)','مقارونة (ناية)','عدس (ناي)','لوبيا (ناية)','حمص (ناي)','ماطيشة','بصلة','خيزو','قرعة','زيتون','دجاجة كاملة (بالعظم)','جبن (معيلقة 20 غ)','كونفيتور (معيلقة 20 غ)','العسل (معيلقة 20 غ)','الزبدة (معيلقة 14 غ)','السكر (معيلقة صغيرة 5 غ)','القهوة المطحونة (للكاس)','اللحم بالعظم (غنمي/بگري)','حوت كامل (بالعظم)','الزبيب','الفلفلة','الكسكسو (ناي)','تاكوس (M، لحم واحد)','بورگر','پانيني','شاورما (ساندويتش)','ساندويتش كفتة','پيتزا (صغيرة)','الرفيسة (طبسيل)','الطعام / الكسكسو (طبسيل)','البيصارة (زلافة)','السفنج','البريوات (كفتة ولا حوت)','المقودة','البسطيلة (حصة)','الحريرة (زلافة)','السميدة','دقيق الفورص','الدقيق الكامل','دقيق الحمص','سميدة الذرة','بلبولة الشعير','الهربل (القمح)','البركوكش','الشعرية','الفول اليابس','اللفت','القرعة الحمراء','الكرنب','الدنجال','الجلبانة','الثومة','القزبور والمعدنوس','الحامض','الحامض المصير','البرقوق اليابس','السفرجل','القوق','الملوخية','الخيار','الباربا','اللوبيا الخضرا','البقولة','الفطر','المايس','النعناع','بوزروك','القمرون','الكالامار','الدوارة','الكرعين','كبدة الحولي','المخ','لحم الراس','الطيحال','القديد','الكاشير','فرماج روج','اللبن','الزنجلان','الكوكو','الشحمة','السمن','زيت أركان (معيلقة كبيرة)','العطرية','الملحة','الزعفران الحر','الخميرة','الميزينا','الحلبة','ما الزهر','الخل','صوص صوجا','المايونيز','الحليب المحلي','صوص الشوكولا','أتاي حبوب','ورقة البسطيلة','الخس','السلق','السبانخ','الكرافس','البسباس','الفجل','الشوفلور','البروكولي','البورو','الفلفلة الحارة','الفول الطري','الخرشف','البصلة الخضرا','السكنجبير الطري','السلاوية','القلقاس','التفاحة','الليمونة','المندرينة','العنب','الدلاح','البطيخ','الخوخ','المشماش','البرقوق الطري','الكرموس','الهندية','الرمان','الفراولة','الإجاص','حب الملوك','الأناناس','الكيوي','المانگا','الزفزوف','المزاح','الحامض الحلو','الكرموس اليابس','المشماش اليابس','الكركاع','الپيسطاش','الكاجو','البندق','زريعة الكتان','زريعة القرعة','الشيا','الجلبانة اليابسة','العدس الحمر','اللوبيا الحمرا','الحمص (حك، طايب)','الكينوا','البرغل','الشعير','الذرة','الروز الكامل','طون بالما (حك، ~80 غ مصفي)']
 },
 fr:{
+ for_n_x:'Pour {n} ({x} pour vous)',for_n_hint:'Cuisinez {t} portions : chacun a une portion entière, vous en prenez {x}. La liste de courses en tient compte.',
  oil_lbl:'Huile dans les recettes',oil_1:'Normale',oil_67:'Réduite (2/3)',oil_5:'Moitié',oil_hint:'Réduit l\'huile dans toutes les recettes (calculs et liste de courses). L\'huile est la principale source de lipides de notre cuisine.',lf_opt:'Léger en gras',fat_hi:'Lipides en trop de {x} g. {m} en contient le plus.',fat_fix:'Remplacer par plus léger',carb_gap:'Il manque {g} g de glucides',add_carb:'+ Compléter les glucides',side_lbl:'Glucides en plus',snack1_lbl:'Collation 1',snack2_lbl:'Collation 2',snack1_when:'(matin ou après-midi)',snack1_train:'(avant ou après l\'entraînement)',snack2_when:'(soir)',train_lbl:'Entraînement (facultatif)',train_on:'Je m\'entraîne',train_days:'Jours d\'entraînement',train_hint:'Les jours d\'entraînement, l\'app ajoute ~50 g de glucides (+200 kcal) pour l\'énergie. Les jours de repos, elle en retire un peu pour garder le même total sur la semaine.',train_day:'🏋 Jour d\'entraînement',rest_day:'Jour de repos',cook_lbl:'Cuisine',
  prot_still:'La collation seule ne suffit pas. Essayez « 💪 Riche en protéines » dans les choix du menu, changez des repas avec « Plus de protéines », ou baissez l\'objectif de protéines dans le profil.',
  portion_short:'portion(s) midi et soir',pf_sug:'L\'app conseille {x}.',use_sug:'Revenir au conseil',snack_lbl:'Collation protéinée',prot_gap:'Il manque {g} g de protéines',add_prot:'+ Compléter les protéines',fit_good:'✓ Journée conforme à vos objectifs',hp_lbl:'Préférence',hp_opt:'Riche en protéines',more_prot:'Plus de protéines',prot_none:'Aucune collation compatible avec vos exclusions.',
@@ -602,6 +605,7 @@ fr:{
  foods:["Œufs","Œufs beldi","Pain complet (~200 g)","Pain blanc (~200 g)","Msemen","Harcha","Flocons d'avoine","Lait (verre 200 ml)","Yaourt / Perly (pot)","Fromage portion","Whey (dose 30 g)","Thé sucré (verre)","Blanc de poulet (cru)","Cuisse de poulet sans peau (crue)","Sardine (crue, partie comestible)","Merlan / poisson blanc (filet cru)","Bœuf maigre (cru)","Kefta de bœuf (crue)","Kefta de dinde (crue)","Foie de poulet (cru)","Thon (boîte, ~80 g égoutté)","Riz (cuit)","Pâtes (cuites)","Lentilles (cuites)","Haricots blancs (cuits)","Pois chiches (cuits)","Pomme de terre (crue)","Patate douce (crue)","Légumes (tomate, concombre, oignon…)","Banane","Pomme / orange","Dattes","Avocat","Huile de cuisson (c. à soupe)","Huile d'olive (c. à soupe)","Amandes","Cacahuètes","Amlou (c. à soupe 20 g)",'Riz (cru)','Pâtes (crues)','Lentilles (crues)','Haricots blancs (crus)','Pois chiches (crus)','Tomate','Oignon','Carotte','Courgette','Olives','Poulet entier (avec os)','Fromage frais jben (c. à s. 20 g)','Confiture (c. à s. 20 g)','Miel (c. à s. 20 g)','Beurre (c. à s. 14 g)','Sucre (c. à c. 5 g)','Café moulu (par tasse)','Viande avec os (agneau/bœuf)','Poisson entier (avec arêtes)','Raisins secs','Poivron','Couscous (sec)','Tacos (M, 1 viande)','Burger','Panini','Chawarma (sandwich)','Sandwich kefta','Pizza (petite)','Rfissa (assiette)','Couscous (assiette)','Bissara (bol)','Sfenj (beignet)','Briouates (kefta ou poisson)','Maakouda','Pastilla (part)','Harira (bol)','Semoule fine','Farine blanche','Farine complète','Farine de pois chiches','Semoule de maïs','Orge concassée','Blé décortiqué','Berkoukech (gros grains)','Vermicelles','Fèves sèches','Navet','Potiron','Chou','Aubergine','Petits pois','Ail','Coriandre et persil','Citron','Citron confit','Pruneaux','Coing','Artichaut','Gombo','Concombre','Betterave','Haricots verts','Mauve (bakoula)','Champignons','Maïs (boîte)','Menthe fraîche','Moules','Crevettes','Calamar','Tripes et abats','Pieds de veau','Foie d\'agneau','Cervelle','Tête (viande)','Rate','Viande séchée (gueddid)','Cachir (mortadelle)','Fromage rouge (édam)','Lben (lait fermenté)','Sésame','Noix de coco râpée','Graisse (ch7ma)','Smen (beurre rance)','Huile d\'argan (c. à s.)','Épices (mélange)','Sel','Safran','Levure','Maïzena','Fenugrec','Eau de fleur d\'oranger','Vinaigre','Sauce soja','Mayonnaise','Lait concentré sucré','Sauce chocolat','Thé vert','Feuilles de pastilla (warqa)','Laitue','Blettes','Épinards','Céleri','Fenouil','Radis','Chou-fleur','Brocoli','Poireau','Piment','Fèves fraîches','Cardon','Oignon vert','Gingembre frais','Courge','Taro','Pomme','Orange','Mandarine / clémentine','Raisin','Pastèque','Melon','Pêche','Abricot','Prune fraîche','Figue','Figue de Barbarie','Grenade','Fraise','Poire','Cerises','Ananas','Kiwi','Mangue','Jujube','Nèfle','Citron vert','Figues sèches','Abricots secs','Noix','Pistaches','Noix de cajou','Noisettes','Graines de lin','Graines de courge','Graines de chia','Pois cassés','Lentilles corail','Haricots rouges','Pois chiches en boîte','Quinoa','Boulgour','Orge (grains)','Maïs (grains secs)','Riz complet','Thon au naturel (boîte, ~80 g égoutté)']
 },
 ar:{
+ for_n_x:'لـ{n} أشخاص ({x} لك)',for_n_hint:'اطبخ {t} حصة: كل شخص يأخذ حصة كاملة، وأنت تأخذ {x}. لائحة المشتريات تحسب ذلك.',
  oil_lbl:'الزيت في الوصفات',oil_1:'عادي',oil_67:'أقل (2/3)',oil_5:'النصف',oil_hint:'يقلل الزيت في كل الوصفات، في الحساب وفي لائحة المشتريات. الزيت هو أكبر مصدر للدهون في مطبخنا.',lf_opt:'خفيف الدهون',fat_hi:'الدهون زائدة بـ{x} غ. {m} فيها الأكثر.',fat_fix:'استبدلها بأخف',carb_gap:'ينقص {g} غ نشويات',add_carb:'+ أكمل النشويات',side_lbl:'نشويات إضافية',snack1_lbl:'اللمجة 1',snack2_lbl:'اللمجة 2',snack1_when:'(صباحًا أو عصرًا)',snack1_train:'(قبل التمرين أو بعده)',snack2_when:'(ليلًا)',train_lbl:'التدريب (اختياري)',train_on:'أتدرب',train_days:'أيام التدريب',train_hint:'في يوم التدريب يضيف التطبيق ~50 غ نشويات (+200 سعرة) للطاقة. في أيام الراحة ينقص قليلًا ليبقى مجموع الأسبوع كما هو.',train_day:'🏋 يوم تدريب',rest_day:'يوم راحة',cook_lbl:'الطبخ',
  prot_still:'اللمجة وحدها لا تكفي. جرّب «💪 غني بالبروتين» في خيارات القائمة، أو غيّر الوجبات بـ«بروتين أكثر»، أو اخفض هدف البروتين في الملف.',
  portion_short:'حصة في الغداء والعشاء',pf_sug:'ينصح التطبيق بـ{x}.',use_sug:'الرجوع إلى النصيحة',snack_lbl:'لمجة البروتين',prot_gap:'ينقص {g} غ بروتين',add_prot:'+ أكمل البروتين',fit_good:'✓ اليوم متكامل مع أهدافك',hp_lbl:'التفضيل',hp_opt:'غني بالبروتين',more_prot:'بروتين أكثر',prot_none:'لم أجد لمجة تناسب استثناءاتك.',
@@ -682,6 +686,7 @@ ar:{
  foods:['بيض عادي','بيض بلدي','خبز كامل (رغيف ~200 غ)','خبز أبيض (رغيف ~200 غ)','مسمن','حرشة','رقائق الشوفان','حليب (كأس 200 مل)','ياغورت (علبة)','جبن مثلث','واي بروتين (مغرفة 30 غ)','شاي بالسكر (كأس)','صدر دجاج (نيء)','فخذ دجاج بدون جلد (نيء)','سردين (نيء، الجزء المأكول)','سمك أبيض (فيليه نيء)','لحم بقري هبرة (نيء)','كفتة بقري (نيئة)','كفتة ديك رومي (نيئة)','كبد دجاج (نيء)','تونة (علبة، ~80 غ مصفاة)','أرز (مطبوخ)','معكرونة (مطبوخة)','عدس (مطبوخ)','لوبيا بيضاء (مطبوخة)','حمص (مطبوخ)','بطاطس (نيئة)','بطاطا حلوة (نيئة)','خضر (طماطم، خيار، بصل…)','موز','تفاح / برتقال','تمر','أفوكادو','زيت الطبخ (ملعقة كبيرة)','زيت الزيتون (ملعقة كبيرة)','لوز','فول سوداني','أملو (ملعقة 20 غ)','أرز (نيء)','معكرونة (نيئة)','عدس (نيء)','لوبيا بيضاء (نيئة)','حمص (نيء)','طماطم','بصل','جزر','كوسة','زيتون','دجاجة كاملة (بالعظم)','جبن طري (ملعقة 20 غ)','مربى (ملعقة 20 غ)','عسل (ملعقة 20 غ)','زبدة (ملعقة 14 غ)','سكر (ملعقة صغيرة 5 غ)','قهوة مطحونة (للكوب)','لحم بالعظم (غنم/بقر)','سمك كامل (بالعظم)','زبيب','فلفل حلو','كسكس (جاف)','تاكوس (وسط، لحم واحد)','برغر','بانيني','شاورما (ساندويتش)','ساندويتش كفتة','بيتزا (صغيرة)','رفيسة (صحن)','كسكس (صحن)','بيصارة (زلافة)','سفنج','بريوات (كفتة أو سمك)','معقودة','بسطيلة (حصة)','حريرة (زلافة)','سميد','دقيق أبيض','دقيق كامل','دقيق الحمص','سميد الذرة','بلبولة الشعير','قمح مقشور','بركوكش','شعرية','فول يابس','لفت','قرع أحمر','ملفوف','باذنجان','بازلاء','ثوم','قزبر ومعدنوس','ليمون حامض','ليمون مصبر','برقوق مجفف','سفرجل','قرنون','بامية','خيار','شمندر','فاصوليا خضراء','خبيزة','فطر','ذرة (علبة)','نعناع','بلح البحر','قمرون','حبار','كرشة ومصارين','كوارع','كبد الخروف','مخ','لحم الرأس','طحال','قديد','كاشير','جبن أحمر','لبن رائب','سمسم','جوز الهند','شحم','سمن','زيت الأركان (ملعقة)','توابل','ملح','زعفران','خميرة','نشا الذرة','حلبة','ماء الزهر','خل','صلصة الصويا','مايونيز','حليب مكثف محلى','صلصة الشوكولاتة','شاي أخضر','أوراق البسطيلة','خس','سلق','سبانخ','كرفس','شمر','فجل','قرنبيط','بروكلي','كراث','فلفل حار','فول أخضر','خرشوف بري','بصل أخضر','زنجبيل طازج','قرع','قلقاس','تفاح','برتقال','يوسفي','عنب','بطيخ أحمر','شمام','خوخ','مشمش','برقوق','تين','تين شوكي','رمان','فراولة','إجاص','كرز','أناناس','كيوي','مانجو','عناب','زعرور','ليمون أخضر','تين مجفف','مشمش مجفف','جوز','فستق','كاجو','بندق','بذور الكتان','بذور اليقطين','بذور الشيا','بازلاء مجففة','عدس أحمر','فاصوليا حمراء','حمص معلب','كينوا','برغل','شعير','ذرة','أرز بني','تونة بالماء (علبة، ~80 غ مصفاة)']
 },
 en:{
+ for_n_x:'For {n} ({x} for you)',for_n_hint:'Cook {t} portions: everyone gets a full portion, you take {x}. The shopping list already counts it.',
  oil_lbl:'Oil in recipes',oil_1:'Normal',oil_67:'Less (2/3)',oil_5:'Half',oil_hint:'Cuts the oil in every recipe, in the numbers and the shopping list. Oil is the biggest source of fat in our cooking.',lf_opt:'Lower fat',fat_hi:'{x} g too much fat. {m} has the most.',fat_fix:'Swap for a lighter one',carb_gap:'{g} g carbs short',add_carb:'+ Top up carbs',side_lbl:'Extra carbs',snack1_lbl:'Snack 1',snack2_lbl:'Snack 2',snack1_when:'(morning or afternoon)',snack1_train:'(before or after training)',snack2_when:'(evening)',train_lbl:'Training (optional)',train_on:'I train',train_days:'Training days',train_hint:'On training days the app adds ~50 g carbs (+200 kcal) for energy. On rest days it takes a little off, so the weekly total stays the same.',train_day:'🏋 Training day',rest_day:'Rest day',cook_lbl:'Cooking',
  prot_still:'The snack alone isn\'t enough. Try "💪 High protein" in the menu settings, swap meals with "More protein", or lower the protein target in the profile.',
  portion_short:'portion(s) at lunch & dinner',pf_sug:'The app suggests {x}.',use_sug:'Use suggestion',snack_lbl:'Protein snack',prot_gap:'{g} g protein short',add_prot:'+ Top up protein',fit_good:'✓ Day meets your targets',hp_lbl:'Preference',hp_opt:'High protein',more_prot:'More protein',prot_none:'No snack fits your exclusions.',
@@ -1409,25 +1414,47 @@ function genWeek(set){
   const uniq=a=>a.filter((r,i)=>a.indexOf(r)===i);
   const lunch=pl.L.length>=7?pl.L:uniq(pl.L.concat(pl.D)), dinner=pl.D.length>=7?pl.D:uniq(pl.D.concat(pl.L));
   if(set.meals.ghda&&!lunch.length||set.meals['3cha']&&!dinner.length) return null;
-  const target=set.budget>0?set.budget/7/set.people:null; let best=null;
-  for(let t=0;t<400;t++){
-    const days=[];let score=0,cost=0;const used={};
+  const target=set.budget>0?set.budget/7/set.people:null;
+  /* Each day is scored against the active profile: lunch+dinner portions sized to calories, then missing protein and excess fat are penalised */
+  const pr=P(),tgs=[0,1,2,3,4,5,6].map(i=>targets(pr,i)),mc={},fc={},Z={k:0,p:0,c:0,f:0,cost:0};
+  const M=id=>id?(mc[id]||(mc[id]=sum([[id,1]]))):Z, FT=it=>{if(!it)return Z;const k=JSON.stringify(it);return fc[k]||(fc[k]=sum(it))};
+  const WP=set.hp?45:25,WF=set.lf?45:25;
+  const nutPen=(d,i)=>{const tg=tgs[i],ft=FT(d.ftour),a=M(d.ghda),b=M(d['3cha']),mk=a.k+b.k;if(!mk)return 0;
+    const f=Math.max(.5,Math.min(2.5,(tg.kcal-ft.k)/mk)),pp=ft.p+(a.p+b.p)*f,ff=ft.f+(a.f+b.f)*f;
+    return Math.max(0,tg.prot-pp)/tg.prot*WP+Math.max(0,ff-tg.fat)/tg.fat*WF};
+  const prot=id=>protOf(recipe(id));
+  function scoreWeek(days){let score=0,cost=0;const used={};
+    days.forEach((d,i)=>{['ghda','3cha'].forEach(k=>{if(!d[k])return;used[d[k]]=(used[d[k]]||0)+1;cost+=M(d[k]).cost});
+      cost+=FT(d.ftour).cost;
+      if(i&&d.ghda&&days[i-1].ghda&&prot(d.ghda)===prot(days[i-1].ghda)&&prot(d.ghda)!=='veg')score+=2;
+      if(d.ghda&&d['3cha']){const a=prot(d.ghda),b=prot(d['3cha']);if(a===b&&a!=='veg')score+=3}
+      score+=nutPen(d,i);
+      if(set.hp)['ghda','3cha'].forEach(k=>{if(d[k])score+=Math.max(0,.4-pDens([[d[k],1]]))*30});
+      if(set.lf)['ghda','3cha'].forEach(k=>{if(d[k])score+=Math.max(0,fShare([[d[k],1]])-.33)*30})});
+    Object.values(used).forEach(n=>{if(n>1)score+=(n-1)*10});
+    if(target){const over=cost-target*7;score+=over>0?Math.min(25,over/(target*7)*40):0;score-=Math.min(0,over)/(target*7)*-3}
+    return score}
+  const ftourOpts=i=>pl.ftour.map(([,it])=>it).concat(i>=5?pl.B.map(r=>[[r.id,bQty(r)],['atay',1]]):[]);
+  const slotOpts=(i,k)=>k==='ftour'?ftourOpts(i):k==='ghda'?((i===4&&pl.F.length)?pl.F.concat(lunch):lunch).map(r=>r.id):dinner.map(r=>r.id);
+  /* 1) random starts for variety */
+  let best=null;
+  for(let t=0;t<150;t++){
+    const days=[];
     for(let i=0;i<7;i++){const d={};
       if(set.meals.ftour){const wk=i>=5&&pl.B.length&&Math.random()<.7;d.ftour=wk?(r=>[[r.id,bQty(r)],['atay',1]])(pick(pl.B)):pick(pl.ftour)[1].map(x=>x.slice())}
-      if(set.meals.ghda){const pool=(i===4&&pl.F.length)?pl.F:lunch;const r=pick(pool);d.ghda=r.id}
+      if(set.meals.ghda){const pool=(i===4&&pl.F.length)?pl.F:lunch;d.ghda=pick(pool).id}
       if(set.meals['3cha']){let r=pick(dinner);if(r.id===d.ghda)r=pick(dinner);d['3cha']=r.id}
       days.push(d)}
-    days.forEach((d,i)=>{['ghda','3cha'].forEach(k=>{if(!d[k])return;used[d[k]]=(used[d[k]]||0)+1;cost+=recCost(recipe(d[k]))});
-      if(d.ftour)cost+=sum(d.ftour).cost;
-      if(i&&d.ghda&&days[i-1].ghda&&protOf(recipe(d.ghda))===protOf(recipe(days[i-1].ghda))&&protOf(recipe(d.ghda))!=='veg')score+=2;
-      if(d.ghda&&d['3cha']){const a=protOf(recipe(d.ghda)),b=protOf(recipe(d['3cha']));if(a===b&&a!=='veg')score+=3}});
-    Object.values(used).forEach(n=>{if(n>1)score+=(n-1)*10});
-    if(set.hp)days.forEach(d=>['ghda','3cha'].forEach(k=>{if(d[k])score+=Math.max(0,.4-pDens([[d[k],1]]))*60}));
-    if(set.lf)days.forEach(d=>['ghda','3cha'].forEach(k=>{if(d[k])score+=Math.max(0,fShare([[d[k],1]])-.33)*60}));
-    if(target){const over=cost-target*7;score+=over>0?Math.min(25,over/(target*7)*40):0;score-=Math.min(0,over)/(target*7)*-3}
-    score+=Math.random()*.5;
-    if(!best||score<best.score)best={score,days}}
-  return best.days}
+    const sc=scoreWeek(days)+Math.random()*.5;if(!best||sc<best.score)best={score:sc,days}}
+  /* 2) improve slot by slot: try every option for each meal and keep what lowers the score */
+  const days=best.days;let cur=scoreWeek(days);
+  const keys=['ftour','ghda','3cha'].filter(k=>set.meals[k]);
+  for(let pass=0;pass<3;pass++){let changed=false;
+    for(let i=0;i<7;i++)for(const k of keys){const keep=days[i][k];let bestV=keep,bestS=cur;
+      for(const o of slotOpts(i,k)){days[i][k]=k==='ftour'?o.map(x=>x.slice()):o;const sc=scoreWeek(days);if(sc<bestS-1e-6){bestS=sc;bestV=days[i][k]}}
+      days[i][k]=bestV;if(bestV!==keep){cur=bestS;changed=true}}
+    if(!changed)break}
+  return days}
 function menuCostPP(m){let c=0;m.days.forEach(d=>{['ghda','3cha'].forEach(k=>{const r=d[k]&&recipe(d[k]);if(r)c+=recCost(r)});if(d.ftour)c+=sum(d.ftour).cost});return c}
 let menuEdit=false, swapAt=null, swapMode='cheaper';
 const defaultSet=()=>({people:4,budget:'',time:60,excl:[],meals:{ftour:true,ghda:true,'3cha':true}});
@@ -1450,7 +1477,8 @@ function oilChips(){const v=+S.oil||1;return `<div><span class="lbl">${t('oil_lb
 function toggleExcl(e){const x=S.menuSet.excl;const i=x.indexOf(e);if(i>=0)x.splice(i,1);else x.push(e);save();render()}
 function makeMenu(){const set=JSON.parse(JSON.stringify(S.menuSet||defaultSet()));if(!set.meals.ftour&&!set.meals.ghda&&!set.meals['3cha'])set.meals.ghda=true;
   const days=genWeek(set);if(!days){const e=document.getElementById('mErr');if(e)e.textContent=t('no_option');return}
-  S.menu={set,days,at:Date.now()};if(S.shop.menu==null)S.shop.menu=true;menuEdit=false;swapAt=null;save();render();window.scrollTo(0,0)}
+  S.menu={set,days,at:Date.now()};
+  if(P().train||set.hp)days.forEach((d,i)=>{const x=dayFit(d,P());if(x.hasMain&&x.tg.prot-x.sc.p>8)fillProt(i,true)});if(S.shop.menu==null)S.shop.menu=true;menuEdit=false;swapAt=null;save();render();window.scrollTo(0,0)}
 function swapOptions(i,k){const m=S.menu,set=m.set,pl=menuPools(set);
   const uniq=a=>a.filter((r,j)=>a.indexOf(r)===j);const pool=k==='ghda'?uniq((i===4?pl.F:[]).concat(pl.L,pl.L.length<7?pl.D:[])):uniq(pl.D.concat(pl.D.length<7?pl.L:[]));
   const inWeek=new Set(m.days.flatMap(d=>[d.ghda,d['3cha']]));const cur=m.days[i][k];
@@ -1485,13 +1513,13 @@ function ftourCard(i){const d=S.menu.days[i];const open=swapAt===i+':ftour';cons
 /* Recipes flattened to their ingredients, scaled to what one person eats */
 function flatItems(items){const out={};const add=(id,q)=>{out[id]=(out[id]||0)+q};
   items.forEach(([id,q])=>{const r=recipe(id);if(r){const sv=Math.max(1,+r.servings||1);r.items.forEach(([i,iq])=>add(i,oilQ(i,iq)*q/sv))}else add(id,q)});return Object.entries(out)}
-function menuBreak(items,key){const n=S.menu.set.people;
+function menuBreak(items,key,extra){const n=S.menu.set.people,ex=Math.round((extra||0)*100)/100,tot=n+ex;
   if(!ingOpen[key])return `<button class="ing-t" aria-expanded="false" onclick="ingOpen['${key}']=1;render()">▸ ${t('ing_all')}</button>`;
   const amt=(g,a)=>nu(g.u==='g'?r0(a):r1(a),esc(uLab(g)));
   const rows=flatItems(items).map(([id,a])=>{const g=food(id);if(!g)return '';const m=itemM(id,a);
-    return `<div class="ing3"><span>${esc(fname(g))}</span><b>${amt(g,a)}</b><b class="fam">${amt(g,a*n)}</b><span class="mm">${macro(m)}</span></div>`}).join('');
+    return `<div class="ing3"><span>${esc(fname(g))}</span><b>${amt(g,a)}</b><b class="fam">${amt(g,a*tot)}</b><span class="mm">${macro(m)}</span></div>`}).join('');
   return `<div class="ingbox"><button class="ing-t" aria-expanded="true" onclick="delete ingOpen['${key}'];render()">▾ ${t('ing_all')}</button>
-    <div class="ing3 hd"><span></span><span>${t('per_one')}</span><span>${t('for_n',{n:bdi(n)})}</span></div>${rows}</div>`}
+    <div class="ing3 hd"><span></span><span>${t('per_one')}</span><span>${ex?t('for_n_x',{n:bdi(n),x:bdi((ex>0?'+':'')+ex)}):t('for_n',{n:bdi(n)})}</span></div>${rows}${ex?`<p class="hint" style="margin:6px 0 0">${t('for_n_hint',{t:bdi(Math.round(tot*100)/100),x:bdi(Math.round((1+ex)*100)/100)})}</p>`:''}</div>`}
 /* How a menu day meets the active profile's targets; lunch and dinner portions are scaled to close the calorie gap */
 function dayFit(d,p,extra){const tg=targets(p,S.menu?S.menu.days.indexOf(d):null);const ft=sum((d.ftour||[]).concat(extra||[].concat(d.snack||[],d.snack2||[],d.side||[])));const main=sum([d.ghda,d['3cha']].filter(Boolean).map(id=>[id,1]));
   let sug=1;if(main.k>0)sug=Math.max(.5,Math.min(2.5,Math.round((tg.kcal-ft.k)/main.k*4)/4));
@@ -1504,12 +1532,12 @@ function dayFit(d,p,extra){const tg=targets(p,S.menu?S.menu.days.indexOf(d):null
    Snack 1: tuna in water / eggs. Snack 2: dairy, unless the day already has 2 dairy meals or dairy is excluded. */
 const SNACK1=[['ton_ma',1],['bid',2],['bid',1]], SNACK2=[['perly',1],['lben',250],['perly',1]], SNACK2_ALT=[['sder',100],['kawkaw',20],['sder',50]];
 function dairyMeals(d){return [d.ftour||[],d.ghda?[[d.ghda,1]]:[],d['3cha']?[[d['3cha'],1]]:[]].filter(l=>l.length&&hasTag(itemIds(l),'dairy')).length}
-function fillProt(i){const d=S.menu.days[i],p=P(),ex=S.menu.set.excl;const ok=([id])=>food(id)&&okByExcl([id],ex);
+function fillProt(i,quiet){const d=S.menu.days[i],p=P(),ex=S.menu.set.excl;const ok=([id])=>food(id)&&okByExcl([id],ex);
   const l1=SNACK1.filter(ok),l2=(dairyMeals(d)>=2||ex.includes('dairy')?SNACK2_ALT:SNACK2).filter(ok);
   if(!l1.length&&!l2.length){toast(t('prot_none'));return}
   const s1=[],s2=[];const steps=[];for(let k=0;k<3;k++){if(l1[k])steps.push([s1,l1[k]]);if(l2[k])steps.push([s2,l2[k]])}
   for(const [tgt,[id,q]] of steps){const x=dayFit(d,p,[].concat(s1,s2,d.side||[]));if(x.tg.prot-x.sc.p<=5)break;const e=tgt.find(z=>z[0]===id);if(e)e[1]+=q;else tgt.push([id,q])}
-  d.snack=s1;d.snack2=s2;save();render()}
+  d.snack=s1;d.snack2=s2;if(!quiet){save();render()}}
 function rmSnack(i){const d=S.menu.days[i];delete d.snack;delete d.snack2;save();render()}
 /* Carb top-up: bread, banana, dates (portions re-balance as calories rise) */
 const CARB_LADDER=[['khobz',.25],['banan',1],['khobz',.25],['tmer',30]];
@@ -1544,7 +1572,7 @@ function mealCard(i,k){const id=S.menu.days[i][k];const r=id&&recipe(id);if(!r)r
   return `<div class="mcard"><div class="mrow"><div style="min-width:0"><span class="mk">${mealBase(k)}</span><b>${esc(recName(r))}</b>
     <span class="mm">⏱ ${t('time_lbl',{n:m.time})} · ${t('diff_'+m.diff)} · ${dh(recCost(r))} ${t('per_pers')}</span><span class="mm">${macro(sum([[id,1]]))}</span></div>
     <button class="btn sm" onclick="swapAt=${open?'null':`'${i}:${k}'`};render()">${t('swap')}</button></div>
-    ${menuBreak([[id,1]],'m'+i+k)}
+    ${menuBreak([[id,1]],'m'+i+k,dayFit(S.menu.days[i],P()).f-1)}
     ${open?`<div class="swap"><div class="chips">${['cheaper','faster','protein','lean','home'].map(md=>`<button class="chip" aria-pressed="${swapMode===md}" onclick="swapMode='${md}';render()">${t({home:'at_home_opt',protein:'more_prot',lean:'lf_opt'}[md]||md)}</button>`).join('')}
       <button class="chip" onclick="randomMeal(${i},'${k}')">🎲 ${t('random_one')}</button></div>
       ${swapOptions(i,k).map(o=>{const om=recMeta(o);return `<button class="fopt" onclick="setMeal(${i},'${k}','${o.id}')"><span><span class="nm">${esc(recName(o))}</span><br><span class="mm">⏱ ${t('time_lbl',{n:om.time})} · ${dh(recCost(o))} ${t('per_pers')}</span></span><span class="add">↺</span></button>`}).join('')||`<p class="hint">${t('no_option')}</p>`}</div>`:''}</div>`}
