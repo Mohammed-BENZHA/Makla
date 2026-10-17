@@ -276,6 +276,7 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .mcard .mrow>div>.mm{display:block}
 .swap{margin-top:8px;display:flex;flex-direction:column;gap:6px}
 .swap .fopt{border-radius:10px}
+.swap .mm .f{color:var(--f)}.swap .mm .p{color:var(--p)}
 
 .li .need.have{color:var(--accent)}
 .pedit{padding:10px 14px 12px;background:var(--sunk);border-bottom:1px solid var(--line)}
@@ -1479,6 +1480,10 @@ function makeMenu(){const set=JSON.parse(JSON.stringify(S.menuSet||defaultSet())
   const days=genWeek(set);if(!days){const e=document.getElementById('mErr');if(e)e.textContent=t('no_option');return}
   S.menu={set,days,at:Date.now()};
   if(P().train||set.hp)days.forEach((d,i)=>{const x=dayFit(d,P());if(x.hasMain&&x.tg.prot-x.sc.p>8)fillProt(i,true)});if(S.shop.menu==null)S.shop.menu=true;menuEdit=false;swapAt=null;save();render();window.scrollTo(0,0)}
+/* Effect of a swap on the whole day: portions are re-sized to calories, so a "lighter" dish can still raise the day's fat.
+   Lean / protein modes therefore rank by the resulting day, and only keep options that actually improve it. */
+let swapEff={};
+const whatIf=(i,k,v)=>{const d=Object.assign({},S.menu.days[i],{[k]:v});const x=dayFit(d,P(),undefined,i);return {f:x.sc.f,p:x.sc.p}};
 function swapOptions(i,k){const m=S.menu,set=m.set,pl=menuPools(set);
   const uniq=a=>a.filter((r,j)=>a.indexOf(r)===j);const pool=k==='ghda'?uniq((i===4?pl.F:[]).concat(pl.L,pl.L.length<7?pl.D:[])):uniq(pl.D.concat(pl.D.length<7?pl.L:[]));
   const inWeek=new Set(m.days.flatMap(d=>[d.ghda,d['3cha']]));const cur=m.days[i][k];
@@ -1486,11 +1491,12 @@ function swapOptions(i,k){const m=S.menu,set=m.set,pl=menuPools(set);
   const home=r=>itemIds(r.items).filter(id=>S.pantry[id]).length;
   if(swapMode==='cheaper')opts.sort((a,b)=>recCost(a)-recCost(b));
   else if(swapMode==='faster')opts.sort((a,b)=>recMeta(a).time-recMeta(b).time);
-  else if(swapMode==='protein')opts.sort((a,b)=>pDens([[b.id,1]])-pDens([[a.id,1]]));
-  else if(swapMode==='lean')opts.sort((a,b)=>fShare([[a.id,1]])-fShare([[b.id,1]]));
+  else if(swapMode==='protein'||swapMode==='lean'){const now=whatIf(i,k,cur);swapEff={now};opts.forEach(r=>swapEff[r.id]=whatIf(i,k,r.id));
+    opts=swapMode==='lean'?opts.filter(r=>swapEff[r.id].f<now.f-2).sort((a,b)=>swapEff[a.id].f-swapEff[b.id].f):opts.filter(r=>swapEff[r.id].p>now.p+2).sort((a,b)=>swapEff[b.id].p-swapEff[a.id].p)}
   else opts.sort((a,b)=>home(b)-home(a)||recCost(a)-recCost(b));
   opts.sort((a,b)=>(inWeek.has(a.id)?1:0)-(inWeek.has(b.id)?1:0));
   return opts.slice(0,6)}
+const effTxt=key=>{const e=swapEff[key],n=swapEff.now;if(!e||!n)return '';return swapMode==='lean'?` · <span class="f">${bdi(t('mF')+' '+r0(n.f)+' → '+r0(e.f))}</span> · <span class="p">${bdi(t('mP')+' '+r0(n.p)+' → '+r0(e.p))}</span>`:swapMode==='protein'?` · <span class="p">${bdi(t('mP')+' '+r0(n.p)+' → '+r0(e.p))}</span>`:''};
 /* Breakfast options: the simple combos plus breakfast recipes (msemen, baghrir...) with tea */
 function ftourOptions(i){const m=S.menu,pl=menuPools(m.set),cur=JSON.stringify(m.days[i].ftour||[]);
   const home=items=>itemIds(items).filter(id=>S.pantry[id]).length;
@@ -1498,7 +1504,8 @@ function ftourOptions(i){const m=S.menu,pl=menuPools(m.set),cur=JSON.stringify(m
     .concat(pl.B.map(r=>({items:[[r.id,bQty(r)],['atay',1]],name:(bQty(r)>1?bQty(r)+' × ':'')+recName(r),time:recMeta(r).time})));
   o.forEach(x=>{x.cost=sum(x.items).cost;x.home=home(x.items)});
   o=o.filter(x=>JSON.stringify(x.items)!==cur);
-  if(swapMode==='cheaper')o.sort((a,b)=>a.cost-b.cost);else if(swapMode==='protein')o.sort((a,b)=>pDens(b.items)-pDens(a.items));else if(swapMode==='lean')o.sort((a,b)=>fShare(a.items)-fShare(b.items));else if(swapMode==='faster')o.sort((a,b)=>a.time-b.time||a.cost-b.cost);else o.sort((a,b)=>b.home-a.home||a.cost-b.cost);
+  if(swapMode==='cheaper')o.sort((a,b)=>a.cost-b.cost);else if(swapMode==='protein'||swapMode==='lean'){const now=whatIf(i,'ftour',m.days[i].ftour);swapEff={now};o.forEach((x,j)=>{x.key='f'+j;swapEff[x.key]=whatIf(i,'ftour',x.items)});
+    o=swapMode==='lean'?o.filter(x=>swapEff[x.key].f<now.f-2).sort((a,b)=>swapEff[a.key].f-swapEff[b.key].f):o.filter(x=>swapEff[x.key].p>now.p+2).sort((a,b)=>swapEff[b.key].p-swapEff[a.key].p)}else if(swapMode==='faster')o.sort((a,b)=>a.time-b.time||a.cost-b.cost);else o.sort((a,b)=>b.home-a.home||a.cost-b.cost);
   return o.slice(0,8)}
 function setFtour(i,items){S.menu.days[i].ftour=items;swapAt=null;save();render()}
 function ftourCard(i){const d=S.menu.days[i];const open=swapAt===i+':ftour';const r=d.ftour.map(([id])=>recipe(id)).find(Boolean);
@@ -1509,7 +1516,7 @@ function ftourCard(i){const d=S.menu.days[i];const open=swapAt===i+':ftour';cons
     ${menuBreak(d.ftour,'m'+i+'ftour')}
     ${open?`<div class="swap"><div class="chips">${['cheaper','faster','protein','lean','home'].map(md=>`<button class="chip" aria-pressed="${swapMode===md}" onclick="swapMode='${md}';render()">${t({home:'at_home_opt',protein:'more_prot',lean:'lf_opt'}[md]||md)}</button>`).join('')}
       <button class="chip" onclick="setFtour(${i},pick(ftourOptions(${i})).items)">🎲 ${t('random_one')}</button></div>
-      ${opts.map((o,j)=>`<button class="fopt" onclick="setFtour(${i},ftourOptions(${i})[${j}].items)"><span><span class="nm">${esc(o.name)}</span><br><span class="mm">⏱ ${t('time_lbl',{n:o.time})} · ${dh(o.cost)} ${t('per_pers')}</span></span><span class="add">↺</span></button>`).join('')||`<p class="hint">${t('no_option')}</p>`}</div>`:''}</div>`}
+      ${opts.map((o,j)=>`<button class="fopt" onclick="setFtour(${i},ftourOptions(${i})[${j}].items)"><span><span class="nm">${esc(o.name)}</span><br><span class="mm">⏱ ${t('time_lbl',{n:o.time})} · ${dh(o.cost)} ${t('per_pers')}${o.key?effTxt(o.key):''}</span></span><span class="add">↺</span></button>`).join('')||`<p class="hint">${t('no_option')}</p>`}</div>`:''}</div>`}
 /* Recipes flattened to their ingredients, scaled to what one person eats */
 function flatItems(items){const out={};const add=(id,q)=>{out[id]=(out[id]||0)+q};
   items.forEach(([id,q])=>{const r=recipe(id);if(r){const sv=Math.max(1,+r.servings||1);r.items.forEach(([i,iq])=>add(i,oilQ(i,iq)*q/sv))}else add(id,q)});return Object.entries(out)}
@@ -1521,7 +1528,7 @@ function menuBreak(items,key,extra){const n=S.menu.set.people,ex=Math.round((ext
   return `<div class="ingbox"><button class="ing-t" aria-expanded="true" onclick="delete ingOpen['${key}'];render()">▾ ${t('ing_all')}</button>
     <div class="ing3 hd"><span></span><span>${t('per_one')}</span><span>${ex?t('for_n_x',{n:bdi(n),x:bdi((ex>0?'+':'')+ex)}):t('for_n',{n:bdi(n)})}</span></div>${rows}${ex?`<p class="hint" style="margin:6px 0 0">${t('for_n_hint',{t:bdi(Math.round(tot*100)/100),x:bdi(Math.round((1+ex)*100)/100)})}</p>`:''}</div>`}
 /* How a menu day meets the active profile's targets; lunch and dinner portions are scaled to close the calorie gap */
-function dayFit(d,p,extra){const tg=targets(p,S.menu?S.menu.days.indexOf(d):null);const ft=sum((d.ftour||[]).concat(extra||[].concat(d.snack||[],d.snack2||[],d.side||[])));const main=sum([d.ghda,d['3cha']].filter(Boolean).map(id=>[id,1]));
+function dayFit(d,p,extra,wd){const tg=targets(p,wd!=null?wd:S.menu?S.menu.days.indexOf(d):null);const ft=sum((d.ftour||[]).concat(extra||[].concat(d.snack||[],d.snack2||[],d.side||[])));const main=sum([d.ghda,d['3cha']].filter(Boolean).map(id=>[id,1]));
   let sug=1;if(main.k>0)sug=Math.max(.5,Math.min(2.5,Math.round((tg.kcal-ft.k)/main.k*4)/4));
   const f=d.pf!=null?d.pf:sug;
   const sc={};['k','p','c','f'].forEach(x=>sc[x]=ft[x]+main[x]*f);const raw={};['k','p','c','f'].forEach(x=>raw[x]=ft[x]+main[x]);
@@ -1575,7 +1582,7 @@ function mealCard(i,k){const id=S.menu.days[i][k];const r=id&&recipe(id);if(!r)r
     ${menuBreak([[id,1]],'m'+i+k,dayFit(S.menu.days[i],P()).f-1)}
     ${open?`<div class="swap"><div class="chips">${['cheaper','faster','protein','lean','home'].map(md=>`<button class="chip" aria-pressed="${swapMode===md}" onclick="swapMode='${md}';render()">${t({home:'at_home_opt',protein:'more_prot',lean:'lf_opt'}[md]||md)}</button>`).join('')}
       <button class="chip" onclick="randomMeal(${i},'${k}')">🎲 ${t('random_one')}</button></div>
-      ${swapOptions(i,k).map(o=>{const om=recMeta(o);return `<button class="fopt" onclick="setMeal(${i},'${k}','${o.id}')"><span><span class="nm">${esc(recName(o))}</span><br><span class="mm">⏱ ${t('time_lbl',{n:om.time})} · ${dh(recCost(o))} ${t('per_pers')}</span></span><span class="add">↺</span></button>`}).join('')||`<p class="hint">${t('no_option')}</p>`}</div>`:''}</div>`}
+      ${swapOptions(i,k).map(o=>{const om=recMeta(o);return `<button class="fopt" onclick="setMeal(${i},'${k}','${o.id}')"><span><span class="nm">${esc(recName(o))}</span><br><span class="mm">⏱ ${t('time_lbl',{n:om.time})} · ${dh(recCost(o))} ${t('per_pers')}${effTxt(o.id)}</span></span><span class="add">↺</span></button>`}).join('')||`<p class="hint">${t('no_option')}</p>`}</div>`:''}</div>`}
 const ftourName=items=>{const f=FTOUR.find(([,it])=>JSON.stringify(it)===JSON.stringify(items));if(f)return t(f[0]);return items.map(([id,q])=>{const x=food(id);if(!x)return '';const r=recipe(id);return r?(q>1?r1(q)+' × ':'')+recName(r):fname(x)}).filter(Boolean).join(' + ')};
 function vMenu(){
   if(!S.menu||menuEdit) return `<div class="stack">${menuSetForm()}</div>`;
