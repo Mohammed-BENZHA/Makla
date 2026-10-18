@@ -165,3 +165,13 @@ workers.
    tables).
 6. Focus management after re-render, tab-panel semantics and a focus trap in the add-food sheet.
 7. Warn when protein + fat targets exceed the calorie target.
+
+## 7. After the audit (interface phases 1–3)
+
+The suite has grown to **52 checks, all passing**: 5 interface checks (bottom navigation and old section names,
+first-run questions with and without macros, shopping list grouped by shop, folded menu days and dismissed tips) and
+5 cooking checks (every built-in recipe has 3–7 steps; cooking-mode amounts follow the chosen portions; one step per
+screen; the screen lock is requested and released; the phone's back button closes cooking mode; edited steps are
+stored only when they differ from the built-in ones and are shown as text; favourites are cleaned on delete and
+import). The cooking checks were confirmed to fail when portion scaling, lock release or favourite cleanup is broken
+on purpose. Data saved by v24 still loads with no repairs.

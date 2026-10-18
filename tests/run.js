@@ -9,6 +9,7 @@ const http = require('http'), fs = require('fs'), path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
 const KEY = 'makla_mizan_v2';
+const NAV_TABS = 4;   // Menu · T9edya · Recettes · Ana (settings behind the header button)
 const results = [];
 const tests = [];
 const test = (group, name, fn, opts = {}) => tests.push({ group, name, fn, opts });
@@ -42,7 +43,7 @@ function startServer() {
 
 /* ---------- app helpers ---------- */
 let browser, BASE;
-async function openApp({ sw = false, seed } = {}) {
+async function openApp({ sw = false, seed, keepOnboarding = false } = {}) {
   const ctx = await browser.newContext({ serviceWorkers: sw ? 'allow' : 'block', viewport: { width: 400, height: 860 } });
   const page = await ctx.newPage();
   const errors = [];
@@ -53,6 +54,7 @@ async function openApp({ sw = false, seed } = {}) {
   }
   await page.goto(BASE + 'index.html');
   await page.waitForFunction(() => typeof S === 'object' && S && document.getElementById('view').innerHTML.length > 0, null, { timeout: 8000 }).catch(() => {});
+  if (!keepOnboarding) await page.evaluate(() => { if (typeof ob !== 'undefined' && ob && typeof skipOnboarding === 'function') skipOnboarding(); }).catch(() => {});
   return { ctx, page, errors };
 }
 const profileState = p => Object.assign({ id: 'p1', name: 'T', sex: 'm', age: 30, w: 80, h: 180, act: 1.55, goal: 'maintain', protKg: null, fatPct: 27, days: [], week: [null, null, null, null, null, null, null] }, p);
@@ -221,7 +223,7 @@ test('Shopping', 'amount at home is taken off the list', async ({ page }) => {
 });
 test('Budget', 'month = week × 30/7; spending summed for the current month', async ({ page }) => {
   const r = await page.evaluate(() => {
-    const ym = today().slice(0, 7); S.spend = [{ id: 's1', d: ym + '-01', a: 300, e: 280 }, { id: 's2', d: ym + '-02', a: 150, e: 0 }, { id: 's3', d: '2000-01-01', a: 999, e: 0 }]; save(); go('t9edya');
+    const ym = today().slice(0, 7); S.spend = [{ id: 's1', d: ym + '-01', a: 300, e: 280 }, { id: 's2', d: ym + '-02', a: 150, e: 0 }, { id: 's3', d: '2000-01-01', a: 999, e: 0 }]; save(); moneyOpen = true; go('t9edya');
     const txt = document.getElementById('view').textContent; const cost = shopData().cost; return { txt, cost };
   });
   ok(r.txt.includes('450.00'), 'this month = 450.00 DH shown');
@@ -284,7 +286,7 @@ test('Backup', 'structurally broken backup cannot break the app', async ({ page,
     importData(); if (typeof importConfirm === 'function') importConfirm();
     let rendered = true; try { ['menu', 't9edya', 'recettes', 'ayyam', 'simana', 'profil', 'prix'].forEach(go) } catch (e) { rendered = 'throw: ' + e.message }
     return { rendered, tabs: document.querySelectorAll('#tabs button').length }; });
-  eq(r.rendered, true, 'all tabs render'); ok(r.tabs === 7, 'tabs present'); eq(errors.length, 0, 'page errors: ' + errors.join(' | '));
+  eq(r.rendered, true, 'all tabs render'); eq(r.tabs, NAV_TABS, 'navigation buttons'); eq(errors.length, 0, 'page errors: ' + errors.join(' | '));
 });
 test('Backup', 'ids from a crafted backup cannot inject script', async ({ page }) => {
   const r = await page.evaluate(() => { const o = JSON.parse(JSON.stringify(S)); const bad = "x');window.__pw=1;('";
@@ -326,6 +328,7 @@ test('Backup', 'data saved by the previous version (v24) loads unchanged, with n
   ok(A.pantry.rouz === 0.3 && B.pantry.rouz_n === 0.3 && B.pantry.rouz === undefined, 'pantry rice migrated to the purchase row');
   delete A.pantry.rouz; A.pantry.rouz_n = 0.3;
   A.profiles.forEach(p => { if (!p.weights) p.weights = []; });   // the previous version also added this default when loading
+  A.onboarded = true;   // existing users are marked as onboarded so they never see the first-run questions
   const keys = new Set([...Object.keys(A), ...Object.keys(B)]);
   for (const k of keys) eq(JSON.stringify(B[k]), JSON.stringify(A[k]), 'key ' + k);
   eq(r.fixes, 0, 'repairs on valid data'); eq(errors.length, 0, 'page errors');
@@ -395,14 +398,14 @@ async function swReady(page) { await page.evaluate(() => navigator.serviceWorker
 test('PWA', 'app starts offline after the first visit', async () => {
   const { page, ctx } = await openApp({ sw: true }); await swReady(page);
   serverDown = true; await page.reload().catch(() => {}); const r = await page.evaluate(() => document.querySelectorAll('#tabs button').length).catch(() => 0);
-  serverDown = false; await ctx.close(); eq(r, 7, 'tabs rendered offline');
+  serverDown = false; await ctx.close(); eq(r, NAV_TABS, 'app rendered offline');
 });
 test('PWA', 'a 404 page never replaces the cached app', async () => {
   const { page, ctx } = await openApp({ sw: true }); await swReady(page);
   await page.goto(BASE + 'does-not-exist').catch(() => {});
   await page.waitForTimeout(1500);   // the service worker writes its cache asynchronously
   serverDown = true; await page.goto(BASE).catch(() => {}); const r = await page.evaluate(() => document.querySelectorAll('#tabs button').length).catch(() => 0);
-  serverDown = false; await ctx.close(); eq(r, 7, 'app shell offline after visiting a missing page');
+  serverDown = false; await ctx.close(); eq(r, NAV_TABS, 'app shell offline after visiting a missing page');
 });
 test('PWA', 'a new version replaces the old cache', async () => {
   const sw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
@@ -421,8 +424,143 @@ test('PWA', 'slow network: offline copy is used instead of waiting forever', asy
   const t0 = Date.now(); await page.goto(BASE, { timeout: 15000 }).catch(() => {}); const ms = Date.now() - t0;
   const tabs = await page.evaluate(() => document.querySelectorAll('#tabs button').length).catch(() => 0);
   delete overrides['/']; delete overrides['/index.html']; await ctx.close();
-  eq(tabs, 7, 'app shown'); ok(ms < 9000, 'took ' + ms + ' ms');
+  eq(tabs, NAV_TABS, 'app shown'); ok(ms < 9000, 'took ' + ms + ' ms');
 }, { slow: true });
+
+/* ======================================================================================
+   13. New interface: navigation, settings, onboarding
+   ====================================================================================== */
+test('Interface', 'four bottom sections; settings, profile, days and week still reachable (old names work)', async ({ page, errors }) => {
+  const r = await page.evaluate(() => { const out = {}; out.nav = [...document.querySelectorAll('#tabs button')].map(b => b.textContent.trim());
+    go('prix'); out.backup = !!document.getElementById('impT'); out.lang = !!document.getElementById('langSel');
+    go('ayyam'); out.ayyam = tab === 'ana' && anaSub === 'ayyam' && !!document.getElementById('dName');
+    go('simana'); out.simana = !!document.querySelector('#view .week');
+    go('profil'); out.profil = !!document.getElementById('pW');
+    document.getElementById('setBtn').click(); out.settingsBtn = tab === 'reglages';
+    return out; });
+  eq(r.nav.length, NAV_TABS, 'bottom sections'); ok(r.backup && r.lang, 'settings: backup + language'); ok(r.ayyam, 'days'); ok(r.simana, 'week'); ok(r.profil, 'profile');
+  ok(r.settingsBtn, 'header settings button'); eq(errors.length, 0, 'page errors: ' + errors.join(' | '));
+});
+test('Interface', 'first run: 4 questions produce a profile, a weekly menu and a list', async () => {
+  const { page, ctx, errors } = await openApp({ keepOnboarding: true });
+  const r = await page.evaluate(() => { const shown = !!document.querySelector('#obRoot .ob');
+    obGo(1); ob.people = 3; obGo(1); obToggle('fish'); ob.time = 30; obGo(1); ob.budget = '500'; obGo(1);
+    ob.macros = true; ob.name = 'Sara'; ob.sex = 'f'; ob.age = '31'; ob.w = '64'; ob.h = '166'; ob.goal = 'cut'; obFinish();
+    const p = P(); return { shown, closed: !document.querySelector('#obRoot .ob'), onboarded: S.onboarded, people: S.menu.set.people, excl: S.menu.set.excl, time: S.menu.set.time,
+      days: S.menu.days.length, name: p.name, age: p.age, example: p.example, rows: shopData().rows.length, budget: S.budget, noFish: S.menu.days.every(d => [d.ghda, d['3cha']].filter(Boolean).every(id => protOf(recipe(id)) !== 'fish')) }; });
+  await ctx.close();
+  ok(r.shown, 'questions shown on first run'); ok(r.closed, 'closed at the end'); eq(r.onboarded, true, 'remembered');
+  eq(r.people, 3, 'people'); ok(r.excl.includes('fish') && r.noFish, 'no fish in the menu'); eq(r.time, 30, 'time limit');
+  eq(r.days, 7, 'menu days'); eq(r.name, 'Sara', 'profile name'); eq(r.age, 31, 'age'); eq(r.example, false, 'real profile'); ok(r.rows > 5, 'shopping list filled');
+  eq(r.budget, String(Math.round(500 * 30 / 7)), 'monthly budget from the weekly answer'); eq(errors.length, 0, 'page errors');
+});
+test('Interface', 'first run without macros: no calorie analysis, menu and list still work', async () => {
+  const { page, ctx, errors } = await openApp({ keepOnboarding: true });
+  const r = await page.evaluate(() => { obGo(1); obGo(1); obGo(1); obGo(1); ob.macros = false; obFinish(); go('menu'); const v = document.getElementById('view');
+    return { noTargets: P().noTargets === true, fit: !!v.querySelector('.dfit'), rows: shopData().rows.length }; });
+  await ctx.close();
+  ok(r.noTargets, 'profile marked'); ok(!r.fit, 'no day analysis shown'); ok(r.rows > 5, 'list filled'); eq(errors.length, 0, 'page errors');
+});
+
+test('Interface', 'shopping list follows the trip: greengrocer, butcher, fishmonger, bread, grocery', async ({ page }) => {
+  const r = await page.evaluate(() => {
+    const d = { id: 'd1', name: 'D', meals: { ftour: [['khobz', 0.5], ['bid', 2]], ghda: [['sder', 200], ['maticha', 150]], kaskrout: [], '3cha': [['sardine', 200]] } };
+    S.profiles = [Object.assign(P(), { id: 'pa', days: [d], week: ['d1', null, null, null, null, null, null] })]; S.active = 'pa'; S.shop = { pa: true }; S.menu = null; S.pantry = {}; save(); go('t9edya');
+    const place = id => { const el = document.querySelector(`#view .li[data-id="${id}"]`); return el && el.dataset.place; };
+    const txt = shopText(shopData().rows); const pos = k => txt.indexOf(t('place_' + k));
+    return { sder: place('sder'), maticha: place('maticha'), sardine: place('sardine'), khobz: place('khobz'), bid: place('bid'),
+      order: ['khddar', 'gezzar', '7awwat', 'ferran', '7anout'].map(pos), wholeDh: !/\d+\.\d{2}\s*DH/.test(document.querySelector('#view .receipt').innerText) };
+  });
+  eq(r.sder, 'gezzar', 'chicken breast'); eq(r.maticha, 'khddar', 'tomatoes'); eq(r.sardine, '7awwat', 'sardines'); eq(r.khobz, 'ferran', 'bread'); eq(r.bid, '7anout', 'eggs');
+  ok(r.order.every((v, i, a) => v >= 0 && (i === 0 || v > a[i - 1])), 'WhatsApp text grouped in shop order: ' + r.order);
+  ok(r.wholeDh, 'list amounts in whole dirhams');
+});
+test('Interface', 'menu days are folded except one; a tap opens a day; tips stay dismissed', async ({ page }) => {
+  const r = await page.evaluate(() => { makeMenu(); go('menu'); const open0 = document.querySelectorAll('#view .mday.open').length, lists = document.querySelectorAll('#view .mlist').length;
+    const other = (todayIdx() + 3) % 7; document.querySelectorAll('#view .mday-h')[other].click(); const nowOpen = openDay;
+    go('t9edya'); const tipBefore = !!document.querySelector('#view .tip'); hideTip('list'); hideTip('listmenu'); hideTip('newweek'); go('t9edya');
+    return { open0, lists, nowOpen, other, tipBefore, tipAfter: !!document.querySelector('#view .tip'), saved: JSON.parse(localStorage.getItem('makla_mizan_v2')).tips.list === 1 }; });
+  eq(r.open0, 1, 'days open at first'); eq(r.lists, 6, 'folded days with meal names'); eq(r.nowOpen, r.other, 'tapped day opens');
+  ok(r.tipBefore && !r.tipAfter && r.saved, 'tip dismissed and remembered');
+});
+
+/* ======================================================================================
+   14. Cooking mode, steps, favourites
+   ====================================================================================== */
+const MOCK_WAKELOCK = () => { window.__wl = { req: 0, rel: 0 };
+  Object.defineProperty(navigator, 'wakeLock', { configurable: true, value: { request: async () => { __wl.req++;
+    return { _l: [], released: false, addEventListener(e, f) { this._l.push(f); }, release() { if (!this.released) { this.released = true; __wl.rel++; this._l.forEach(f => f()); } return Promise.resolve(); } }; } } }); };
+test('Cooking', 'every built-in recipe has 3 to 7 written steps', async ({ page }) => {
+  const r = await page.evaluate(() => { const keys = SEED_RECIPES.map(x => x[0]);
+    return { missing: keys.filter(k => !Array.isArray(STEPS[k])), extra: Object.keys(STEPS).filter(k => !keys.includes(k)),
+      badCount: keys.filter(k => Array.isArray(STEPS[k]) && !(STEPS[k].length >= 3 && STEPS[k].length <= 7)),
+      badText: keys.filter(k => Array.isArray(STEPS[k]) && STEPS[k].some(s => typeof s !== 'string' || s.trim().length < 10 || s.length > 500)) }; });
+  eq(r.missing.length, 0, 'recipes without steps: ' + r.missing); eq(r.extra.length, 0, 'steps for unknown recipes: ' + r.extra);
+  eq(r.badCount.length, 0, 'step count outside 3–7: ' + r.badCount); eq(r.badText.length, 0, 'empty or over-long steps: ' + r.badText);
+});
+test('Cooking', 'cooking mode: amounts follow the portions, one step per screen, screen kept on then released', async ({ page, errors }) => {
+  await page.evaluate(MOCK_WAKELOCK);
+  const r = await page.evaluate(async () => { const wait = ms => new Promise(res => setTimeout(res, ms));
+    go('recettes'); editRec = 'r_tajine_kefta'; render(); document.querySelector('#view .rec-cook .btn.pri').click(); await wait(30);
+    const amt = () => [...document.querySelectorAll('.cook-ing li b')].map(b => b.textContent.trim());
+    const at4 = amt(), awake = !!document.querySelector('.cook-wake');
+    for (let i = 0; i < 4; i++) document.querySelectorAll('.cook-n button')[1].click();   // +0.5 × 4 → 6 portions
+    const at6 = amt(), n = STEPS.tajine_kefta.length, seen = [];
+    for (let i = 0; i < n; i++) { document.querySelector('.cook-foot .btn.pri').click(); seen.push(document.querySelector('.cook-s').textContent); }
+    document.querySelector('.cook-foot .btn.pri').click(); const done = !!document.querySelector('.cook-done');
+    document.querySelector('.cook-foot .btn.pri').click(); await wait(30);
+    return { at4, at6, awake, seen, steps: STEPS.tajine_kefta, done, closed: !cook && !document.querySelector('#cookRoot .cook'), wl: __wl, noscroll: document.body.classList.contains('noscroll') }; });
+  // tajine kefta serves 4: kefta 500 g, tomatoes 1020 g, eggs 4, olive oil 5 spoons (items 0, 1, 5, 6)
+  near(parseFloat(r.at4[0]), 500, 0, 'kefta for 4'); near(parseFloat(r.at4[1]), 1020, 0, 'tomatoes for 4'); near(parseFloat(r.at4[5]), 4, 0, 'eggs for 4');
+  near(parseFloat(r.at6[0]), 750, 0, 'kefta for 6'); near(parseFloat(r.at6[1]), 1530, 0, 'tomatoes for 6'); near(parseFloat(r.at6[5]), 6, 0, 'eggs for 6');
+  ok(r.at6[6].startsWith('7½'), 'oil for 6 shown as 7½: ' + r.at6[6]);
+  eq(JSON.stringify(r.seen), JSON.stringify(r.steps), 'every step shown once, in order'); ok(r.done, 'end screen');
+  ok(r.awake, 'screen-on badge'); eq(r.wl.req, 1, 'screen lock asked once'); eq(r.wl.rel, 1, 'screen lock released on close');
+  ok(r.closed && !r.noscroll, 'closed and page scrolls again'); eq(errors.length, 0, 'page errors: ' + errors.join(' | '));
+});
+test('Cooking', 'from the menu: household plus the extra portion; phone back button closes cooking mode', async ({ page }) => {
+  const r = await page.evaluate(async () => { const wait = ms => new Promise(res => setTimeout(res, ms));
+    S.menuSet = { people: 3, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; makeMenu();
+    S.menu.days[0].pf = 1.5; save(); openDay = 0; go('menu');
+    const btn = [...document.querySelectorAll('#view .mday.open .mcard .mbtns .btn')].find(b => b.textContent.includes('👨‍🍳'));
+    btn.click(); const n = cook && cook.n, rid = cook && cook.rid;
+    history.back(); await wait(150);
+    return { n, rid, ghda: S.menu.days[0].ghda, closedByBack: !cook && !document.querySelector('#cookRoot .cook') }; });
+  eq(r.rid, r.ghda, 'lunch recipe opened'); near(r.n, 3.5, 1e-9, 'portions = 3 people + 0.5 extra'); ok(r.closedByBack, 'back button closes it');
+});
+test('Cooking', 'steps can be edited; equal to the built-in = not stored; renaming keeps them; user text stays text', async ({ page }) => {
+  const r = await page.evaluate(async () => { const wait = ms => new Promise(res => setTimeout(res, ms));
+    const setTa = v => { const ta = document.getElementById('rSteps'); ta.value = v; ta.dispatchEvent(new Event('change')); };
+    go('recettes'); editRec = 'r_harira'; render(); const orig = document.getElementById('rSteps').value;
+    setTa('A\n\n  B  \nC'); const edited = recipe('r_harira').steps.slice();
+    setTa(orig); const restored = !('steps' in recipe('r_harira'));
+    renameRecipe('Harira dyal mama'); const renamed = !recipe('r_harira').key && recSteps(recipe('r_harira')).length === STEPS.harira.length;
+    newRecipe(); const id = editRec; setTa('<img src=x onerror="window.__x=1">\nY');
+    cookOpen(id, 2); cookGo(1); await wait(30);
+    const shown = document.querySelector('.cook-s').textContent; cookClose(); await wait(30);
+    const stored = JSON.parse(localStorage.getItem('makla_mizan_v2')).recipes.find(x => x.id === id).steps;
+    return { edited, restored, renamed, shown, stored, x: window.__x }; });
+  eq(JSON.stringify(r.edited), JSON.stringify(['A', 'B', 'C']), 'one line = one step, blanks dropped');
+  ok(r.restored, 'built-in text not stored'); ok(r.renamed, 'renamed built-in keeps its steps');
+  eq(r.shown, '<img src=x onerror="window.__x=1">', 'shown as text'); eq(r.x, undefined, 'never run'); eq(r.stored.length, 2, 'saved');
+});
+test('Cooking', 'favourites: heart on the card, filter, removed with the recipe; bad backup entries cleaned', async ({ page }) => {
+  const r = await page.evaluate(() => {
+    go('recettes'); recCat = 'all'; render();
+    const card = [...document.querySelectorAll('#view .rcard')].find(c => c.querySelector('.rtx b').textContent === recName(recipe('r_3des')));
+    card.querySelector('.fav').click(); const fav1 = S.fav.slice();
+    const pressed = [...document.querySelectorAll('#view .rcard')].find(c => c.querySelector('.rtx b').textContent === recName(recipe('r_3des'))).querySelector('.fav').getAttribute('aria-pressed');
+    recCat = 'fav'; render(); const shown = document.querySelectorAll('#view .rcard').length;
+    delRecipe('r_3des'); delRecipe('r_3des'); const afterDel = S.fav.slice();
+    const prev = S; S = JSON.parse(JSON.stringify(prev)); S.fav = ['r_tajine', 'nope', 42, 'r_tajine'];
+    S.recipes[0].steps = 'not a list'; S.recipes[1].steps = ['ok step', 7, '', 'x'.repeat(900)].concat(Array(40).fill('s'));
+    _fixes = 0; normalize(); const out = { fav: S.fav, s0: S.recipes[0].steps, s1len: S.recipes[1].steps.length, s1max: Math.max(...S.recipes[1].steps.map(s => s.length)), fixes: _fixes };
+    S = prev; _foods = null; return { fav1, pressed, shown, afterDel, out }; });
+  ok(r.fav1.includes('r_3des'), 'added to favourites'); eq(r.pressed, 'true', 'heart shows pressed'); eq(r.shown, 1, 'favourites filter');
+  ok(!r.afterDel.includes('r_3des'), 'deleted recipe leaves favourites');
+  eq(JSON.stringify(r.out.fav), JSON.stringify(['r_tajine']), 'unknown, non-text and repeated favourites dropped');
+  eq(r.out.s0, undefined, 'non-list steps dropped'); ok(r.out.s1len <= 30 && r.out.s1max <= 500, 'steps capped (30 × 500 chars)'); ok(r.out.fixes >= 3, 'repairs counted');
+});
 
 /* ---------- runner ---------- */
 (async () => {

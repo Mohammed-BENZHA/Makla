@@ -1,14 +1,13 @@
 # Makla Mizan
 
-App (PWA) dyal macros, planning dyal simana w lista dyal t9edya b dirham, m3a l'makla mghribiya.
+App (PWA) dyal l'makla mghribiya: menu dyal simana, lista dyal t9edya b dirham, recettes b l'khatawat, w macros l li bgha.
 
 ## Chno katdir
-- **Profils**: kol wa7ed b lwazn, tol, 3mer, nachat w lhadaf dyalou (tnchif, recomp, 7afed, zid 3dalat).
-- **Lwazn**: sjel lwazn, moyenne 7 ayyam, graphique, w TDEE l7a9i9i men tbeddel lwazn.
-- **Recettes**: l'9edra kamla → portions (tajine, 7rira, kesksou…).
-- **Ayyam template**: sawb 2–3 d les ayyam (nhar training, nhar raha) w l'app kat7seb calories, protein, karb, dhoun w taman.
-- **Simana & t9edya**: 3ti template l kol nhar, w l'app katkhrej lista dyal chra b l'kilo w b l7ba (9tani w rouz nay, djaj w 7out b l3dem).
-- **Prix**: beddel les prix b dyal l'7anout dyalek, zid makla dyalek, sauvegarde/import.
+- **Menu** (onglet louwel): 4 d l'as2ila f l'bdya (ch7al d nass, chno ma katakloch, l'wa9t, l'budget) w l'app katwejjed simana kamla. Kol nhar mtwi, b étiquette (✓ mzyan, na9s protein, dhoun bezzaf…); t9der tbeddel ay wjba (rkhas, asra3, protein ktar, dhoun 9lal).
+- **T9edya**: lista mjmou3a 3la 7sab l'blasa (khddar, gezzar, 7awwat, ferran, 7anout), WhatsApp f l'fou9, l'flous b dirham kamel. "3endi f dar" kay9ess men lista.
+- **Recettes**: 90 recette mghribiya, kol wa7da b l'khatawat dyalha b ddarija. **Tayb** (👨‍🍳) kay7ell mode dyal tayb: l'kmiyat 3la 7sab 3dad n-nass, khatwa b khatwa, w l'écran ma kaytfach. ❤ l les recettes li kat7ebb (l'menu kaymil lihom chwiya). T9der tbeddel l'khatawat (kol str = khatwa).
+- **Ana**: profils (wazn, tol, 3mer, nachat, lhadaf), ayyam template w simana. L'7sab dyal calories w protein ikhtiyari.
+- **⚙ Réglages**: lougha (5), mode (fate7 / mdellem / auto), zit f les recettes, prix, sauvegarde/import.
 - Katkhdem **offline** men ba3d awel merra.
 
 ## Installation 3la telephone
@@ -16,7 +15,7 @@ App (PWA) dyal macros, planning dyal simana w lista dyal t9edya b dirham, m3a l'
 - **iPhone (Safari)**: 7ell l'lien → bouton Partager → *Sur l'écran d'accueil*.
 
 ## Data
-Kolchi kaytsjel f l'appareil (localStorage). Bach tdowwez data l appareil akhor: onglet **Prix → Telecharger fichier**, w f l'appareil l'akhor **Importer men fichier**.
+Kolchi kaytsjel f l'appareil (localStorage). Bach tdowwez data l appareil akhor: **⚙ Réglages → Telecharger fichier**, w f l'appareil l'akhor **Importer men fichier**.
 - L'import kaywerrik chno f l'fichier w kaytsennak t2akked 9bel ma ybeddel; l'data l9dima katb9a w t9der trje3 liha.
 - Ila ma t9dertch l'app tsjjel (memoire 3amra), katban rissala 7mra. Ila l'data li kanet msjjla ma t9ratch, katkhbba f blasa w t9der t7mmelha.
 - L'ar9am dyal l'makla: chouf [FOOD_DATA.md](FOOD_DATA.md) (mnin jaw, chno t2akked, w chno ta9dir ≈).
@@ -25,7 +24,7 @@ Kolchi kaytsjel f l'appareil (localStorage). Bach tdowwez data l appareil akhor:
 ```
 npm install        # playwright
 npx playwright install chromium   # ila ma kanch 3endek Chromium
-npm test           # 42 test: 7sab, unités, recettes, lista, backup, sécurité, lougat, offline
+npm test           # 52 test: 7sab, unités, recettes, lista, backup, sécurité, lougat, offline, wajiha, tayb
 npm run check-i18n # kolchi mtarjem f 5 d l'lougat
 ```
 Tafasil l'audit w l'bugs li tsla7o: [AUDIT.md](AUDIT.md).
