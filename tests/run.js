@@ -693,6 +693,24 @@ test('Sync', 'wrong code, unknown home and refused server are explained; leaving
   } finally { await A.ctx.close(); }
 });
 
+test('Sync', 'same home, different profiles open: both phones get the same shopping list (portions shared, body data not)', async () => {
+  const A = await phone('Mohammed', '#2f8f5b'), B = await phone('Rayan', '#2f6fbf');
+  try {
+    const hid = await A.page.evaluate(async () => { Object.assign(P(), { name: 'Mohammed', example: false, sex: 'm', age: 28, w: 85, h: 178, act: 1.725, goal: 'leanbulk' });
+      S.menuSet = { people: 2, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; makeMenu(); await darCreate(); return SY.hid; });
+    await B.page.evaluate(async hid => { Object.assign(P(), { name: 'Rayan', example: false, sex: 'm', age: 24, w: 62, h: 170, act: 1.375, goal: 'cut' }); save(); darForm.code = hid; await darJoin(); }, hid);
+    await A.page.evaluate(() => syncNow()); await B.page.evaluate(() => syncNow()); await A.page.evaluate(() => syncNow());
+    const list = page => page.evaluate(() => JSON.stringify(shopData().rows.map(r => [r.id, Math.round(r.buy * 1000)])));
+    const tot = page => page.evaluate(() => S.menu.days.map((d, i) => menuTotal(i)));
+    const [la, lb, ta, tb] = [await list(A.page), await list(B.page), await tot(A.page), await tot(B.page)];
+    eq(JSON.stringify(ta), JSON.stringify(tb), 'same household portions per day');
+    eq(la, lb, 'same shopping list on both phones');
+    const own = await A.page.evaluate(() => S.menu.days.map(d => dayFit(d, P()).f)), other = await B.page.evaluate(() => S.menu.days.map(d => dayFit(d, P()).f));
+    ta.forEach((v, i) => near(v, own[i] + other[i], 0.011, 'day ' + i + ' = Mohammed’s portion + Rayan’s portion'));
+    ok(!JSON.stringify(fsDocs[hid]).includes('"w\\":62') && !JSON.stringify(fsDocs[hid]).includes('leanbulk'), 'no body data sent, only portion sizes');
+  } finally { await A.ctx.close(); await B.ctx.close(); }
+});
+
 /* ---------- runner ---------- */
 (async () => {
   overrides['/tests/blank.html'] = { type: 'text/html', body: '<!doctype html><title>blank</title>' };   // same-origin page used to seed localStorage

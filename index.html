@@ -1318,6 +1318,7 @@ function sanitize(){
   if(S.budget!==''&&!(Number.isFinite(+S.budget)&&+S.budget>=0)){S.budget='';fx()}
   if(S.lastBackup!=null&&!Number.isFinite(+S.lastBackup))delete S.lastBackup;
   S.onboarded=!!S.onboarded;
+  if(S.portions!=null){if(!isObj(S.portions)){S.portions={};fx()}else Object.keys(S.portions).forEach(k=>{const e=S.portions[k];if(!OKID.test(k)||!isObj(e)||!Array.isArray(e.f)||e.f.length!==7||e.f.some(x=>!(+x>=.5&&+x<=3))){delete S.portions[k];fx()}else{e.f=e.f.map(Number);e.n=String(e.n||'').slice(0,60)}})}
   if(S.tips!=null){if(!isObj(S.tips)){S.tips={};fx()}else Object.keys(S.tips).forEach(k=>{if(!OKID.test(k)||!S.tips[k])delete S.tips[k];else S.tips[k]=1})}
   sanitizeIds();
   if(S.fav!=null){if(!Array.isArray(S.fav)){S.fav=[];fx()}const ids=new Set(S.recipes.map(r=>r.id));const a=[...new Set(S.fav.filter(id=>typeof id==='string'&&ids.has(id)))];if(a.length!==S.fav.length)fx();S.fav=a}
@@ -1893,6 +1894,15 @@ function genWeek(set){
       days[i][k]=bestV;if(bestV!==keep){cur=bestS;changed=true}}
     if(!changed)break}
   return days}
+/* Lunch and dinner portions cooked for the whole household on menu day i.
+ Every profile with targets on this phone eats its own sized portion (dayFit), and so does every member of a shared
+ home: their phones publish only the 7 portion sizes (S.portions, no weight or body data). Everyone else eats one
+ portion. So two phones in the same home get the same list whichever profile is open. */
+function portionEaters(){const out={};S.profiles.forEach(p=>{if(!p.example&&!p.noTargets)out[p.id]={n:p.name,f:S.menu?S.menu.days.map(d=>(d.ghda||d['3cha'])?dayFit(d,p).f:1):[]}});
+  if(isObj(S.portions))Object.keys(S.portions).forEach(id=>{if(!out[id])out[id]=S.portions[id]});return out}
+function menuTotal(i){if(!S.menu)return 0;const n=S.menu.set.people,ev=Object.values(portionEaters());
+  const d=S.menu.days[i];if(!ev.length){const f=d&&(d.ghda||d['3cha'])?dayFit(d,P()).f:1;return n+f-1}
+  const sum=ev.reduce((s,e)=>s+(+e.f[i]||1),0);return Math.round((sum+Math.max(0,n-ev.length))*100)/100}
 function menuCostPP(m){let c=0;m.days.forEach(d=>{['ghda','3cha'].forEach(k=>{const r=d[k]&&recipe(d[k]);if(r)c+=recCost(r)});if(d.ftour)c+=sum(d.ftour).cost});return c}
 let menuEdit=false, swapAt=null, swapMode='cheaper';
 const defaultSet=()=>({people:4,budget:'',time:60,excl:[],meals:{ftour:true,ghda:true,'3cha':true}});
@@ -2016,7 +2026,7 @@ function mealCard(i,k){const id=S.menu.days[i][k];const r=id&&recipe(id);if(!r)r
   return `<div class="mcard"><div class="mrow"><div style="min-width:0"><span class="mk">${mealBase(k)}</span><b>${esc(recName(r))}</b>
     <span class="mm">⏱ ${t('time_lbl',{n:m.time})} · ${t('diff_'+m.diff)} · ${dh(recCost(r))} ${t('per_pers')}</span><span class="mm"><b class="pl">${t('one_portion')}:</b> ${macro(sum([[id,1]]))}</span>${(()=>{const p=P();if(p.noTargets)return '';const f=dayFit(S.menu.days[i],p).f;return f===1?'':`<span class="mm mine"><b>${t('share_lbl',{n:esc(p.name),x:bdi(f)})}:</b> ${macro(sum([[id,f]]))}</span>`})()}</div>
     <div class="mbtns"><button class="btn sm" onclick="cookMenu(${i},'${k}')">👨‍🍳 ${t('cook_btn')}</button><button class="btn sm" onclick="swapAt=${open?'null':`'${i}:${k}'`};render()">${t('swap')}</button></div></div>
-    ${menuBreak([[id,1]],'m'+i+k,dayFit(S.menu.days[i],P()).f-1)}
+    ${menuBreak([[id,1]],'m'+i+k,menuTotal(i)-S.menu.set.people)}
     ${open?`<div class="swap"><div class="chips">${['cheaper','faster','protein','lean','home'].map(md=>`<button class="chip" aria-pressed="${swapMode===md}" onclick="swapMode='${md}';render()">${t({home:'at_home_opt',protein:'more_prot',lean:'lf_opt'}[md]||md)}</button>`).join('')}
       <button class="chip" onclick="randomMeal(${i},'${k}')">🎲 ${t('random_one')}</button></div>
       ${swapOptions(i,k).map(o=>{const om=recMeta(o);return `<button class="fopt" onclick="setMeal(${i},'${k}','${o.id}')"><span><span class="nm">${esc(recName(o))}</span><br><span class="mm">⏱ ${t('time_lbl',{n:om.time})} · ${dh(recCost(o))} ${t('per_pers')}${effTxt(o.id)}</span></span><span class="add">↺</span></button>`}).join('')||`<p class="hint">${t('no_option')}</p>`}</div>`:''}</div>`}
@@ -2170,7 +2180,7 @@ function shopData(){
     c+=q*f.f*price(f)*mult}));return c};
   S.profiles.forEach(p=>{if(!S.shop[p.id])return;let c=0;p.week.forEach(id=>{c+=addDay(p.days.find(d=>d.id===id),1)});parts.push([esc(p.name),c])});
   if(S.menu&&S.shop.menu){const n=S.menu.set.people;let c=0;
-    const pa=P();S.menu.days.forEach(d=>{const ef=(d.ghda||d['3cha'])?dayFit(d,pa).f:1;const pm=(n+ef-1)/n;
+    S.menu.days.forEach((d,i)=>{const pm=menuTotal(i)/n;
       const meals={ftour:d.ftour||[],ghda:d.ghda?[[d.ghda,pm]]:[],'3cha':d['3cha']?[[d['3cha'],pm]]:[],snack:[].concat(d.snack||[],d.snack2||[],d.side||[]).map(([id,q])=>[id,q/n])};
       Object.values(meals).forEach(list=>list.forEach(([id,q])=>{const f=food(id);if(!f)return;
         if(f.isRec){const r=recipe(id);const sv=Math.max(1,+r.servings||1);r.items.forEach(([iid,iq])=>{const g=food(iid);if(g)add(iid,oilQ(iid,iq)*(q/sv)*g.f*n)})}else add(id,q*f.f*n);
@@ -2498,7 +2508,7 @@ function cookGo(d){if(!cook)return;const r=recipe(cook.rid);const n=r?recSteps(r
   const c=document.querySelector('.cook');if(c)c.scrollTop=0;const m=document.querySelector('.cook-main');if(m)m.focus({preventScroll:true})}
 function cookN(d){if(!cook)return;cook.n=Math.min(100,Math.max(.5,cook.n+d));renderCook()}
 /* from the menu: the household plus the active profile's extra portion, as in the shopping list */
-function cookMenu(i,k){const d=S.menu&&S.menu.days[i];if(!d||!d[k])return;cookOpen(d[k],S.menu.set.people+dayFit(d,P()).f-1)}
+function cookMenu(i,k){const d=S.menu&&S.menu.days[i];if(!d||!d[k])return;cookOpen(d[k],menuTotal(i))}
 function cookFtour(i){const d=S.menu&&S.menu.days[i];const it=d&&(d.ftour||[]).find(([id])=>recipe(id));if(it)cookOpen(it[0],S.menu.set.people*it[1])}
 async function wakeOn(){if(_wake||!cook||!('wakeLock' in navigator)||document.visibilityState!=='visible')return;
   try{const w=await navigator.wakeLock.request('screen');if(!cook||_wake){w.release();return}_wake=w;
@@ -2562,6 +2572,7 @@ function syncSnap(){const o={};
   Object.keys(S.ov||{}).forEach(id=>o['ov.'+id]=S.ov[id]);
   (S.custom||[]).forEach(f=>o['custom.'+f.id]=f);(S.spend||[]).forEach(x=>o['spend.'+x.id]=x);
   S.profiles.forEach(p=>{if(p.shared&&!p.example)o['profile.'+p.id]=p});
+  if(S.menu)S.profiles.forEach(p=>{if(!p.example&&!p.noTargets)o['portion.'+p.id]={n:p.name,f:S.menu.days.map(d=>(d.ghda||d['3cha'])?dayFit(d,p).f:1)}});
   return o}
 /* puts one received key into S (v === undefined: deleted) */
 function syncApply(k,v){const dot=k.indexOf('.'),pre=dot<0?k:k.slice(0,dot),id=dot<0?'':k.slice(dot+1);
@@ -2576,6 +2587,7 @@ function syncApply(k,v){const dot=k.indexOf('.'),pre=dot<0?k:k.slice(0,dot),id=d
     case 'mday':{const i=+id;if(!(i>=0&&i<7))break;if(!S.menu){if(v===undefined)break;S.menu={set:S.menuSet||defaultSet(),days:[{},{},{},{},{},{},{}],at:0}}S.menu.days[i]=v===undefined?{}:v;break}
     case 'recipe':upsert(S.recipes,v);break;
     case 'fav':{if(!Array.isArray(S.fav))S.fav=[];const i=S.fav.indexOf(id);if(v===undefined){if(i>=0)S.fav.splice(i,1)}else if(i<0)S.fav.push(id);break}
+    case 'portion':if(!isObj(S.portions))S.portions={};if(S.profiles.some(p=>p.id===id))break;setIn(S.portions,v);break;
     case 'checked':setIn(S.checked,true);break;
     case 'pantry':setIn(S.pantry,v);break;
     case 'price':setIn(S.prices,v);break;
@@ -2655,7 +2667,7 @@ async function darJoin(){const me=darMe();if(!me)return;const code=String((docum
   try{const doc=await syncFetch(syncApi()+'/households/'+code);if(!doc){SY=null;if(msg)msg.textContent=t('dar_notfound');return}}
   catch(e){SY=null;if(msg)msg.textContent=t(e.status===403?'dar_rules':'dar_offline');return}
   syncSave();await syncNow(true);render();toast(t('dar_joined'))}
-function darLeave(){if(delArm!=='dar'){delArm='dar';renderDarBox();return}delArm=null;SY=null;syncSave();syncBadge();render()}
+function darLeave(){if(delArm!=='dar'){delArm='dar';renderDarBox();return}delArm=null;SY=null;delete S.portions;syncSave();save();syncBadge();render()}
 function darShareLink(){return location.origin+location.pathname+'#dar='+SY.hid}
 function darCopy(){const s=darShareLink();try{navigator.clipboard.writeText(s).then(()=>toast(t('toast_copied')),()=>prompt('',s))}catch(e){prompt('',s)}}
 function darBoxHTML(){
