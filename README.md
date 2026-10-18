@@ -25,7 +25,7 @@ Kolchi kaytsjel f l'appareil (localStorage). Bach tdowwez data l appareil akhor:
 ```
 npm install        # playwright
 npx playwright install chromium   # ila ma kanch 3endek Chromium
-npm test           # 54 test: 7sab, unités, recettes, lista, backup, sécurité, lougat, offline, wajiha, tayb, hadaf dyal lwazn
+npm test           # 55 test: 7sab, unités, recettes, lista, backup, sécurité, lougat, offline, wajiha, tayb, hadaf dyal lwazn
 npm run check-i18n # kolchi mtarjem f 5 d l'lougat
 ```
 Tafasil l'audit w l'bugs li tsla7o: [AUDIT.md](AUDIT.md).

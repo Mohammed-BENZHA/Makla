@@ -599,6 +599,18 @@ test('Weight goal', 'stall and goal/profile mismatch flagged; waist ratio bands;
   eq(r.clean.goalW, undefined, 'bad goal dropped'); eq(r.clean.waists, 1, 'bad waist entries dropped'); ok(r.clean.fixes >= 3, 'repairs counted');
 });
 
+test('Menu', 'meal cards show one portion and the profile’s own share, which add up to the day total', async ({ page }) => {
+  const r = await page.evaluate(() => { makeMenu(); const d = S.menu.days[0]; delete d.snack; delete d.snack2; delete d.side; d.pf = 2.5; save(); openDay = 0; go('menu');
+    const num = (el, re) => { const m = el.innerText.match(re); return m ? parseFloat(m[1]) : NaN; };
+    const cards = [...document.querySelectorAll('#view .mday.open .mcard')]; const P1 = /P\s*([\d.]+)/;
+    const lines = cards.map(c => ({ one: c.querySelector('.mm .pl') ? num(c.querySelector('.mm .pl').parentElement, P1) : num(c.querySelectorAll('.mm')[1], P1), mine: c.querySelector('.mm.mine') ? num(c.querySelector('.mm.mine'), P1) : null }));
+    const pb = [...document.querySelectorAll('#view .mday.open .dfit .bar')].find(b => b.innerText.includes(t('prot'))); const shown = num(pb, /([\d.]+)\s*\//);
+    return { lines, shown }; });
+  const [ft, l, dn] = r.lines;
+  near(l.mine, l.one * 2.5, 0.15, 'lunch: own share = 2.5 × one portion'); near(dn.mine, dn.one * 2.5, 0.15, 'dinner: own share = 2.5 × one portion');
+  eq(ft.mine, null, 'breakfast is not scaled'); near(r.shown, ft.one + l.mine + dn.mine, 1, 'day protein = breakfast + own lunch + own dinner');
+});
+
 /* ---------- runner ---------- */
 (async () => {
   overrides['/tests/blank.html'] = { type: 'text/html', body: '<!doctype html><title>blank</title>' };   // same-origin page used to seed localStorage
