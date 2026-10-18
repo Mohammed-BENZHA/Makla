@@ -29,6 +29,7 @@ function startServer() {
     const srv = http.createServer((req, rsp) => {
       if (serverDown) return req.socket.destroy();
       let p = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+      if (p.startsWith('/fs')) return fakeFirestore(req, rsp, p);
       if (overrides[p] && overrides[p].delay && !req.headers['x-no-delay']) { const ms = overrides[p].delay; overrides[p].hits = (overrides[p].hits || 0) + 1; return setTimeout(() => { if (!rsp.writableEnded) { rsp.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' }); fs.createReadStream(path.join(ROOT, 'index.html')).pipe(rsp); } }, ms); }
       if (overrides[p] && overrides[p].body !== undefined) { const o = overrides[p]; rsp.writeHead(o.status || 200, { 'Content-Type': o.type || 'text/plain', 'Cache-Control': 'no-store' }); return rsp.end(o.body); }
       if (p.endsWith('/')) p += 'index.html';
@@ -39,6 +40,29 @@ function startServer() {
     });
     srv.listen(0, '127.0.0.1', () => res(srv));
   });
+}
+
+
+/* ---------- minimal Firestore REST stand-in (GET a document, :commit with updateMask + REQUEST_TIME), for the sync tests ---------- */
+const fsDocs = {}; let fsClock = Date.UTC(2026, 9, 18, 8, 0, 0);
+const fsNow = () => new Date(fsClock += 1000).toISOString();
+function fakeFirestore(req, rsp, p) {
+  const send = (code, obj) => { rsp.writeHead(code, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }); rsp.end(JSON.stringify(obj)); };
+  const deny = hid => !hid || hid.length < 24;   // same idea as the security rules: ids under 24 characters are refused
+  if (req.method === 'GET') { const hid = p.split('/households/')[1];
+    if (deny(hid)) return send(403, { error: { code: 403, status: 'PERMISSION_DENIED' } });
+    const d = fsDocs[hid]; return d ? send(200, { name: 'x/' + hid, fields: d.fields, updateTime: d.updateTime }) : send(404, { error: { code: 404, status: 'NOT_FOUND' } }); }
+  let body = ''; req.on('data', c => body += c); req.on('end', () => {
+    const w = JSON.parse(body).writes[0]; const hid = w.update.name.split('/households/')[1];
+    if (deny(hid)) return send(403, { error: { code: 403, status: 'PERMISSION_DENIED' } });
+    const d = fsDocs[hid] || (fsDocs[hid] = { fields: {} }); const now = fsNow();
+    const setPath = (path, val) => { const seg = path.split('.'); let f = d.fields;
+      for (let i = 0; i < seg.length - 1; i++) { f[seg[i]] = f[seg[i]] && f[seg[i]].mapValue ? f[seg[i]] : { mapValue: { fields: {} } }; f = f[seg[i]].mapValue.fields; }
+      if (val === undefined) delete f[seg[seg.length - 1]]; else f[seg[seg.length - 1]] = val; };
+    const getPath = path => { let f = w.update.fields, v; for (const sg of path.split('.')) { v = f && f[sg]; f = v && v.mapValue && v.mapValue.fields; } return v; };
+    (w.updateMask.fieldPaths || []).forEach(fp => setPath(fp, getPath(fp)));
+    (w.updateTransforms || []).forEach(tr => setPath(tr.fieldPath, { timestampValue: now }));
+    d.updateTime = now; send(200, { writeResults: [{ updateTime: now }], commitTime: now }); });
 }
 
 /* ---------- app helpers ---------- */
@@ -609,6 +633,64 @@ test('Menu', 'meal cards show one portion and the profile’s own share, which a
   const [ft, l, dn] = r.lines;
   near(l.mine, l.one * 2.5, 0.15, 'lunch: own share = 2.5 × one portion'); near(dn.mine, dn.one * 2.5, 0.15, 'dinner: own share = 2.5 × one portion');
   eq(ft.mine, null, 'breakfast is not scaled'); near(r.shown, ft.one + l.mine + dn.mine, 1, 'day protein = breakfast + own lunch + own dinner');
+});
+
+/* ======================================================================================
+   16. Shared home (sync between two phones)
+   ====================================================================================== */
+async function phone(name, color) { const env = await openApp(); await env.page.evaluate(([api, n, c]) => { localStorage.setItem('makla_sync_api', api); darForm.n = n; darForm.c = c; }, [BASE + 'fs', name, color]); return env; }
+test('Sync', 'two phones: ticks, menu and prices reach the other phone with the sender’s colour; private profile stays private; offline changes are sent later', async () => {
+  const A = await phone('Mohammed', '#2f8f5b'), B = await phone('Sara<b>x</b>', '#2f6fbf');
+  try {
+    const hid = await A.page.evaluate(async () => { makeMenu(); P().weights = [{ d: '2026-10-01', w: 81.2 }]; P().example = false; save(); go('reglages'); await darCreate(); return SY.hid; });
+    ok(/^[A-Za-z0-9]{28}$/.test(hid), 'random 28-character code'); ok(fsDocs[hid], 'home created on the server');
+    const joined = await B.page.evaluate(async hid => { go('reglages'); darForm.code = hid; render(); await darJoin(); return { menu: S.menu && S.menu.days.map(d => d.ghda), me: SY.me.id }; }, hid);
+    const menuA = await A.page.evaluate(() => S.menu.days.map(d => d.ghda));
+    eq(JSON.stringify(joined.menu), JSON.stringify(menuA), 'joining phone receives the menu');
+    // A ticks an item; B sees it with A's colour
+    const item = await A.page.evaluate(async () => { const id = shopData().rows[0].id; chk(id, true); await syncNow(); return id; });
+    const b1 = await B.page.evaluate(async id => { await syncNow(); go('t9edya'); const dot = document.querySelector(`#view .li[data-id="${id}"] .sdot`); return { ticked: !!S.checked[id], dot: dot && dot.style.background, title: dot && dot.title }; }, item);
+    ok(b1.ticked, 'tick reached the other phone'); ok(/47, 143, 91|2f8f5b/i.test(b1.dot || ''), 'marked with the sender colour: ' + b1.dot); ok((b1.title || '').includes('Mohammed'), 'marked with the sender name');
+    // B changes Wednesday's lunch; A sees it, marked in B's colour, and a toast names B (escaped)
+    const newId = await B.page.evaluate(async () => { const o = swapOptions(2, 'ghda')[0].id; setMeal(2, 'ghda', o); await syncNow(); return o; });
+    const a1 = await A.page.evaluate(async () => { await syncNow(); openDay = null; go('menu'); const dot = document.querySelectorAll('#view .mday-h')[2].querySelector('.sdot');
+      const toastTxt = document.getElementById('toastRoot').textContent; go('reglages'); return { ghda: S.menu.days[2].ghda, dot: dot && dot.style.background, toastTxt, html: !!document.querySelector('#darBox .mem b b') }; });
+    eq(a1.ghda, newId, 'menu change reached the first phone'); ok(/47, 111, 191|2f6fbf/i.test(a1.dot || ''), 'day marked in the other colour');
+    ok(a1.toastTxt.includes('Sara'), 'toast names who changed it'); ok(!a1.html, 'member name shown as text');
+    // edits to different things at the same time both survive
+    await A.page.evaluate(() => setP('bid', 1.9)); await B.page.evaluate(() => setP('maticha', 9));
+    await A.page.evaluate(() => syncNow()); await B.page.evaluate(() => syncNow()); await A.page.evaluate(() => syncNow());
+    const pa = await A.page.evaluate(() => [S.prices.bid, S.prices.maticha]), pb = await B.page.evaluate(() => [S.prices.bid, S.prices.maticha]);
+    eq(JSON.stringify(pa), '[1.9,9]', 'phone A has both prices'); eq(JSON.stringify(pb), '[1.9,9]', 'phone B has both prices');
+    // profiles stay on the phone unless shared
+    ok(!JSON.stringify(fsDocs[hid]).includes('81.2'), 'private weight never sent');
+    await A.page.evaluate(async () => { toggleShareProf(P().id); await syncNow(); });
+    const shared = await B.page.evaluate(async () => { await syncNow(); return S.profiles.some(p => p.weights && p.weights.some(w => w.w === 81.2)); });
+    ok(shared, 'a profile marked as shared reaches the other phone');
+    // offline: kept, then sent
+    serverDown = true;
+    const off = await B.page.evaluate(async () => { while (_syncBusy) await new Promise(r => setTimeout(r, 50)); const id = shopData().rows.find(x => !S.checked[x.id]).id; chk(id, true); await syncNow(); return { st: _syncState, pend: syncPending(), id }; });
+    serverDown = false;
+    ok(off.st === 'off' || off.st === 'err', 'offline state shown: ' + off.st); ok(off.pend > 0, 'change kept while offline');
+    await B.page.evaluate(() => syncNow());
+    const got = await A.page.evaluate(async id => { await syncNow(); return !!S.checked[id]; }, off.id);
+    ok(got, 'offline change sent when the connection returned');
+    eq(A.errors.length + B.errors.length, 0, 'page errors: ' + A.errors.concat(B.errors).join(' | '));
+  } finally { serverDown = false; await A.ctx.close(); await B.ctx.close(); }
+});
+test('Sync', 'wrong code, unknown home and refused server are explained; leaving keeps the data; Firestore is never served from cache', async () => {
+  const A = await phone('Ali', '#c2572b');
+  try {
+    const r = await A.page.evaluate(async () => { go('reglages'); const msg = () => document.getElementById('darMsg').textContent;
+      darForm.code = 'short'; renderDarBox(); await darJoin(); const bad = msg();
+      darForm.code = 'Z'.repeat(28); renderDarBox(); await darJoin(); const unknown = msg(); const notJoined = SY === null;
+      const before = S.recipes.length; await darCreate(); const inHome = !!SY; darLeave(); darLeave();
+      return { bad, unknown, notJoined, inHome, out: SY === null, kept: S.recipes.length === before, saved: localStorage.getItem('makla_mizan_v2_sync') }; });
+    ok(r.bad.length > 3 && r.unknown.length > 3 && r.bad !== r.unknown, 'two different explanations'); ok(r.notJoined, 'not joined to a missing home');
+    ok(r.inHome && r.out && r.kept, 'left the home, data kept'); eq(r.saved, null, 'home code forgotten on this phone');
+    const sw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
+    ok(!/endsWith\('googleapis\.com'\)/.test(sw) && /fonts\.googleapis\.com/.test(sw), 'service worker caches fonts only, never the Firestore API');
+  } finally { await A.ctx.close(); }
 });
 
 /* ---------- runner ---------- */

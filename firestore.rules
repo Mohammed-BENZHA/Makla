@@ -1,0 +1,13 @@
+rules_version = '2';
+// Makla Mizan: one document per shared home. The document id (28 random characters) is the key:
+// anyone holding it can read and write that home; nobody can list homes or delete them.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /households/{hid} {
+      allow get: if hid.size() >= 24;
+      allow create, update: if hid.size() >= 24
+        && request.resource.data.keys().hasOnly(['e', 'members']);
+      allow list, delete: if false;
+    }
+  }
+}

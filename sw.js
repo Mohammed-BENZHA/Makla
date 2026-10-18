@@ -1,5 +1,5 @@
 // Bdel had numéro kol merra katbeddel l'app bach telephone yjib version jdida
-const VERSION = 'mizan-v28';
+const VERSION = 'mizan-v29';
 const SHELL = ['./', './index.html', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png'];
 // Ila l'réseau t3eTTel ktar men had l'modda w kayna nos5a f l'cache, l'app kat7ell b l'nos5a (w l'jdida katsjjel men ba3d)
@@ -43,7 +43,8 @@ self.addEventListener('fetch', e => {
     return;
   }
   // Google Fonts w fichiers dyal l'app: cache, w update f l'arrière-plan
-  if (url.origin === location.origin || url.hostname.endsWith('googleapis.com') || url.hostname.endsWith('gstatic.com')) {
+  // fonts only: the Firestore API (firestore.googleapis.com) must always go to the network
+  if (url.origin === location.origin || url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
     e.respondWith(caches.open(VERSION).then(async c => {
       const hit = await c.match(req);
       const net = fetch(req).then(r => { if (r && (r.ok || r.type === 'opaque')) c.put(req, r.clone()); return r; }).catch(() => hit || Response.error());
