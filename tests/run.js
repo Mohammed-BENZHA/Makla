@@ -707,6 +707,15 @@ test('Sync', 'same home, different profiles open: both phones get the same shopp
     eq(la, lb, 'same shopping list on both phones');
     const own = await A.page.evaluate(() => S.menu.days.map(d => dayFit(d, P()).f)), other = await B.page.evaluate(() => S.menu.days.map(d => dayFit(d, P()).f));
     ta.forEach((v, i) => near(v, own[i] + other[i], 0.011, 'day ' + i + ' = Mohammed’s portion + Rayan’s portion'));
+    // who pays what: same split on both phones, each pays own portions, shares add up to the menu's food cost
+    const sp = page => page.evaluate(() => { const m = menuSplit(); return { m: m.map(x => [x.n, Math.round(x.c * 100) / 100]), tot: menuCostPP(S.menu) * S.menu.set.people, sources: [S.shop.menu, ...S.profiles.map(p => !!S.shop[p.id])] }; });
+    const sa = await sp(A.page), sb = await sp(B.page);
+    eq(JSON.stringify(sa.m), JSON.stringify(sb.m), 'same split on both phones');
+    const byName = Object.fromEntries(sa.m); const exp = await A.page.evaluate(() => { const E = portionEaters(); const out = {}; Object.values(E).forEach(e => out[e.n] = 0);
+      S.menu.days.forEach((d, i) => { ['ghda', '3cha'].forEach(k => { const r = d[k] && recipe(d[k]); if (r) Object.values(E).forEach(e => out[e.n] += recCost(r) * e.f[i]); }); if (d.ftour) Object.values(E).forEach(e => out[e.n] += sum(d.ftour).cost); }); return out; });
+    near(byName.Mohammed, exp.Mohammed, 0.05, 'Mohammed pays his own portions'); near(byName.Rayan, exp.Rayan, 0.05, 'Rayan pays his own portions');
+    ok(byName.Mohammed > byName.Rayan, 'bigger eater pays more');
+    eq(JSON.stringify(sb.sources), JSON.stringify([true, false]), 'joining phone lists the home menu only');
     ok(!JSON.stringify(fsDocs[hid]).includes('"w\\":62') && !JSON.stringify(fsDocs[hid]).includes('leanbulk'), 'no body data sent, only portion sizes');
   } finally { await A.ctx.close(); await B.ctx.close(); }
 });
