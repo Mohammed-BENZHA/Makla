@@ -562,6 +562,43 @@ test('Cooking', 'favourites: heart on the card, filter, removed with the recipe;
   eq(r.out.s0, undefined, 'non-list steps dropped'); ok(r.out.s1len <= 30 && r.out.s1max <= 500, 'steps capped (30 × 500 chars)'); ok(r.out.fixes >= 3, 'repairs counted');
 });
 
+/* ======================================================================================
+   15. Weight goal and waist
+   ====================================================================================== */
+const seedWeights = (from, to, days) => { const out = []; const base = Date.UTC(2026, 8, 1);
+  for (let i = 0; i < days; i++) { const d = new Date(base + i * 864e5).toISOString().slice(0, 10); out.push({ d, w: Math.round((from + (to - from) * i / (days - 1)) * 1000) / 1000 }); } return out; };
+test('Weight goal', 'healthy range from height, goal below it refused, progress / pace / date from the trend', async ({ page }) => {
+  const W = seedWeights(90, 87, 28);   // 28 daily weigh-ins, straight line: −3 kg over 27 days = −0.7778 kg/week
+  const r = await page.evaluate(W => { const p = P(); Object.assign(p, { h: 180, age: 30, goal: 'cut', weights: W, w: 87, example: false }); delete p.noTargets; save(); go('profil');
+    const range = document.querySelector('#gwPanel .hint').textContent;
+    document.getElementById('gwVal').value = '55'; setGoalW(); const refused = P().goalW === undefined, err = document.getElementById('gwErr').textContent;
+    document.getElementById('gwVal').value = '80'; setGoalW(); const panel = document.getElementById('gwPanel').innerText;
+    return { range, refused, err, goal: P().goalW, start: P().goalStart, panel }; }, W);
+  // range: 18.5 × 1.8² = 59.94 → 60.0 (rounded up), 24.9 × 1.8² = 80.68 → 80.6 (rounded down)
+  ok(r.range.includes('60') && r.range.includes('80.6'), 'range shown: ' + r.range);
+  ok(r.refused && r.err.includes('60'), 'goal under the healthy range refused with the limit');
+  // 7-day average of the last 7 weigh-ins = 90 − 3×24/27 = 87.33; left = 7.33 kg; weeks = ceil(7.33 / 0.7778) = 10
+  eq(r.goal, 80, 'goal saved'); near(r.start, 87.3, 0.05, 'start = current 7-day average');
+  ok(r.panel.includes('87.3 → 80.0'), 'current → goal'); ok(r.panel.includes('7.3'), 'kg left'); ok(r.panel.includes('-0.78'), 'pace per week');
+  ok(/\b10\b/.test(r.panel), 'about 10 weeks to go: ' + r.panel.slice(0, 300));
+});
+test('Weight goal', 'stall and goal/profile mismatch flagged; waist ratio bands; hidden for under-18s and without body data; bad data cleaned', async ({ page }) => {
+  const flat = seedWeights(85, 85, 24);
+  const r = await page.evaluate(flat => { const p = P(); Object.assign(p, { h: 180, age: 30, goal: 'bulk', weights: flat, w: 85, example: false, goalW: 78, goalStart: 85 }); delete p.noTargets;
+    p.waists = [{ d: '2026-09-01', c: 90 }, { d: '2026-09-20', c: 86 }]; save(); go('profil');
+    const panel = document.getElementById('gwPanel').innerText;
+    const out = { panel, stall: panel.includes(t('gw_stall').slice(0, 30)), conflict: panel.includes(t('gw_conflict_lose').slice(0, 30)), band1: panel.includes(t('wa_ok')), recomp: panel.includes(t('wa_recomp').slice(0, 25)) };
+    document.getElementById('waVal').value = '104'; logWaist(); out.band2 = document.getElementById('gwPanel').innerText.includes(t('wa_mid'));
+    p.age = 16; save(); render(); out.minorHidden = !document.getElementById('gwPanel');
+    p.age = 30; p.noTargets = true; save(); render(); out.noTargetsHidden = !document.getElementById('gwPanel'); delete p.noTargets;
+    const prev = S; S = JSON.parse(JSON.stringify(prev)); S.profiles[0].goalW = 'x'; S.profiles[0].goalStart = 999; S.profiles[0].waists = [{ d: 'bad', c: 80 }, { d: '2026-09-01', c: 20 }, { d: '2026-09-02', c: 81 }];
+    _fixes = 0; normalize(); out.clean = { goalW: S.profiles[0].goalW, waists: S.profiles[0].waists.length, fixes: _fixes }; S = prev; _foods = null; return out; }, flat);
+  ok(r.stall, 'flat 3 weeks → stall advice'); ok(r.conflict, 'lower goal with a bulking profile → mismatch flagged');
+  ok(r.band1, '86 / 180 = 0.48 → good band'); ok(r.recomp, 'waist −4 cm with flat weight → recomposition note');
+  ok(r.band2, '104 / 180 = 0.58 → watch band'); ok(r.minorHidden, 'hidden under 18'); ok(r.noTargetsHidden, 'hidden without body data');
+  eq(r.clean.goalW, undefined, 'bad goal dropped'); eq(r.clean.waists, 1, 'bad waist entries dropped'); ok(r.clean.fixes >= 3, 'repairs counted');
+});
+
 /* ---------- runner ---------- */
 (async () => {
   overrides['/tests/blank.html'] = { type: 'text/html', body: '<!doctype html><title>blank</title>' };   // same-origin page used to seed localStorage
