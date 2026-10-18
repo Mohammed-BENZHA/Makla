@@ -2580,9 +2580,12 @@ function renderCook(){const root=document.getElementById('cookRoot');if(!root)re
 const FB={key:'AIzaSyC6tJDVO5qzuo27JXYmS1HAaGpKLtxorGw',project:'makla-mizan'};
 const SYNC_DOC_BASE=`projects/${FB.project}/databases/(default)/documents`;
 const syncApi=()=>{try{const o=localStorage.getItem('makla_sync_api');if(o)return o}catch(e){}return 'https://firestore.googleapis.com/v1/'+SYNC_DOC_BASE};
+const SYNC_KNOWN=new Set(['meals','budget','oil','menuSet','menu','mday','recipe','fav','checked','pantry','price','ov','custom','spend','profile','portion']);
+const SYNC_VER=2;
 const SYNC_KEY=KEY+'_sync', SYNC_COLORS=['#2f8f5b','#2f6fbf','#c2572b','#8a4fbf','#b8860b','#c23b6a'];
 let SY=null,_syncBusy=false,_syncAgain=false,_syncState='',_syncErr='',_syncTimer=null,_syncLast=0;
-function syncLoad(){try{const o=JSON.parse(localStorage.getItem(SYNC_KEY)||'null');if(isObj(o)&&typeof o.hid==='string'&&/^[A-Za-z0-9]{24,40}$/.test(o.hid)&&isObj(o.me)){SY=Object.assign({base:{},attr:{},members:{},upd:''},o)}}catch(e){SY=null}}
+function syncLoad(){try{const o=JSON.parse(localStorage.getItem(SYNC_KEY)||'null');if(isObj(o)&&typeof o.hid==='string'&&/^[A-Za-z0-9]{24,40}$/.test(o.hid)&&isObj(o.me)){SY=Object.assign({base:{},attr:{},members:{},upd:''},o)}}catch(e){SY=null}
+  if(SY&&(SY.ver||1)<SYNC_VER){const mine=new Set(S.profiles.map(p=>p.id));Object.keys(SY.base).forEach(k=>{if(k.startsWith('portion.')&&!mine.has(k.slice(8)))delete SY.base[k]});SY.upd='';SY.ver=SYNC_VER;syncSave()}}
 function syncSave(){try{if(SY)localStorage.setItem(SYNC_KEY,JSON.stringify(SY));else localStorage.removeItem(SYNC_KEY)}catch(e){}}
 const syncEnc=k=>'k'+k.replace(/_/g,'_u').replace(/\./g,'_d').replace(/-/g,'_h');
 const syncDec=f=>f.slice(1).replace(/_d/g,'.').replace(/_h/g,'-').replace(/_u/g,'_');
@@ -2597,6 +2600,7 @@ function syncSnap(){const o={};
   Object.keys(S.ov||{}).forEach(id=>o['ov.'+id]=S.ov[id]);
   (S.custom||[]).forEach(f=>o['custom.'+f.id]=f);(S.spend||[]).forEach(x=>o['spend.'+x.id]=x);
   S.profiles.forEach(p=>{if(p.shared&&!p.example)o['profile.'+p.id]=p});
+  if(isObj(S.portions))Object.keys(S.portions).forEach(id=>{o['portion.'+id]=S.portions[id]});
   if(S.menu)S.profiles.forEach(p=>{if(!p.example&&!p.noTargets)o['portion.'+p.id]={n:p.name,f:S.menu.days.map(d=>(d.ghda||d['3cha'])?dayFit(d,p).f:1)}});
   return o}
 /* puts one received key into S (v === undefined: deleted) */
@@ -2649,7 +2653,7 @@ async function syncPull(force){const doc=await syncFetch(syncApi()+'/households/
   SY.members=fsVal(F.members)||{};
   const snapJson={};Object.entries(syncSnap()).forEach(([k,v])=>snapJson[k]=JSON.stringify(v));
   const got=[];
-  Object.entries(E).forEach(([f,x])=>{const k=syncDec(f),e=fsVal(x)||{};if(typeof e.v!=='string')return;
+  Object.entries(E).forEach(([f,x])=>{const k=syncDec(f),e=fsVal(x)||{};if(typeof e.v!=='string'||!SYNC_KNOWN.has(k.split('.')[0]))return;
     if(e.by)SY.attr[k]={by:e.by,t:e.t||0};
     if(SY.base[k]===e.v)return;
     const local=k in snapJson?snapJson[k]:'null',pending=SY.base[k]!==undefined?local!==SY.base[k]:false;
@@ -2684,11 +2688,11 @@ const genCode=()=>{const a='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz234
 let darForm={n:'',c:SYNC_COLORS[0],code:''};
 function darMe(){const n=(document.getElementById('darName')||{}).value;const name=String(n||darForm.n||'').trim().slice(0,30);if(!name){const e=document.getElementById('darName');e&&e.focus();return null}
   return {id:'m'+uid()+uid(),n:name,c:darForm.c}}
-async function darCreate(){const me=darMe();if(!me)return;darListHome();SY={hid:genCode(),me,base:{},attr:{},members:{},upd:''};syncSave();renderDarBox();await syncNow();renderDarBox()}
+async function darCreate(){const me=darMe();if(!me)return;darListHome();SY={hid:genCode(),me,base:{},attr:{},members:{},upd:'',ver:SYNC_VER};syncSave();renderDarBox();await syncNow();renderDarBox()}
 async function darJoin(){const me=darMe();if(!me)return;const code=String((document.getElementById('darCode')||{}).value||darForm.code).trim().replace(/^.*#dar=/,'');
   const msg=document.getElementById('darMsg');if(!/^[A-Za-z0-9]{24,40}$/.test(code)){if(msg)msg.textContent=t('dar_badcode');return}
   try{localStorage.setItem(KEY_PREV,JSON.stringify(S))}catch(e){}
-  SY={hid:code,me,base:{},attr:{},members:{},upd:''};
+  SY={hid:code,me,base:{},attr:{},members:{},upd:'',ver:SYNC_VER};
   try{const doc=await syncFetch(syncApi()+'/households/'+code);if(!doc){SY=null;if(msg)msg.textContent=t('dar_notfound');return}}
   catch(e){SY=null;if(msg)msg.textContent=t(e.status===403?'dar_rules':'dar_offline');return}
   syncSave();darListHome();await syncNow(true);render();toast(t('dar_joined'))}

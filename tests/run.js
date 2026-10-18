@@ -720,6 +720,36 @@ test('Sync', 'same home, different profiles open: both phones get the same shopp
   } finally { await A.ctx.close(); await B.ctx.close(); }
 });
 
+test('Sync', 'portions stay put over many syncs; a phone that missed them (old version) repairs itself; unknown keys are kept for later', async () => {
+  const A = await phone('Mohammed', '#2f8f5b'), B = await phone('Rayan', '#2f6fbf');
+  try {
+    const hid = await A.page.evaluate(async () => { Object.assign(P(), { name: 'Mohammed', example: false, sex: 'm', age: 28, w: 85, h: 178, act: 1.725, goal: 'leanbulk' });
+      S.menuSet = { people: 2, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; makeMenu(); await darCreate(); return SY.hid; });
+    const bid = await B.page.evaluate(async hid => { Object.assign(P(), { name: 'Rayan', example: false, sex: 'm', age: 24, w: 62, h: 170, act: 1.375, goal: 'cut' }); save(); darForm.code = hid; await darJoin(); return P().id; }, hid);
+    for (let k = 0; k < 4; k++) { await A.page.evaluate(() => syncNow()); await B.page.evaluate(() => syncNow()); }
+    const key = 'kportion_d' + bid.replace(/_/g, '_u').replace(/-/g, '_h');
+    const onServer = () => { const e = fsDocs[hid].fields.e.mapValue.fields[key]; return e && e.mapValue.fields.v.stringValue; };
+    const bVal = await B.page.evaluate(id => JSON.stringify(syncSnap()['portion.' + id]), bid);
+    eq(onServer(), bVal, 'Rayan’s portions are still on the server after many syncs (never deleted by the other phone)');
+    const st = async page => page.evaluate(() => ({ pend: syncPending(), names: menuSplit().map(x => x.n) }));
+    const sa = await st(A.page), sb = await st(B.page);
+    eq(sa.pend + sb.pend, 0, 'nothing left to send on either phone (no back-and-forth)');
+    eq(JSON.stringify(sa.names), '["Mohammed","Rayan"]', 'first phone counts Rayan by name');
+    // the real-world case: phone A was on the old version when Rayan's portions arrived — marked as received, never applied
+    await A.page.evaluate(id => { delete S.portions[id]; localStorage.setItem('makla_mizan_v2', JSON.stringify(S)); const sy = JSON.parse(localStorage.getItem('makla_mizan_v2_sync')); sy.ver = 1; localStorage.setItem('makla_mizan_v2_sync', JSON.stringify(sy)); }, bid);
+    await A.page.reload(); await A.page.waitForFunction(() => typeof S === 'object' && S && SY);
+    const fixed = await A.page.evaluate(async () => { await syncNow(); return menuSplit().map(x => x.n); });
+    eq(JSON.stringify(fixed), '["Mohammed","Rayan"]', 'after the update the phone repairs itself and counts Rayan');
+    // a key from a newer version is not marked as received
+    fsDocs[hid].fields.e.mapValue.fields.kfuture_dx = { mapValue: { fields: { v: { stringValue: '1' }, by: { stringValue: 'mX' }, t: { timestampValue: new Date().toISOString() } } } };
+    fsDocs[hid].updateTime = new Date(Date.now() + 1e6).toISOString();
+    const kept = await A.page.evaluate(async () => { await syncNow(); return 'future.x' in SY.base; });
+    eq(kept, false, 'unknown key left for a later version');
+    const la = await A.page.evaluate(() => JSON.stringify(shopData().rows.map(r => [r.id, Math.round(r.buy * 1000)]))), lb = await B.page.evaluate(() => JSON.stringify(shopData().rows.map(r => [r.id, Math.round(r.buy * 1000)])));
+    eq(la, lb, 'same list on both phones');
+  } finally { await A.ctx.close(); await B.ctx.close(); }
+});
+
 /* ---------- runner ---------- */
 (async () => {
   overrides['/tests/blank.html'] = { type: 'text/html', body: '<!doctype html><title>blank</title>' };   // same-origin page used to seed localStorage
