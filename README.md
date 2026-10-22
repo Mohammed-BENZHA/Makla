@@ -20,7 +20,7 @@ App (PWA) dyal l'makla mghribiya: menu dyal simana, lista dyal t9edya b dirham, 
 Kolchi kaytsjel f l'appareil (localStorage). Bach tdowwez data l appareil akhor: **⚙ Réglages → Telecharger fichier**, w f l'appareil l'akhor **Importer men fichier**.
 - L'import kaywerrik chno f l'fichier w kaytsennak t2akked 9bel ma ybeddel; l'data l9dima katb9a w t9der trje3 liha.
 - Ila ma t9dertch l'app tsjjel (memoire 3amra), katban rissala 7mra. Ila l'data li kanet msjjla ma t9ratch, katkhbba f blasa w t9der t7mmelha.
-- L'ar9am dyal l'makla: chouf [FOOD_DATA.md](FOOD_DATA.md) (mnin jaw, chno t2akked, w chno ta9dir ≈).
+- L'ar9am dyal l'makla: chouf [FOOD_DATA.md](FOOD_DATA.md) (mnin jaw, chno t2akked, w chno ta9dir ≈). L-prix: [PRICES.md](PRICES.md).
 
 ## Tests
 ```
