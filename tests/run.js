@@ -44,7 +44,7 @@ function startServer() {
 
 
 /* ---------- minimal Firestore REST stand-in (GET a document, :commit with updateMask + REQUEST_TIME), for the sync tests ---------- */
-const fsDocs = {}; let fsClock = Date.UTC(2026, 9, 18, 8, 0, 0);
+const fsDocs = {}; let fsClock = Date.now() - 3600e3; // server time follows the real clock (the "changed in the last 2 days" dots depend on it)
 const fsNow = () => new Date(fsClock += 1000).toISOString();
 function fakeFirestore(req, rsp, p) {
   const send = (code, obj) => { rsp.writeHead(code, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }); rsp.end(JSON.stringify(obj)); };
