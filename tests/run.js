@@ -299,6 +299,25 @@ test('Backup', 'an import can be undone (previous data restored)', async ({ page
     const imported = P().name; delArm = 'prev'; restorePrev(); return { imported, back: JSON.stringify(S.profiles) === before }; });
   eq(r.imported, 'Imported', 'import applied'); ok(r.back, 'previous data not restored');
 });
+test('Backup', 'a program file adds days, meals, foods, week and training days to the open profile without replacing anything; re-import does not duplicate', async ({ page }) => {
+  const prog = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures', 'program.json'), 'utf8'));
+  const r = await page.evaluate(prog => {
+    S.prices.sder = 77; const nProf = S.profiles.length, nRec = S.recipes.length, oldDays = P().days.length; S.meals = DEFAULT_MEALS(); save();
+    go('prix'); const run = () => { document.getElementById('impT').value = JSON.stringify(prog); importData(); const box = !!document.getElementById('impConfirm'); importConfirm(); return box };
+    const asked = run(); const p = P();
+    const out = { asked, prices: S.prices.sder, prof: S.profiles.length === nProf, rec: S.recipes.length === nRec, days: p.days.length - oldDays,
+      meals: S.meals.map(m => m.k), mealName: mealName('m_n3ass'), custom: S.custom.map(f => f.n), train: p.train, tdays: p.tdays,
+      week: p.week.map(id => (p.days.find(d => d.id === id) || {}).name),
+      sardInDay: (p.days.find(d => d.name === 'Ra7a sardine').meals.ghda[0] || [])[0], prev: hasPrev(),
+      tot: Object.fromEntries(p.days.filter(d => /Tadrib|Ra7a/.test(d.name)).map(d => [d.name, dayTot(d)])) };
+    run(); out.days2 = P().days.length - oldDays; out.custom2 = S.custom.length; return out; }, prog);
+  ok(r.asked, 'asks before adding'); eq(r.prices, 77, 'prices untouched'); ok(r.prof && r.rec, 'profiles and recipes untouched');
+  eq(r.days, 5, '5 day templates added'); eq(r.meals.slice(0, 5).join(), 'ftour,ghda,pre,3cha,m_n3ass', 'program meals first, in order'); eq(r.mealName, '9bel n3ass', 'meal named');
+  ok(r.custom.some(n => /Sardine 7ok/.test(n)), 'custom food added'); ok(/^c_/.test(r.sardInDay), 'day points at the new food id');
+  eq(r.train, true, 'training on'); eq(r.tdays.join(), '0,2,4', 'training days'); eq(r.week[0], r.week[4], 'Monday = Friday template'); ok(r.prev, 'can be undone');
+  Object.values(r.tot).forEach(d => ok(d.k > 1500 && Number.isFinite(d.p) && d.cost > 0, 'day total sensible'));
+  eq(r.days2, 5, 'second import replaces same-named days'); eq(r.custom2, r.custom.length, 'no duplicate foods');
+});
 test('Backup', 'invalid JSON import leaves data untouched and explains', async ({ page }) => {
   const r = await page.evaluate(() => { const before = JSON.stringify(S); go('prix'); document.getElementById('impT').value = '{not json'; importData();
     return { same: JSON.stringify(S) === before, msg: document.getElementById('impMsg').textContent }; });

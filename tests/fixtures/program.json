@@ -1,0 +1,529 @@
+{
+ "type": "makla-program",
+ "v": 1,
+ "name": "Program Mohammed",
+ "train": [
+  0,
+  2,
+  4
+ ],
+ "meals": [
+  {
+   "k": "ftour",
+   "n": null
+  },
+  {
+   "k": "ghda",
+   "n": null
+  },
+  {
+   "k": "pre",
+   "n": "Snack (9bel tadrib)"
+  },
+  {
+   "k": "3cha",
+   "n": null
+  },
+  {
+   "k": "m_n3ass",
+   "n": "9bel n3ass"
+  }
+ ],
+ "custom": [
+  {
+   "id": "c_lait",
+   "n": "7lib kamel (lait entier)",
+   "cat": "ftour",
+   "mu": "kas",
+   "m": [
+    124,
+    6.4,
+    9.6,
+    6.6
+   ],
+   "p": 7.5
+  },
+  {
+   "id": "c_yaourt",
+   "n": "Yaourt nature (7ok 110 g)",
+   "cat": "ftour",
+   "mu": "u",
+   "m": [
+    67,
+    3.9,
+    5.2,
+    3.6
+   ],
+   "p": 2.5
+  },
+  {
+   "id": "c_sard",
+   "n": "Sardine 7ok b zit (msffiya ~90 g)",
+   "cat": "prot",
+   "mu": "u",
+   "m": [
+    187,
+    22.1,
+    0,
+    10.4
+   ],
+   "p": 8
+  },
+  {
+   "id": "c_crea",
+   "n": "Créatine monohydrate",
+   "cat": "extra",
+   "mu": "g",
+   "m": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "p": 0
+  }
+ ],
+ "days": [
+  {
+   "key": "A",
+   "name": "Tadrib A (poulet / kefta)",
+   "meals": {
+    "ftour": [
+     [
+      "choufan",
+      70
+     ],
+     [
+      "c_lait",
+      1.25
+     ],
+     [
+      "banan",
+      1
+     ],
+     [
+      "bid",
+      3
+     ]
+    ],
+    "ghda": [
+     [
+      "sder",
+      300
+     ],
+     [
+      "rouz_n",
+      100
+     ],
+     [
+      "zit_z",
+      1
+     ],
+     [
+      "maticha",
+      100
+     ],
+     [
+      "khizzou",
+      100
+     ]
+    ],
+    "pre": [
+     [
+      "c_yaourt",
+      2
+     ],
+     [
+      "tmer",
+      30
+     ],
+     [
+      "c_crea",
+      5
+     ]
+    ],
+    "3cha": [
+     [
+      "makarona_n",
+      80
+     ],
+     [
+      "kefta",
+      150
+     ],
+     [
+      "maticha",
+      100
+     ],
+     [
+      "bsla",
+      50
+     ],
+     [
+      "9ar3a",
+      50
+     ]
+    ],
+    "m_n3ass": [
+     [
+      "c_lait",
+      1
+     ]
+    ]
+   }
+  },
+  {
+   "key": "B",
+   "name": "Tadrib B (dinde / ton)",
+   "meals": {
+    "ftour": [
+     [
+      "choufan",
+      70
+     ],
+     [
+      "c_lait",
+      1.25
+     ],
+     [
+      "banan",
+      1
+     ],
+     [
+      "bid",
+      3
+     ]
+    ],
+    "ghda": [
+     [
+      "sder",
+      300
+     ],
+     [
+      "rouz_n",
+      100
+     ],
+     [
+      "zit_z",
+      1
+     ],
+     [
+      "maticha",
+      100
+     ],
+     [
+      "khizzou",
+      100
+     ]
+    ],
+    "pre": [
+     [
+      "c_yaourt",
+      2
+     ],
+     [
+      "tmer",
+      30
+     ],
+     [
+      "c_crea",
+      5
+     ]
+    ],
+    "3cha": [
+     [
+      "makarona_n",
+      80
+     ],
+     [
+      "ton",
+      2
+     ],
+     [
+      "bid",
+      2
+     ],
+     [
+      "maticha",
+      100
+     ],
+     [
+      "bsla",
+      50
+     ],
+     [
+      "9ar3a",
+      50
+     ]
+    ],
+    "m_n3ass": [
+     [
+      "c_lait",
+      1
+     ]
+    ]
+   }
+  },
+  {
+   "key": "S",
+   "name": "Ra7a sardine",
+   "meals": {
+    "ftour": [
+     [
+      "choufan",
+      50
+     ],
+     [
+      "c_lait",
+      1.25
+     ],
+     [
+      "banan",
+      1
+     ],
+     [
+      "bid",
+      3
+     ]
+    ],
+    "ghda": [
+     [
+      "c_sard",
+      2
+     ],
+     [
+      "batata",
+      350
+     ],
+     [
+      "zit_z",
+      1
+     ],
+     [
+      "maticha",
+      100
+     ],
+     [
+      "khizzou",
+      100
+     ]
+    ],
+    "pre": [
+     [
+      "c_yaourt",
+      2
+     ],
+     [
+      "tmer",
+      30
+     ],
+     [
+      "c_crea",
+      5
+     ]
+    ],
+    "3cha": [
+     [
+      "3des_n",
+      80
+     ],
+     [
+      "sder",
+      170
+     ],
+     [
+      "maticha",
+      100
+     ],
+     [
+      "bsla",
+      50
+     ],
+     [
+      "9ar3a",
+      50
+     ]
+    ],
+    "m_n3ass": [
+     [
+      "c_lait",
+      1
+     ]
+    ]
+   }
+  },
+  {
+   "key": "J",
+   "name": "Ra7a lkhmis",
+   "meals": {
+    "ftour": [
+     [
+      "choufan",
+      50
+     ],
+     [
+      "c_lait",
+      1.25
+     ],
+     [
+      "banan",
+      1
+     ],
+     [
+      "bid",
+      3
+     ]
+    ],
+    "ghda": [
+     [
+      "sder",
+      300
+     ],
+     [
+      "batata",
+      350
+     ],
+     [
+      "khodra",
+      200
+     ],
+     [
+      "zit_z",
+      1
+     ]
+    ],
+    "pre": [
+     [
+      "c_yaourt",
+      2
+     ],
+     [
+      "tmer",
+      30
+     ],
+     [
+      "c_crea",
+      5
+     ]
+    ],
+    "3cha": [
+     [
+      "bid",
+      4
+     ],
+     [
+      "khobz",
+      0.3
+     ],
+     [
+      "maticha",
+      100
+     ],
+     [
+      "khizzou",
+      100
+     ]
+    ],
+    "m_n3ass": [
+     [
+      "c_lait",
+      1
+     ]
+    ]
+   }
+  },
+  {
+   "key": "D",
+   "name": "Ra7a l7ed",
+   "meals": {
+    "ftour": [
+     [
+      "choufan",
+      50
+     ],
+     [
+      "c_lait",
+      1.25
+     ],
+     [
+      "banan",
+      1
+     ],
+     [
+      "bid",
+      3
+     ]
+    ],
+    "ghda": [
+     [
+      "sder",
+      290
+     ],
+     [
+      "batata",
+      350
+     ],
+     [
+      "khodra",
+      200
+     ],
+     [
+      "zit_z",
+      1
+     ]
+    ],
+    "pre": [
+     [
+      "c_yaourt",
+      2
+     ],
+     [
+      "tmer",
+      30
+     ],
+     [
+      "c_crea",
+      5
+     ]
+    ],
+    "3cha": [
+     [
+      "3des_n",
+      80
+     ],
+     [
+      "bid",
+      2
+     ],
+     [
+      "maticha",
+      100
+     ],
+     [
+      "bsla",
+      50
+     ],
+     [
+      "9ar3a",
+      50
+     ]
+    ],
+    "m_n3ass": [
+     [
+      "c_lait",
+      1
+     ]
+    ]
+   }
+  }
+ ],
+ "week": [
+  "A",
+  "S",
+  "B",
+  "J",
+  "A",
+  "S",
+  "D"
+ ]
+}

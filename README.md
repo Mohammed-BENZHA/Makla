@@ -9,6 +9,7 @@ App (PWA) dyal l'makla mghribiya: menu dyal simana, lista dyal t9edya b dirham, 
 - **Ana**: profils (wazn, tol, 3mer, nachat, lhadaf), ayyam template w simana. L'7sab dyal calories w protein ikhtiyari.
 - **Hadaf dyal lwazn**: majal s7i7 3la 7sab tol (IMC 18.5–24.9), hadaf katkhtaro nta (ma kayt9belch t7t l7ad s7i7), barre d tatabo3 men l'moyenne d 7 ayyam, rythme f simana w imta twsel, tanbihat ila w9eft 3 simanat, ila zerbti bezzaf wla ila lhadaf ma metfa9ch m3a l'profil. L9yas dyal lkerch ikhtiyari (nesba lkerch/tol).
 - **Dar mcharka** (⚙ Réglages): wa7ed kaydir dar w kaysift lien/code, l'akhor kaydkhol. Menu, recettes, ❤, lista, prix w l'flous kayt7addtho b rashom bin les telephones (Firebase Firestore, bla comptes); kol tbdil dyal l'akhor kayban b no9ta b loun dyalo. L'profils khassin ila ma charktihomch. Offline: kaytsjjel w kaytsifet mli yrje3 l'internet.
+- **Program**: fichier `{"type":"makla-program"}` (Réglages → Importer) kayzid ayyam, wjbat, makla dyalek, simana w ayyam tadrib l profil li m7loul, bla ma ymessa7 walo.
 - **⚙ Réglages**: lougha (5), mode (fate7 / mdellem / auto), zit f les recettes, prix, sauvegarde/import.
 - Katkhdem **offline** men ba3d awel merra.
 
@@ -26,7 +27,7 @@ Kolchi kaytsjel f l'appareil (localStorage). Bach tdowwez data l appareil akhor:
 ```
 npm install        # playwright
 npx playwright install chromium   # ila ma kanch 3endek Chromium
-npm test           # 59 test: 7sab, unités, recettes, lista, backup, sécurité, lougat, offline, wajiha, tayb, hadaf dyal lwazn, synchronisation
+npm test           # 60 test: 7sab, unités, recettes, lista, backup, sécurité, lougat, offline, wajiha, tayb, hadaf dyal lwazn, synchronisation
 npm run check-i18n # kolchi mtarjem f 5 d l'lougat
 ```
 Tafasil l'audit w l'bugs li tsla7o: [AUDIT.md](AUDIT.md).
