@@ -1278,7 +1278,10 @@ function sanitizeMenu(m){
     ['ftour','snack','snack2','side'].forEach(k=>{if(d[k]!=null)d[k]=cleanList(d[k])});
     ['ghda','3cha'].forEach(k=>{if(d[k]!=null&&typeof d[k]!=='string'){d[k]=null;fx()}});
     ['snackFor','sideFor'].forEach(k=>{if(d[k]!=null&&!(typeof d[k]==='string'&&OKID.test(d[k]))){delete d[k];fx()}});
-    if(d.pf!=null){const v=+d.pf;if(!(v>=.5&&v<=3)){delete d.pf;fx()}}return d});
+    if(d.pf!=null){const v=+d.pf;if(!(v>=.5&&v<=3)){delete d.pf;fx()}}
+    /* portion chosen with ± by each profile: {profileId: 0.5–3} */
+    if(d.pfBy!=null){if(!isObj(d.pfBy)){delete d.pfBy;fx()}else{Object.keys(d.pfBy).forEach(k=>{const v=+d.pfBy[k];if(!OKID.test(k)||!(v>=.5&&v<=3)){delete d.pfBy[k];fx()}else d.pfBy[k]=v});if(!Object.keys(d.pfBy).length)delete d.pfBy}}
+    return d});
   while(m.days.length<7)m.days.push({});
   return m}
 function sanitize(){
@@ -1988,7 +1991,7 @@ function menuBreak(items,key,extra){const n=S.menu.set.people,ex=Math.round((ext
 /* How a menu day meets the active profile's targets; lunch and dinner portions are scaled to close the calorie gap */
 function dayFit(d,p,extra,wd){const tg=targets(p,wd!=null?wd:S.menu?S.menu.days.indexOf(d):null);const ft=sum((d.ftour||[]).concat(extra||[].concat(d.snack||[],d.snack2||[],d.side||[])));const main=sum([d.ghda,d['3cha']].filter(Boolean).map(id=>[id,1]));
   let sug=1;if(main.k>0)sug=Math.max(.5,Math.min(2.5,Math.round((tg.kcal-ft.k)/main.k*4)/4));
-  const f=d.pf!=null?d.pf:sug;
+  const own=isObj(d.pfBy)?d.pfBy[p.id]:null,f=own!=null?own:sug;
   const sc={};['k','p','c','f'].forEach(x=>sc[x]=ft[x]+main[x]*f);const raw={};['k','p','c','f'].forEach(x=>raw[x]=ft[x]+main[x]);
   return {f,sug,tg,sc,raw,hasMain:main.k>0}}
 /* Protein top-up: add everyday protein foods one at a time until the day is within 5 g of target (portions re-balance as calories rise) */
@@ -2012,7 +2015,16 @@ function fillCarb(i){const d=S.menu.days[i],p=P(),ex=S.menu.set.excl;const side=
 function rmSide(i){delete S.menu.days[i].side;delete S.menu.days[i].sideFor;save();render()}
 const fShare=items=>{const m=sum(items);return m.k?m.f*9/m.k:0};
 function leanSwap(i,k){swapAt=i+':'+k;swapMode='lean';render()}
-function setPf(i,dir){const d=S.menu.days[i];if(!dir){delete d.pf}else{const x=dayFit(d,P());d.pf=Math.max(.5,Math.min(3,x.f+dir*.25))}save();render()}
+function setPf(i,dir){const d=S.menu.days[i],id=P().id;
+  if(!dir){if(isObj(d.pfBy)){delete d.pfBy[id];if(!Object.keys(d.pfBy).length)delete d.pfBy}}
+  else{const x=dayFit(d,P());if(!isObj(d.pfBy))d.pfBy={};d.pfBy[id]=Math.max(.5,Math.min(3,x.f+dir*.25))}save();render()}
+/* Before v36 one value d.pf was shared by everyone who ate the menu. It goes to the open profile of the phone that set it.
+   A day last written by another phone of the shared home carries that phone's value: its owner's portion already
+   arrives through S.portions, so it is dropped here instead of being given to the wrong person. */
+function migratePf(){if(!S.menu)return;let ch=false;S.menu.days.forEach((d,i)=>{if(!isObj(d)||d.pf==null)return;
+  const a=SY&&SY.attr&&SY.attr['mday.'+i],other=a&&SY.me&&a.by!==SY.me.id;
+  if(!other){if(!isObj(d.pfBy))d.pfBy={};if(d.pfBy[P().id]==null)d.pfBy[P().id]=d.pf}
+  delete d.pf;ch=true});if(ch)save()}
 function dayFitHTML(d,i){const p=P();if(p.noTargets)return '';const x=dayFit(d,p);const gap=x.tg.prot-x.sc.p;
   const good=gap<=8&&Math.abs(x.sc.k-x.tg.kcal)<=x.tg.kcal*.1&&x.sc.f<=x.tg.fat*1.15&&x.sc.c>=x.tg.carbs*.85;
   const fq=(g,q)=>g.u==='g'?r0(q):({.25:'¼',.5:'½',.75:'¾'}[q]||r1(q));
@@ -2022,7 +2034,7 @@ function dayFitHTML(d,i){const p=P();if(p.noTargets)return '';const x=dayFit(d,p
   const sline=(lbl,when,a)=>a&&a.length?`<div class="snk1"><b>${t(lbl)}</b> <small>${t(when)}</small><br>${lst(a)} · <span class="p">${bdi(t('mP')+' '+r0(sum(a).p))}</span></div>`:'';
   return `<div class="dfit">
     <div class="dfit-h"><b>${esc(p.name)}${x.tg.trainDay?` <span class="tday">${t('train_day')}</span>`:x.tg.restDay?` <span class="rday">${t('rest_day')}</span>`:''}</b>${x.hasMain?`<div class="pstep"><button aria-label="${t('dec')}" onclick="setPf(${i},-1)">−</button><span><b class="num">${bdi(x.f)}</b> ${t('portion_short')}</span><button aria-label="${t('inc')}" onclick="setPf(${i},1)">+</button></div>`:''}</div>
-    ${x.hasMain&&d.pf!=null&&d.pf!==x.sug?`<p class="hint">${t('pf_sug',{x:bdi(x.sug)})} <button class="linkb" onclick="setPf(${i},0)">${t('use_sug')}</button></p>`:''}
+    ${x.hasMain&&isObj(d.pfBy)&&d.pfBy[p.id]!=null&&x.f!==x.sug?`<p class="hint">${t('pf_sug',{x:bdi(x.sug)})} <button class="linkb" onclick="setPf(${i},0)">${t('use_sug')}</button></p>`:''}
     <div class="mini">${bars4(x.sc,x.tg)}</div>
     ${sn?`<div class="snk"><div>${sline('snack1_lbl',x.tg.trainDay?'snack1_train':'snack1_when',d.snack)}${sline('snack2_lbl','snack2_when',d.snack2)}</div><button class="btn sm ghost" onclick="rmSnack(${i})">${t('del')}</button></div>`:''}
     ${d.side&&d.side.length?`<div class="snk"><span><b>${t('side_lbl')}:</b> ${lst(d.side)} · <span class="c">${bdi(t('mC')+' '+r0(sum(d.side).c))}</span></span><button class="btn sm ghost" onclick="rmSide(${i})">${t('del')}</button></div>`:''}
@@ -2468,7 +2480,7 @@ function importData(){const msg=document.getElementById('impMsg');if(msg)msg.tex
 function importConfirm(){if(!_pendingImport)return;
   if(_pendingImport.prog){const pr=_pendingImport.prog;_pendingImport=null;progApply(pr);return}
   try{localStorage.setItem(KEY_PREV,JSON.stringify(S))}catch(e){}
-  S=_pendingImport.state;_pendingImport=null;_foods=null;save();applyTheme();curDay=null;editRec=null;render();toast(t('toast_import'))}
+  S=_pendingImport.state;_pendingImport=null;_foods=null;migratePf();save();applyTheme();curDay=null;editRec=null;render();toast(t('toast_import'))}
 /* A program file ({type:'makla-program'}) adds day templates, meals and foods to the open profile; nothing else is replaced.
    Days with the same name are overwritten, so importing the same file twice does not duplicate them. */
 const sameName=(a,b)=>String(a).trim().toLowerCase()===String(b).trim().toLowerCase();
@@ -2502,7 +2514,7 @@ function restorePrev(){if(delArm!=='prev'){delArm='prev';render();return}delArm=
   let o=null;try{o=JSON.parse(localStorage.getItem(KEY_PREV))}catch(e){}
   if(!isObj(o)||!Array.isArray(o.profiles)||!o.profiles.length){toast(t('import_err'));return}
   const cur=JSON.stringify(S),prev=S;try{S=o;_fixes=0;normalize();checkState()}catch(e){S=prev;_foods=null;toast(t('import_err'));return}
-  try{localStorage.setItem(KEY_PREV,cur)}catch(e){}save();applyTheme();curDay=null;editRec=null;render();toast(t('toast_import'))}
+  try{localStorage.setItem(KEY_PREV,cur)}catch(e){}migratePf();save();applyTheme();curDay=null;editRec=null;render();toast(t('toast_import'))}
 
 /* ---------- Onboarding: four questions, then a ready menu and list ---------- */
 let ob=null;
@@ -2696,7 +2708,7 @@ async function syncPull(force){const doc=await syncFetch(syncApi()+'/households/
     let val;try{val=JSON.parse(e.v)}catch(_){return}
     if(local!==e.v){syncApply(k,val===null?undefined:val);if(e.by!==SY.me.id)got.push(k)}
     SY.base[k]=e.v});
-  if(got.length){const prev=S;try{S=JSON.parse(JSON.stringify(S));_fixes=0;normalize();_foods=null}catch(e){S=prev;console.error(e)}
+  if(got.length){const prev=S;try{S=JSON.parse(JSON.stringify(S));_fixes=0;normalize();_foods=null}catch(e){S=prev;console.error(e)}migratePf();
     /* keep what normalize produced as the synced value, so it is not sent back as a change */
     const after=syncSnap();got.forEach(k=>{if(k in after)SY.base[k]=JSON.stringify(after[k])})}
   SY.upd=doc.updateTime||'';syncSave();return got}
@@ -2773,7 +2785,7 @@ function applyTheme(){
 function setTheme(th){S.theme=th;save();applyTheme()}
 try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applyTheme)}catch(e){}
 
-load();syncLoad();render();applyTheme();if(!S.onboarded)obStart();syncBadge();darFromHash();if(SY)syncNow();
+load();syncLoad();migratePf();render();applyTheme();if(!S.onboarded)obStart();syncBadge();darFromHash();if(SY)syncNow();
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persisted().then(ok=>{if(!ok)navigator.storage.persist()})}catch(e){}
 
 /* ---------- PWA ---------- */

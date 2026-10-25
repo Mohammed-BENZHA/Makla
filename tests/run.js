@@ -231,7 +231,7 @@ test('Shopping', 'trip cost uses whole packs; week cost uses what is eaten', asy
 test('Shopping', 'weekly menu: people × portions plus the profile’s extra portion', async ({ page }) => {
   const r = await page.evaluate(() => {
     S.oil = 1; S.pantry = {}; const rc = recipe('r_3des'); const lent = rc.items.find(x => x[0] === '3des_n')[1];
-    S.menu = { set: { people: 4, budget: '', time: 60, excl: [], meals: { ftour: false, ghda: true, '3cha': false } }, days: [{ ghda: 'r_3des', pf: 1.5 }, {}, {}, {}, {}, {}, {}], at: 1 };
+    S.menu = { set: { people: 4, budget: '', time: 60, excl: [], meals: { ftour: false, ghda: true, '3cha': false } }, days: [{ ghda: 'r_3des', pfBy: { [P().id]: 1.5 } }, {}, {}, {}, {}, {}, {}], at: 1 };
     S.shop = { menu: true }; S.profiles.forEach(p => S.shop[p.id] = false); save();
     const row = shopData().rows.find(x => x.id === '3des_n'); return { got: row.week, exp: (4 + 0.5) * lent / rc.servings * 0.001 };
   });
@@ -372,6 +372,9 @@ test('Backup', 'data saved by the previous version (v24) loads unchanged, with n
   delete A.pantry.rouz; A.pantry.rouz_n = 0.3;
   A.profiles.forEach(p => { if (!p.weights) p.weights = []; });   // the previous version also added this default when loading
   A.onboarded = true;   // existing users are marked as onboarded so they never see the first-run questions
+  // v36: the one shared extra portion (d.pf) becomes the open profile's own portion (d.pfBy), same value
+  const legacy = A.menu.days.filter(d => d.pf != null); ok(legacy.length > 0, 'fixture has a legacy portion');
+  A.menu.days.forEach(d => { if (d.pf != null) { d.pfBy = { [A.active]: d.pf }; delete d.pf; } });
   const keys = new Set([...Object.keys(A), ...Object.keys(B)]);
   for (const k of keys) eq(JSON.stringify(B[k]), JSON.stringify(A[k]), 'key ' + k);
   eq(r.fixes, 0, 'repairs on valid data'); eq(errors.length, 0, 'page errors');
@@ -564,7 +567,7 @@ test('Cooking', 'cooking mode: amounts follow the portions, one step per screen,
 test('Cooking', 'from the menu: household plus the extra portion; phone back button closes cooking mode', async ({ page }) => {
   const r = await page.evaluate(async () => { const wait = ms => new Promise(res => setTimeout(res, ms));
     S.menuSet = { people: 3, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; makeMenu();
-    S.menu.days[0].pf = 1.5; save(); openDay = 0; go('menu');
+    S.menu.days[0].pfBy = { [P().id]: 1.5 }; save(); openDay = 0; go('menu');
     const btn = [...document.querySelectorAll('#view .mday.open .mcard .mbtns .btn')].find(b => b.textContent.includes('👨‍🍳'));
     btn.click(); const n = cook && cook.n, rid = cook && cook.rid;
     history.back(); await wait(150);
@@ -643,7 +646,7 @@ test('Weight goal', 'stall and goal/profile mismatch flagged; waist ratio bands;
 });
 
 test('Menu', 'meal cards show one portion and the profile’s own share, which add up to the day total', async ({ page }) => {
-  const r = await page.evaluate(() => { makeMenu(); const d = S.menu.days[0]; delete d.snack; delete d.snack2; delete d.side; d.pf = 2.5; save(); openDay = 0; go('menu');
+  const r = await page.evaluate(() => { makeMenu(); const d = S.menu.days[0]; delete d.snack; delete d.snack2; delete d.side; d.pfBy = { [P().id]: 2.5 }; save(); openDay = 0; go('menu');
     const num = (el, re) => { const m = el.innerText.match(re); return m ? parseFloat(m[1]) : NaN; };
     const cards = [...document.querySelectorAll('#view .mday.open .mcard')]; const P1 = /P\s*([\d.]+)/;
     const lines = cards.map(c => ({ one: c.querySelector('.mm .pl') ? num(c.querySelector('.mm .pl').parentElement, P1) : num(c.querySelectorAll('.mm')[1], P1), mine: c.querySelector('.mm.mine') ? num(c.querySelector('.mm.mine'), P1) : null }));
@@ -652,6 +655,45 @@ test('Menu', 'meal cards show one portion and the profile’s own share, which a
   const [ft, l, dn] = r.lines;
   near(l.mine, l.one * 2.5, 0.15, 'lunch: own share = 2.5 × one portion'); near(dn.mine, dn.one * 2.5, 0.15, 'dinner: own share = 2.5 × one portion');
   eq(ft.mine, null, 'breakfast is not scaled'); near(r.shown, ft.one + l.mine + dn.mine, 1, 'day protein = breakfast + own lunch + own dinner');
+});
+
+/* E1: each profile's ± portion is its own (d.pfBy), never shared with the other eaters */
+const TWO = () => { const base = JSON.parse(JSON.stringify(S.profiles[0]));
+  const M = Object.assign(JSON.parse(JSON.stringify(base)), { id: 'pM', name: 'Mohammed', example: false, sex: 'm', age: 27, w: 80, h: 180, act: 1.55, goal: 'leanbulk', train: false });
+  const R = Object.assign(JSON.parse(JSON.stringify(base)), { id: 'pR', name: 'Rayan', example: false, sex: 'm', age: 27, w: 62, h: 172, act: 1.2, goal: 'cut', train: false });
+  S.profiles = [M, R]; S.active = 'pM'; S.shop = { menu: true, pM: false, pR: false }; S.pantry = {}; S.oil = 1;
+  S.menu = { set: { people: 2, budget: '', time: 60, excl: [], meals: { ftour: false, ghda: true, '3cha': false } }, days: [{ ghda: 'r_3des' }, {}, {}, {}, {}, {}, {}], at: 1 }; save(); };
+test('Menu', 'portions per profile: Mohammed’s ± does not move Rayan’s and back; kept after reload; list and split use each one’s own portion', async ({ page }) => {
+  const r = await page.evaluate(TWO => { eval('(' + TWO + ')')();
+    const f = id => dayFit(S.menu.days[0], S.profiles.find(p => p.id === id)).f;
+    const sug = { M: f('pM'), R: f('pR') };
+    S.active = 'pM'; setPf(0, 1); setPf(0, 1); const afterM = { M: f('pM'), R: f('pR') };
+    S.active = 'pR'; setPf(0, -1); const afterR = { M: f('pM'), R: f('pR') };
+    return { sug, afterM, afterR, stored: JSON.stringify(S.menu.days[0].pfBy), legacy: 'pf' in S.menu.days[0] }; }, TWO.toString());
+  near(r.afterM.M, r.sug.M + 0.5, 1e-9, 'Mohammed +2 steps'); near(r.afterM.R, r.sug.R, 1e-9, 'Rayan unchanged by Mohammed');
+  near(r.afterR.R, Math.max(.5, r.sug.R - 0.25), 1e-9, 'Rayan −1 step'); near(r.afterR.M, r.sug.M + 0.5, 1e-9, 'Mohammed unchanged by Rayan');
+  ok(!r.legacy, 'no shared value written');
+  await page.reload(); await page.waitForTimeout(300);
+  const q = await page.evaluate(() => { const f = id => dayFit(S.menu.days[0], S.profiles.find(p => p.id === id)).f;
+    const rc = recipe('r_3des'), lent = rc.items.find(x => x[0] === '3des_n')[1], E = portionEaters();
+    const sp = Object.fromEntries(menuSplit().map(x => [x.n, x.c]));
+    return { M: f('pM'), R: f('pR'), tot: menuTotal(0), eat: [E.pM.f[0], E.pR.f[0]], kg: shopData().rows.find(x => x.id === '3des_n').week, lentKg: lent / rc.servings * 0.001, cost: recCost(rc), sp }; });
+  near(q.M, r.afterR.M, 1e-9, 'Mohammed kept after reload'); near(q.R, r.afterR.R, 1e-9, 'Rayan kept after reload');
+  near(q.eat[0], q.M, 1e-9, 'household portions: Mohammed'); near(q.eat[1], q.R, 1e-9, 'household portions: Rayan');
+  near(q.tot, q.M + q.R, 0.011, 'day total = own portions'); near(q.kg, (q.M + q.R) * q.lentKg, 1e-6, 'lentils on the list = sum of own portions');
+  near(q.sp.Mohammed, q.cost * q.M, 0.01, 'Mohammed pays his portion'); near(q.sp.Rayan, q.cost * q.R, 0.01, 'Rayan pays his portion');
+});
+test('Menu', 'a menu saved before v36 (one shared d.pf) loads: the value goes to the open profile, the other keeps the suggestion; bad values cleaned', async () => {
+  const { ctx, page } = await openApp();
+  try {
+    const sug = await page.evaluate(TWO => { eval('(' + TWO + ')')(); const d = S.menu.days[0]; const s = { M: dayFit(d, P()).sug, R: dayFit(d, S.profiles[1]).sug };
+      S.menu.days[0].pf = 1.75; S.menu.days[1] = { ghda: 'r_3des', pf: 9, pfBy: { 'bad id!': 2, pR: 7 } }; save(); return s; }, TWO.toString());
+    await page.reload(); await page.waitForTimeout(300);
+    const r = await page.evaluate(() => { const d = S.menu.days[0], saved = JSON.parse(localStorage.getItem('makla_mizan_v2')).menu.days;
+      return { M: dayFit(d, S.profiles[0]).f, R: dayFit(d, S.profiles[1]).f, d0: saved[0], d1: saved[1] }; });
+    near(r.M, 1.75, 1e-9, 'old portion kept for the open profile'); near(r.R, sug.R, 1e-9, 'other profile keeps the suggestion');
+    ok(!('pf' in r.d0) && r.d0.pfBy && r.d0.pfBy.pM === 1.75, 'migrated and saved as pfBy'); ok(!('pf' in r.d1) && !r.d1.pfBy, 'out-of-range and bad entries dropped');
+  } finally { await ctx.close(); }
 });
 
 /* ======================================================================================
@@ -739,6 +781,32 @@ test('Sync', 'same home, different profiles open: both phones get the same shopp
   } finally { await A.ctx.close(); await B.ctx.close(); }
 });
 
+test('Sync', 'portions per profile stay independent across two phones; an old phone’s shared d.pf is not given to the wrong person', async () => {
+  const A = await phone('Mohammed', '#2f8f5b'), B = await phone('Rayan', '#2f6fbf');
+  try {
+    const hid = await A.page.evaluate(async () => { Object.assign(P(), { name: 'Mohammed', example: false, sex: 'm', age: 28, w: 85, h: 178, act: 1.725, goal: 'leanbulk' });
+      S.menuSet = { people: 2, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; makeMenu(); S.menu.days.forEach(d => { delete d.snack; delete d.snack2; delete d.side; }); save(); await darCreate(); return SY.hid; });
+    await B.page.evaluate(async hid => { Object.assign(P(), { name: 'Rayan', example: false, sex: 'm', age: 24, w: 62, h: 170, act: 1.375, goal: 'cut' }); save(); darForm.code = hid; await darJoin(); }, hid);
+    const sync = async () => { await A.page.evaluate(() => syncNow()); await B.page.evaluate(() => syncNow()); await A.page.evaluate(() => syncNow()); await B.page.evaluate(() => syncNow()); };
+    await sync();
+    const own = pg => pg.evaluate(() => dayFit(S.menu.days[0], P()).f), sugB0 = await own(B.page);
+    const ida = await A.page.evaluate(() => P().id), idb = await B.page.evaluate(() => P().id);
+    const a1 = await A.page.evaluate(() => { setPf(0, 1); setPf(0, 1); return dayFit(S.menu.days[0], P()).f; }); await sync();
+    eq(await own(B.page), sugB0, 'Rayan’s phone: his portion did not follow Mohammed’s change');
+    near(await B.page.evaluate(id => portionEaters()[id].f[0], ida), a1, 1e-9, 'Rayan’s phone sees Mohammed’s new portion');
+    const b1 = await B.page.evaluate(() => { setPf(0, -1); return dayFit(S.menu.days[0], P()).f; }); await sync();
+    near(await own(A.page), a1, 1e-9, 'Mohammed’s phone: his portion did not follow Rayan’s change');
+    near(await A.page.evaluate(id => portionEaters()[id].f[0], idb), b1, 1e-9, 'Mohammed’s phone sees Rayan’s new portion');
+    const ta = await A.page.evaluate(() => menuTotal(0)), tb = await B.page.evaluate(() => menuTotal(0));
+    near(ta, a1 + b1, 0.011, 'day total = both own portions'); eq(ta, tb, 'same total on both phones');
+    // an old version on B writes the shared d.pf (as before v36): A must not give it to Mohammed
+    await B.page.evaluate(() => { S.menu.days[0].pf = 3; save(); }); await A.page.evaluate(() => syncNow()); await B.page.evaluate(() => syncNow()); await A.page.evaluate(() => syncNow());
+    near(await own(A.page), a1, 1e-9, 'old phone’s shared value ignored for Mohammed');
+    ok(await A.page.evaluate(() => !('pf' in S.menu.days[0])), 'legacy value dropped on the receiving phone');
+    await A.page.reload(); await A.page.waitForTimeout(300);
+    near(await own(A.page), a1, 1e-9, 'Mohammed’s portion kept after reload on a shared home');
+  } finally { await A.ctx.close(); await B.ctx.close(); }
+});
 test('Sync', 'portions stay put over many syncs; a phone that missed them (old version) repairs itself; unknown keys are kept for later', async () => {
   const A = await phone('Mohammed', '#2f8f5b'), B = await phone('Rayan', '#2f6fbf');
   try {
