@@ -31,6 +31,7 @@ npm test           # 60 test: 7sab, unités, recettes, lista, backup, sécurité
 npm run check-i18n # kolchi mtarjem f 5 d l'lougat
 ```
 Tafasil l'audit w l'bugs li tsla7o: [AUDIT.md](AUDIT.md).
+Bach t3ti l app l chi IA akhra (ChatGPT, Gemini…) tchoufha: [AI_REVIEW.md](AI_REVIEW.md).
 
 ## Mise à jour
 Ila beddelti chi 7aja, beddel `VERSION` f `sw.js` bach les telephones yjibou version jdida, w doz `npm test`.
