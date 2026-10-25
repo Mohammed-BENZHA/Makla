@@ -1917,7 +1917,14 @@ function portionEaters(){const out={};S.profiles.forEach(p=>{if(!p.example&&!p.n
 function menuTotal(i){if(!S.menu)return 0;const n=S.menu.set.people,ev=Object.values(portionEaters());
   const d=S.menu.days[i];if(!ev.length){const f=d&&(d.ghda||d['3cha'])?dayFit(d,P()).f:1;return n+f-1}
   const sum=ev.reduce((s,e)=>s+(+e.f[i]||1),0);return Math.round((sum+Math.max(0,n-ev.length))*100)/100}
-function menuCostPP(m){let c=0;m.days.forEach(d=>{['ghda','3cha'].forEach(k=>{const r=d[k]&&recipe(d[k]);if(r)c+=recCost(r)});if(d.ftour)c+=sum(d.ftour).cost});return c}
+/* Everything the weekly menu makes the household eat: lunch/dinner × the day's real portions (menuTotal), breakfast
+   for each person, protein/carb top-ups once. The shopping list and the Menu tab both read it, so their costs agree. */
+function eachMenuItem(cb){if(!S.menu)return;const n=S.menu.set.people;
+  S.menu.days.forEach((d,i)=>{const pm=menuTotal(i)/n;
+    const meals={ftour:d.ftour||[],ghda:d.ghda?[[d.ghda,pm]]:[],'3cha':d['3cha']?[[d['3cha'],pm]]:[],snack:[].concat(d.snack||[],d.snack2||[],d.side||[]).map(([id,q])=>[id,q/n])};
+    Object.values(meals).forEach(list=>list.forEach(([id,q])=>{const f=food(id);if(f)cb(id,q,f,n)}))})}
+/* cost of what the menu's household eats in the week (DH) */
+function menuWeekCost(){let c=0;eachMenuItem((id,q,f,n)=>{c+=q*f.f*price(f)*n});return c}
 let menuEdit=false, swapAt=null, swapMode='cheaper';
 const defaultSet=()=>({people:4,budget:'',time:60,excl:[],meals:{ftour:true,ghda:true,'3cha':true}});
 function menuSetForm(){const st=(S.menu&&S.menu.set)||S.menuSet||defaultSet();S.menuSet=st;
@@ -2063,7 +2070,7 @@ const todayIdx=()=>(new Date().getDay()+6)%7;
 let openDay=null,openDayInit=false;
 function vMenu(){
   if(!S.menu||menuEdit) return `<div class="stack">${menuSetForm()}</div>`;
-  const m=S.menu,set=m.set,pp=menuCostPP(m),tot=pp*set.people,bud=+set.budget||0;
+  const m=S.menu,set=m.set,tot=menuWeekCost(),pp=tot/set.people,bud=+set.budget||0;
   if(!openDayInit){openDayInit=true;openDay=todayIdx()}
   const days=m.days.map((d,i)=>{const open=openDay===i;
     const names=[d.ftour&&d.ftour.length?['ftour',ftourName(d.ftour)]:null,d.ghda&&recipe(d.ghda)?['ghda',recName(recipe(d.ghda))]:null,d['3cha']&&recipe(d['3cha'])?['3cha',recName(recipe(d['3cha']))]:null].filter(Boolean);
@@ -2202,13 +2209,9 @@ function shopData(){
     else add(id,q*f.f*mult);
     c+=q*f.f*price(f)*mult}));return c};
   S.profiles.forEach(p=>{if(!S.shop[p.id])return;let c=0;p.week.forEach(id=>{c+=addDay(p.days.find(d=>d.id===id),1)});parts.push([esc(p.name),c,p.id])});
-  if(S.menu&&S.shop.menu){const n=S.menu.set.people;let c=0;
-    S.menu.days.forEach((d,i)=>{const pm=menuTotal(i)/n;
-      const meals={ftour:d.ftour||[],ghda:d.ghda?[[d.ghda,pm]]:[],'3cha':d['3cha']?[[d['3cha'],pm]]:[],snack:[].concat(d.snack||[],d.snack2||[],d.side||[]).map(([id,q])=>[id,q/n])};
-      Object.values(meals).forEach(list=>list.forEach(([id,q])=>{const f=food(id);if(!f)return;
-        if(f.isRec){const r=recipe(id);const sv=Math.max(1,+r.servings||1);r.items.forEach(([iid,iq])=>{const g=food(iid);if(g)add(iid,oilQ(iid,iq)*(q/sv)*g.f*n)})}else add(id,q*f.f*n);
-        c+=q*f.f*price(f)*n}))});
-    parts.push([t('menu_src')+' (×'+n+')',c])}
+  if(S.menu&&S.shop.menu){const n=S.menu.set.people;
+    eachMenuItem((id,q,f)=>{if(f.isRec){const r=recipe(id);const sv=Math.max(1,+r.servings||1);r.items.forEach(([iid,iq])=>{const g=food(iid);if(g)add(iid,oilQ(iid,iq)*(q/sv)*g.f*n)})}else add(id,q*f.f*n)});
+    parts.push([t('menu_src')+' (×'+n+')',menuWeekCost()])}
   const rows=Object.keys(agg).filter(id=>food(id)&&agg[id]>0).map(id=>{const f=food(id);const monthly=STAPLE.has(id);const street=f.cat==='zan9a';
     const week=agg[id],need=monthly?week*30/7:week,hv=S.pantry[id],have=hv===true?0:(+hv||0);
     /* 'true' = enough at home; a number = amount at home in buy units (kg / L / pieces). Monthly items count as covered when there's enough for this week. */

@@ -683,6 +683,28 @@ test('Menu', 'portions per profile: Mohammed’s ± does not move Rayan’s and 
   near(q.tot, q.M + q.R, 0.011, 'day total = own portions'); near(q.kg, (q.M + q.R) * q.lentKg, 1e-6, 'lentils on the list = sum of own portions');
   near(q.sp.Mohammed, q.cost * q.M, 0.01, 'Mohammed pays his portion'); near(q.sp.Rayan, q.cost * q.R, 0.01, 'Rayan pays his portion');
 });
+test('Menu', 'B1: the Menu tab, the list (week) and the split show the same menu cost: real portions per person, breakfasts, top-ups; budget warning uses it', async ({ page }) => {
+  const r = await page.evaluate(TWO => { eval('(' + TWO + ')')();
+    S.menuSet = { people: 3, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; S.active = 'pM'; makeMenu();
+    const d = S.menu.days[0]; d.snack = [['bid', 2]]; d.snackFor = 'pM'; d.side = [['khobz', 0.5]]; d.sideFor = 'pR'; d.pfBy = { pM: 2.5, pR: 0.75 };
+    S.shop = { menu: true, pM: false, pR: false }; save();
+    const num = s => parseFloat(String(s).replace(/[^\d.]/g, ''));
+    // expected by hand: each day lunch+dinner × (Mohammed + Rayan + 1 other), breakfast × 3, top-ups once
+    let exp = 0; S.menu.days.forEach((x, i) => { const E = portionEaters(), por = E.pM.f[i] + E.pR.f[i] + 1;
+      ['ghda', '3cha'].forEach(k => { const rc = x[k] && recipe(x[k]); if (rc) exp += recCost(rc) * por; });
+      if (x.ftour) exp += sum(x.ftour).cost * 3; [].concat(x.snack || [], x.snack2 || [], x.side || []).forEach(it => exp += sum([it]).cost); });
+    const old1 = S.menu.days.reduce((c, x) => c + ['ghda', '3cha'].reduce((s, k) => s + (x[k] && recipe(x[k]) ? recCost(recipe(x[k])) : 0), 0) + (x.ftour ? sum(x.ftour).cost : 0), 0) * 3;
+    openDay = null; go('menu'); const menuTxt = document.querySelector('#view .mstat b').textContent;
+    go('t9edya'); const weekTxt = document.querySelectorAll('#view .tot b')[1].textContent;
+    const split = menuSplit().reduce((s, x) => s + x.c, 0);
+    // a budget between the old one-portion estimate and the real cost must now be reported as exceeded
+    S.menu.set.budget = Math.round((old1 + menuWeekCost()) / 2); save(); go('menu');
+    const warn = !!document.querySelector('#view .mstat ~ .warn'), note = !!document.querySelector('#view .mstat ~ .note');
+    return { exp, fn: menuWeekCost(), list: shopData().cost, menuTab: num(menuTxt), listTab: num(weekTxt), split, old1, warn, note }; }, TWO.toString());
+  near(r.fn, r.exp, 0.01, 'menu cost = hand calculation'); near(r.list, r.fn, 1e-6, 'list week cost (menu only) = menu cost');
+  near(r.split, r.fn, 0.1, 'split adds up to the same cost'); near(r.menuTab, Math.round(r.fn), 0.5, 'Menu tab shows it'); near(r.listTab, Math.round(r.fn), 0.5, 'list tab shows it');
+  ok(r.fn > r.old1 * 1.05, 'real portions cost more than one portion each (the case B1 fixes)'); ok(r.warn && !r.note, 'over-budget warning shown');
+});
 test('Menu', 'a menu saved before v36 (one shared d.pf) loads: the value goes to the open profile, the other keeps the suggestion; bad values cleaned', async () => {
   const { ctx, page } = await openApp();
   try {
@@ -769,9 +791,10 @@ test('Sync', 'same home, different profiles open: both phones get the same shopp
     const own = await A.page.evaluate(() => S.menu.days.map(d => dayFit(d, P()).f)), other = await B.page.evaluate(() => S.menu.days.map(d => dayFit(d, P()).f));
     ta.forEach((v, i) => near(v, own[i] + other[i], 0.011, 'day ' + i + ' = Mohammed’s portion + Rayan’s portion'));
     // who pays what: same split on both phones, each pays own portions, shares add up to the menu's food cost
-    const sp = page => page.evaluate(() => { const m = menuSplit(); return { m: m.map(x => [x.n, Math.round(x.c * 100) / 100]), tot: menuCostPP(S.menu) * S.menu.set.people, sources: [S.shop.menu, ...S.profiles.map(p => !!S.shop[p.id])] }; });
+    const sp = page => page.evaluate(() => { const m = menuSplit(); return { m: m.map(x => [x.n, Math.round(x.c * 100) / 100]), tot: menuWeekCost(), sources: [S.shop.menu, ...S.profiles.map(p => !!S.shop[p.id])] }; });
     const sa = await sp(A.page), sb = await sp(B.page);
     eq(JSON.stringify(sa.m), JSON.stringify(sb.m), 'same split on both phones');
+    near(sa.m.reduce((s, x) => s + x[1], 0), sa.tot, 0.1, 'split adds up to the menu cost'); near(sa.tot, sb.tot, 0.01, 'same menu cost on both phones');
     const byName = Object.fromEntries(sa.m); const exp = await A.page.evaluate(() => { const E = portionEaters(); const out = {}; Object.values(E).forEach(e => out[e.n] = 0);
       S.menu.days.forEach((d, i) => { ['ghda', '3cha'].forEach(k => { const r = d[k] && recipe(d[k]); if (r) Object.values(E).forEach(e => out[e.n] += recCost(r) * e.f[i]); }); if (d.ftour) Object.values(E).forEach(e => out[e.n] += sum(d.ftour).cost); }); return out; });
     near(byName.Mohammed, exp.Mohammed, 0.05, 'Mohammed pays his own portions'); near(byName.Rayan, exp.Rayan, 0.05, 'Rayan pays his own portions');
