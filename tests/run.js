@@ -46,7 +46,14 @@ function startServer() {
 /* ---------- minimal Firestore REST stand-in (GET a document, :commit with updateMask + REQUEST_TIME), for the sync tests ---------- */
 const fsDocs = {}; let fsClock = Date.now() - 3600e3; // server time follows the real clock (the "changed in the last 2 days" dots depend on it)
 const fsNow = () => new Date(fsClock += 1000).toISOString();
+/* requests in flight: fsDelay ms of delay. 'before' = wait, then handle; 'after' = handle (write) at once, answer late;
+   'drop' = wait, then do nothing if the client has gone. "Gone" = the connection closed before our answer was sent
+   (Node emits 'close' on the response without it being finished), i.e. the browser aborted the request. */
+let fsDelay = 0, fsDelayMode = 'before', fsDropped = 0, fsHandledLate = 0;
 function fakeFirestore(req, rsp, p) {
+  if (fsDelay && !req._delayed) { req._delayed = true; rsp.once('close', () => { if (!rsp.writableFinished) req._gone = true; });
+    if (fsDelayMode === 'after') { const end = rsp.end.bind(rsp); rsp.end = (...a) => setTimeout(() => { try { end(...a); } catch (e) {} }, fsDelay); return fakeFirestore(req, rsp, p); }
+    return setTimeout(() => { if (fsDelayMode === 'drop' && req._gone) { fsDropped++; return; } fsHandledLate++; fakeFirestore(req, rsp, p); }, fsDelay); }
   const send = (code, obj) => { rsp.writeHead(code, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }); rsp.end(JSON.stringify(obj)); };
   const deny = hid => !hid || hid.length < 24;   // same idea as the security rules: ids under 24 characters are refused
   if (req.method === 'GET') { const hid = p.split('/households/')[1];
@@ -981,6 +988,158 @@ test('Sync', 'A1: two phones, one profile each: each phone knows the other’s t
     const o = await A.page.evaluate(() => ({ x: S.menu.days[1].xtra && S.menu.days[1].xtra._, mine: xItems(S.menu.days[1], P().id).some(([id, q]) => id === 'ton_ma' && q === 5) }));
     ok(o.x && o.x.snack, 'kept as “owner unknown”'); ok(!o.mine, 'not given to Mohammed');
   } finally { await A.ctx.close(); await B.ctx.close(); }
+});
+test('Sync', 'pause (Réglages): no request from any path — save, timer, focus, online, start-up, direct calls, create/join/leave; local data, base and server untouched; changed keys recorded; still paused after reload', async () => {
+  const A = await phone('Mohammed', '#2f8f5b'), B = await phone('Rayan', '#2f6fbf');
+  try {
+    const hid = await A.page.evaluate(async () => { Object.assign(P(), { name: 'Mohammed', example: false }); S.menuSet = { people: 2, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; makeMenu(); await darCreate(); return SY.hid; });
+    await B.page.evaluate(async hid => { Object.assign(P(), { name: 'Rayan', example: false }); save(); darForm.code = hid; await darJoin(); }, hid);
+    for (const pg of [A.page, B.page, A.page]) await pg.evaluate(() => syncNow());
+    let reqA = 0; A.page.on('request', r => { if (r.url().includes('/fs/')) reqA++; });
+    const before = await A.page.evaluate(() => { go('reglages'); pauseSync(); const armed = !syncPaused(); pauseSync(); return { armed, paused: syncPaused(), base: JSON.stringify(SY.base), shot: JSON.stringify(syncSnap()) }; });
+    ok(before.armed && before.paused, 'pause asks for a second tap, then is on');
+    const docBefore = JSON.stringify(fsDocs[hid]);
+    const r = await A.page.evaluate(async () => { const wait = ms => new Promise(res => setTimeout(res, ms)); const out = {};
+      const d = S.menu.days[1], keep = d.ghda; setMeal(1, 'ghda', swapOptions(1, 'ghda')[0].id); setP('bid', 9); chk(shopData().rows[0].id, true); await wait(1500);
+      out.dirty = Object.keys(SY.pause.dirty).sort();
+      out.calls = [];
+      for (const [n, f] of [['syncNow', () => syncNow()], ['syncNowForce', () => syncNow(true)], ['syncPush', () => syncPush()], ['syncPull', () => syncPull(false)], ['syncFetch', () => syncFetch(syncApi() + '/households/' + SY.hid)]])
+        { try { await f(); out.calls.push(n + ':ok'); } catch (e) { out.calls.push(n + ':' + (e.paused ? 'paused' : e.message)); } }
+      syncSoon(); document.dispatchEvent(new Event('visibilitychange')); window.dispatchEvent(new Event('online')); await wait(1500);
+      const hidBefore = SY.hid; await darCreate(); await darJoin(); darLeave(); darLeave(); out.sameHome = !!SY && SY.hid === hidBefore;
+      out.portions = !!S.portions; out.base = JSON.stringify(SY.base);
+      // revert the price: its key leaves the changed list
+      setP('bid', ''); await wait(1500); out.dirty2 = Object.keys(SY.pause.dirty).sort();
+      return out; });
+    eq(r.calls.join(), 'syncNow:ok,syncNowForce:ok,syncPush:paused,syncPull:paused,syncFetch:paused', 'direct calls do nothing or are refused');
+    ok(r.dirty.includes('mday.1') && r.dirty.includes('price.bid') && r.dirty.some(k => k.startsWith('checked.')), 'changed keys recorded: ' + r.dirty.join(' '));
+    ok(!r.dirty2.includes('price.bid') && r.dirty2.includes('mday.1'), 'a change undone leaves the list');
+    ok(r.sameHome && r.portions, 'create / join / leave refused: same home, portions kept'); eq(r.base, before.base, 'synced base untouched');
+    await A.page.waitForTimeout(8500);   // one tick of the 8 s timer
+    await A.page.reload(); await A.page.waitForTimeout(1500);
+    const after = await A.page.evaluate(() => ({ paused: syncPaused(), dirty: Object.keys(SY.pause.dirty).length, base: JSON.stringify(SY.base), dot: document.getElementById('syncDot').className }));
+    ok(after.paused && after.dirty >= 2, 'still paused after reload, changes still recorded'); eq(after.base, before.base, 'base kept after reload'); ok(after.dot.includes('paused'), 'grey dot');
+    eq(reqA, 0, 'no request at all from the paused phone'); eq(JSON.stringify(fsDocs[hid]), docBefore, 'server document unchanged by the paused phone');
+    // the other phone keeps writing: nothing reaches the paused phone
+    const priceA = await A.page.evaluate(() => S.prices.lben);
+    await B.page.evaluate(async () => { setP('lben', 33); await syncNow(); });
+    ok(JSON.stringify(fsDocs[hid]) !== docBefore, 'other phone wrote to the server');
+    await A.page.evaluate(() => { document.dispatchEvent(new Event('visibilitychange')); return new Promise(res => setTimeout(res, 1500)); });
+    eq(await A.page.evaluate(() => S.prices.lben), priceA, 'paused phone did not receive it'); eq(reqA, 0, 'still no request');
+  } finally { await A.ctx.close(); await B.ctx.close(); }
+});
+test('Sync', 'pause during a request in flight: an answer arriving after the pause changes nothing; an interrupted send leaves its keys pending', async () => {
+  const A = await phone('Mohammed', '#2f8f5b'), B = await phone('Rayan', '#2f6fbf');
+  try {
+    const hid = await A.page.evaluate(async () => { Object.assign(P(), { name: 'Mohammed', example: false }); S.menuSet = { people: 2, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; makeMenu(); await darCreate(); return SY.hid; });
+    await B.page.evaluate(async hid => { Object.assign(P(), { name: 'Rayan', example: false }); save(); darForm.code = hid; await darJoin(); }, hid);
+    for (const pg of [A.page, B.page, A.page]) await pg.evaluate(() => syncNow());
+    // 1) a pull in flight: B changed a price; A's pull is slow and the pause comes first
+    await B.page.evaluate(async () => { setP('lben', 44); await syncNow(); });
+    fsDelay = 1500;
+    const r1 = await A.page.evaluate(async () => { const base = SY.base['price.lben'], p = S.prices.lben; const run = syncNow(); await new Promise(res => setTimeout(res, 300)); go('reglages'); pauseSync(); pauseSync(); await run; await new Promise(res => setTimeout(res, 2000));
+      return { same: S.prices.lben === p, base: SY.base['price.lben'] === base, toast: document.getElementById('toastRoot').textContent }; });
+    ok(r1.same && r1.base, 'answer after the pause not applied (price and base unchanged)'); ok(!r1.toast.includes('Rayan'), 'no “Rayan changed…” toast');
+    fsDelay = 0;
+    // 2) a send in flight, both server outcomes, read straight from the stand-in's document
+    const fieldOf = (hid, f) => { const e = fsDocs[hid] && fsDocs[hid].fields.e; const x = e && e.mapValue.fields[f]; return x ? x.mapValue.fields.v.stringValue : undefined; };
+    // control for 'drop': a slow request that is NOT aborted must be handled normally (so "gone" really means aborted)
+    { const D = await phone('Ctrl', '#8a4fbf'); try {
+        await D.page.evaluate(async () => { Object.assign(P(), { name: 'Ctrl', example: false }); await darCreate(); });
+        fsDelay = 800; fsDelayMode = 'drop'; fsDropped = 0; fsHandledLate = 0;
+        const okCtl = await D.page.evaluate(async () => { setP('bid', 5); clearTimeout(_syncTimer); await syncNow(); return SY.base['price.bid'] === '5' && _syncState === 'ok'; });
+        ok(okCtl && fsDropped === 0 && fsHandledLate >= 1, 'drop mode: a slow request that was not aborted is handled (control)');
+      } finally { fsDelay = 0; fsDelayMode = 'before'; await D.ctx.close(); } }
+    for (const mode of ['after', 'drop']) {
+      const C = await phone('Sara', '#c2572b');
+      try {
+        const chid = await C.page.evaluate(async () => { Object.assign(P(), { name: 'Sara', example: false }); await darCreate(); return SY.hid; });
+        const f = await C.page.evaluate(() => syncEnc('price.bid'));
+        let reqC = 0, pausedAt = 0; C.page.on('request', r => { if (r.url().includes('/fs/') && pausedAt) reqC++; });
+        fsDelay = 1500; fsDelayMode = mode; fsDropped = 0;
+        const r2 = await C.page.evaluate(async () => { setP('bid', 7); clearTimeout(_syncTimer); const base = SY.base['price.bid'], attr = JSON.stringify(SY.attr['price.bid'] || null);
+          const run = syncNow(); await new Promise(res => setTimeout(res, 300)); go('reglages'); pauseSync(); pauseSync(); window.__paused = Date.now(); await run; await new Promise(res => setTimeout(res, 2200));
+          return { base: SY.base['price.bid'] === base, attr: JSON.stringify(SY.attr['price.bid'] || null) === attr, dirty: 'price.bid' in SY.pause.dirty, ctls: _syncCtls.size }; });
+        pausedAt = 1;
+        const server = fieldOf(chid, f);
+        if (mode === 'after') eq(server, '7', 'after: the server wrote the change before answering late');
+        else { eq(server, undefined, 'drop: the server never wrote it'); eq(fsDropped, 1, 'drop: the aborted request was dropped'); }
+        ok(r2.base && r2.attr, mode + ': the paused phone did not move its synced base or attribution');
+        ok(r2.dirty, mode + ': the key stays pending for the resume step'); eq(r2.ctls, 0, mode + ': no controller left');
+        await C.page.reload(); await C.page.waitForTimeout(1200);
+        const r3 = await C.page.evaluate(() => ({ base: SY.base['price.bid'], dirty: 'price.bid' in SY.pause.dirty, paused: syncPaused() }));
+        ok(r3.paused && r3.dirty && r3.base === undefined, mode + ': same after reload'); eq(reqC, 0, mode + ': no request after the pause');
+      } finally { fsDelay = 0; fsDelayMode = 'before'; await C.ctx.close(); }
+    }
+  } finally { fsDelay = 0; await A.ctx.close(); await B.ctx.close(); }
+});
+test('Sync', 'pause: changes are found again from the saved data even when the page closes at once; leaving the page records them immediately', async () => {
+  const A = await phone('Mohammed', '#2f8f5b');
+  try {
+    await A.page.evaluate(async () => { Object.assign(P(), { name: 'Mohammed', example: false }); await darCreate(); go('reglages'); pauseSync(); pauseSync(); });
+    const t0 = await A.page.evaluate(() => { setP('bid', 11); return { at: Date.now(), dirty: 'price.bid' in SY.pause.dirty, last: SY.pause.lastSave }; });
+    ok(!t0.dirty && Math.abs(t0.last - t0.at) < 1000, 'saved and stamped, list not yet updated (timer pending)');
+    // the tab's renderer is crashed before the 1.2 s timer: no pagehide, no visibilitychange, no timer. This is the
+    // closest the test browser gets to the system killing the app; it does not cover a crash in the middle of a
+    // localStorage write or storage cleared by the system.
+    const stored = await A.page.evaluate(() => { const s = JSON.parse(localStorage.getItem('makla_mizan_v2_sync')); return { dirty: 'price.bid' in s.pause.dirty, last: s.pause.lastSave }; });
+    ok(!stored.dirty && stored.last === t0.last, 'on disk: change saved, list not updated, last save stamped');
+    const cdp = await A.ctx.newCDPSession(A.page); const crashed = new Promise(res => A.page.once('crash', () => res(true))); cdp.send('Page.crash').catch(() => {});
+    ok(await Promise.race([crashed, new Promise(res => setTimeout(() => res(false), 3000))]), 'renderer crashed');
+    const A2 = await A.ctx.newPage(); await A2.goto(BASE); await A2.waitForTimeout(300);
+    const r = await A2.evaluate(() => ({ e: SY.pause.dirty['price.bid'], v: S.prices.bid, paused: syncPaused() }));
+    eq(r.v, 11, 'the change itself was saved'); ok(r.paused && r.e && r.e.first === t0.last, 'found again at start-up from S and the base, dated by the last save');
+    A.page = A2;
+    const p = await A.page.evaluate(() => { setP('lben', 5); window.dispatchEvent(new Event('pagehide')); return 'price.lben' in SY.pause.dirty; });
+    ok(p, 'pagehide records at once');
+    const h = await A.page.evaluate(() => { setP('perly', 4); Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true }); document.dispatchEvent(new Event('visibilitychange')); return 'price.perly' in SY.pause.dirty; });
+    ok(h, 'going to the background records at once');
+  } finally { await A.ctx.close(); }
+});
+test('Sync', 'every Firestore request has its own abort signal from the app (a caller cannot replace it), controllers are released on success, refusal and network failure, and the pause aborts them all', async () => {
+  const A = await phone('Mohammed', '#2f8f5b');
+  try {
+    await A.page.evaluate(async () => { Object.assign(P(), { name: 'Mohammed', example: false }); await darCreate(); });
+    const r = await A.page.evaluate(async () => { const seen = [], real = window.fetch;
+      window.fetch = (u, o) => { seen.push({ u: String(u), own: [..._syncCtls].some(c => c.signal === (o && o.signal)), sig: o && o.signal }); return real(u, o); };
+      setP('bid', 3); clearTimeout(_syncTimer); await syncNow(true);
+      const all = seen.length > 0 && seen.every(x => x.own);
+      const mine = AbortSignal.abort(); let usedMine = true, ok1 = false; seen.length = 0;
+      try { await syncFetch(syncApi() + '/households/' + SY.hid, { signal: mine }); ok1 = true; usedMine = seen[0].sig === mine; } catch (e) { ok1 = 'threw ' + e.message; }
+      const after1 = _syncCtls.size;
+      let refused = ''; try { await syncFetch(syncApi() + '/households/short'); } catch (e) { refused = String(e.status); } const after2 = _syncCtls.size;
+      let netErr = ''; const api = localStorage.getItem('makla_sync_api'); try { await syncFetch('http://127.0.0.1:9/households/x'); } catch (e) { netErr = e.name; } const after3 = _syncCtls.size;
+      window.fetch = real; return { all, ok1, usedMine, after1, refused, after2, netErr, after3 }; });
+    ok(r.all, 'every request of a sync carried one of the app’s own signals');
+    eq(r.ok1, true, 'a caller’s already-aborted signal is ignored (request done)'); ok(!r.usedMine, 'the caller’s signal was not used');
+    eq(r.refused, '403', 'refused request'); eq(r.netErr, 'TypeError', 'network failure'); eq([r.after1, r.after2, r.after3].join(), '0,0,0', 'no controller left after success, refusal or failure');
+    fsDelay = 1500;
+    const q = await A.page.evaluate(async () => { const seen = [], real = window.fetch; window.fetch = (u, o) => { seen.push(o.signal); return real(u, o); };
+      const join = syncFetch(syncApi() + '/households/' + SY.hid).then(() => 'resolved', e => e.paused ? 'paused' : e.name);   // like darJoin's GET
+      const push = (setP('bid', 8), clearTimeout(_syncTimer), syncPush().then(() => 'resolved', e => e.paused ? 'paused' : e.name));
+      await new Promise(res => setTimeout(res, 300)); const inFlight = _syncCtls.size; go('reglages'); pauseSync(); pauseSync();
+      const res = await Promise.all([join, push]); window.fetch = real;
+      return { inFlight, aborted: seen.every(s => s.aborted), n: seen.length, res, left: _syncCtls.size }; });
+    eq(q.inFlight, 2, 'two requests in flight'); ok(q.n === 2 && q.aborted, 'the pause aborted both'); ok(q.res.every(x => x === 'paused' || x === 'AbortError'), 'both refused: ' + q.res.join()); eq(q.left, 0, 'released');
+  } finally { fsDelay = 0; await A.ctx.close(); }
+});
+test('Sync', 'joining a home only undoes its own attempt: if the state changed while waiting for the server, the new state is kept', async () => {
+  const A = await phone('Mohammed', '#2f8f5b'), B = await phone('Rayan', '#2f6fbf');
+  try {
+    const hid = await A.page.evaluate(async () => { Object.assign(P(), { name: 'Mohammed', example: false }); await darCreate(); return SY.hid; });
+    fsDelay = 1200;
+    const r = await B.page.evaluate(async hid => { Object.assign(P(), { name: 'Rayan', example: false }); save();
+      const other = { hid: 'Zz' + 'x'.repeat(26), me: { id: 'mOther', n: 'Other', c: '#888888' }, base: { 'price.bid': '"1"' }, attr: {}, members: {}, upd: '', ver: SYNC_VER };
+      const out = {};
+      // 1) while the join waits, SY is replaced and the epoch moves: the replacement survives
+      darForm.code = hid; let p = darJoin(); await new Promise(res => setTimeout(res, 200)); SY = other; _syncEpoch++; await p; out.kept = SY === other && SY.base['price.bid'] === '"1"';
+      // 2) same, with a home that does not exist (404 path)
+      darForm.code = 'Nn' + 'x'.repeat(26); p = darJoin(); await new Promise(res => setTimeout(res, 200)); SY = other; await p; out.kept404 = SY === other;
+      // 3) nothing replaced it but the epoch moved: its own attempt is undone
+      SY = null; darForm.code = hid; p = darJoin(); await new Promise(res => setTimeout(res, 200)); _syncEpoch++; await p; out.undone = SY === null;
+      return out; }, hid);
+    ok(r.kept, 'replaced state kept (not set to null)'); ok(r.kept404, 'kept on the “not found” path too'); ok(r.undone, 'its own attempt undone when the epoch moved');
+  } finally { fsDelay = 0; await A.ctx.close(); await B.ctx.close(); }
 });
 test('Sync', 'portions stay put over many syncs; a phone that missed them (old version) repairs itself; unknown keys are kept for later', async () => {
   const A = await phone('Mohammed', '#2f8f5b'), B = await phone('Rayan', '#2f6fbf');

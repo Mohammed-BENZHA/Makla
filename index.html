@@ -492,7 +492,7 @@ nav.tabs button[aria-selected="true"],.tip{background:var(--accent-soft);backgro
 .brand{display:flex;align-items:center;gap:8px}
 .syncdot{display:inline-block;width:10px;height:10px;border-radius:99px;background:var(--muted);flex:none}
 .syncdot[hidden]{display:none}
-.syncdot.ok{background:#2f9e5f}.syncdot.wait{background:#d4a017}.syncdot.err{background:var(--danger)}.syncdot.off{background:#9a9a9a}
+.syncdot.ok{background:#2f9e5f}.syncdot.wait{background:#d4a017}.syncdot.err{background:var(--danger)}.syncdot.off{background:#9a9a9a}.syncdot.paused{background:transparent;box-shadow:inset 0 0 0 2px #9a9a9a}
 .ofit{display:flex;flex-direction:column;gap:4px;border-top:1px solid var(--line);padding-top:8px;font-size:13px}.ofit .pill{font-size:11px}
 .sdot{display:inline-block;width:9px;height:9px;border-radius:99px;margin-inline-end:6px;vertical-align:middle;box-shadow:0 0 0 2px var(--card)}
 .swatch{width:30px;height:30px;border-radius:99px;border:2px solid transparent;padding:0;display:inline-block;flex:none}
@@ -532,6 +532,7 @@ const I18N={
 dj:{
  place_khddar:'Khddar · khodra w fakiha',place_gezzar:'Gezzar · l7em w djaj',place_7awwat:'7awwat · l7out',place_ferran:'Khobz',place_7anout:'7anout · bi9ala',money_t:'Taman, budget w ch7al khlesti',st_ok:'Mtakamel',st_prot:'Na9s protein',st_fat:'Dhoun ktar',st_carb:'Na9s karb',st_kcal_lo:'Na9s calories',st_kcal_hi:'Calories ktar',today_lbl:'lyoum',
  tab_ana:'Ana',settings_t:'Réglages',ob_welcome:'Mar7ba f Makla Mizan',ob_intro:'Jawb 3la 4 d l\'as2ila, w l\'app twejjed lik l\'makla dyal simana w lista dyal t9edya b DH.',ob_start:'Yallah nbdaw',ob_skip:'Tkhatta',next:'Tab3',back:'Rje3',ob_people:'Ch7al d nass kaytaklou f dar?',ob_people_hint:'L\'kmiyat dyal l\'tayb w lista kayt7sbou 3la had l3add.',ob_excl:'Chno ma katakloch?',ob_budget:'Ch7al bghiti tkhless f simana?',ob_budget_hint:'Ikhtiyari. Khlli khawi ila ma 3endekch budget.',ob_macros:'Bghiti n7sbou calories w protein dyalek?',ob_macros_yes:'Ah, 3endi hadaf (tnchif, 3dalat…)',ob_macros_yes_hint:'Ghadi nsewlouk 3la wazn, tol w 3mer bach n7sbou l\'portion dyalek.',ob_macros_no:'La, ghir l\'menu w lista',ob_macros_no_hint:'T9der tzidha men ba3d f "Ana".',ob_done:'L\'menu dyalek wajed!',me_default:'Ana',notargets_note:'Bach l\'app t7seb calories w protein dyalek, 3mmer wazn, tol w 3mer dyalek f Ana → Profil.',go_profile:'Mchi l Profil',
+ sync_pause:'⏸ Wa9ef sync mo2a99atan',sync_pause_q:'Brek merra khra bach twe9fha',sync_pause_hint:'Ma ghaytsifet walo w ma ghayji walo men l\'akhor. Data f had tele w f serveur ma katmessch. Rjou3 dyal sync ghaykoun men ba3d, b comparaison 9bel ma ykteb chi 7aja.',sync_st_paused:'Sync mw9fa',sync_paused:'Sync mw9fa men {d}. Tabdilat dyalek kayb9aw ghir f had tele ({n} d l7wayej tbeddlo).',sync_paused_hint:'L\'akhor ma kaychouf walo men tabdilat dyalek, w nta ma katchouf walo men dyalo. La liste w l\'partage kayst3mlo akhir portions li jaw men 3ndo.',sync_paused_toast:'Sync tw9fat',sync_paused_block:'Sync mw9fa: had l\'7aja ma kat9derch daba.',
  budget_snacks:'Fih {s} dyal snacks f had l\'mablagh.',budget_snacks_only:'L\'wjbat b wa7dhom dakhlin f l\'budget ({m}); les snacks ({s}) homa li kayfawtouh.',
  fit_other:'{f} portion · protein {p}/{t} g',fit_miss:'Ma wselch l\'ahdaf dyalo had nhar: {n}',
  budget_low:'Had l\'budget sghir 3la les recettes li 3endek: a9al simana bla tkrar, b les portions dyalkom, b l\'wjbat w les snacks li kayzidhom l\'app b rasso, katbda men ≈ {x}.',
@@ -625,6 +626,7 @@ dj:{
 da:{
  place_khddar:'الخضار · خضرة وفاكية',place_gezzar:'الجزار · اللحم والدجاج',place_7awwat:'الحوات · الحوت',place_ferran:'الخبز',place_7anout:'الحانوت · البقالة',money_t:'الثمن، البودجي وشحال خلصتي',st_ok:'متكامل',st_prot:'ناقص البروتين',st_fat:'الدهون كثار',st_carb:'ناقص الكارب',st_kcal_lo:'ناقصين السعرات',st_kcal_hi:'السعرات كثار',today_lbl:'اليوم',
  tab_ana:'أنا',settings_t:'الإعدادات',ob_welcome:'مرحبا فـMakla Mizan',ob_intro:'جاوب على 4 ديال الأسئلة، والأپليكاسيون توجد ليك الماكلة ديال السيمانة واللائحة ديال التقضية بالدرهم.',ob_start:'يالاه نبداو',ob_skip:'تخطى',next:'تابع',back:'رجع',ob_people:'شحال ديال الناس كيتاكلو فالدار؟',ob_people_hint:'الكميات ديال الطياب واللائحة كيتحسبو على هاد العدد.',ob_excl:'شنو ما كتاكلوش؟',ob_budget:'شحال بغيتي تخلص فالسيمانة؟',ob_budget_hint:'اختياري. خلي خاوي إلا ما عندكش بودجي.',ob_macros:'بغيتي نحسبو السعرات والبروتين ديالك؟',ob_macros_yes:'آه، عندي هدف (تنشيف، عضلات…)',ob_macros_yes_hint:'غادي نسولوك على الوزن والطول والعمر باش نحسبو الپورسيون ديالك.',ob_macros_no:'لا، غير المنيو واللائحة',ob_macros_no_hint:'تقدر تزيدها من بعد فـ"أنا".',ob_done:'المنيو ديالك واجد!',me_default:'أنا',notargets_note:'باش الأپليكاسيون تحسب السعرات والبروتين ديالك، عمر الوزن والطول والعمر ديالك فـ"أنا" ← البروفيل.',go_profile:'سير للبروفيل',
+ sync_pause:'⏸ وقف السانكرو مؤقتاً',sync_pause_q:'بريك مرة خرى باش توقفها',sync_pause_hint:'ما غادي يتصيفط والو وما غادي يجي والو من الآخر. الداتا فهاد التيليفون وفالسيرفور ما كتمسش. الرجوع ديال السانكرو غادي يكون من بعد، بمقارنة قبل ما يكتب شي حاجة.',sync_st_paused:'السانكرو موقفة',sync_paused:'السانكرو موقفة من {d}. التبديلات ديالك كيبقاو غير فهاد التيليفون ({n} ديال الحوايج تبدلو).',sync_paused_hint:'الآخر ما كيشوف والو من التبديلات ديالك، ونتا ما كتشوف والو من ديالو. اللائحة والقسمة كيستعملو آخر پورسيونات جاو من عندو.',sync_paused_toast:'السانكرو توقفات',sync_paused_block:'السانكرو موقفة: هاد الحاجة ما كتقدرش دابا.',
  budget_snacks:'فيه {s} ديال السناكس فهاد المبلغ.',budget_snacks_only:'الوجبات بوحدهم داخلين فالبودجي ({m})؛ السناكس ({s}) هوما اللي كيفوتوه.',
  fit_other:'{f} پورسيون · بروتين {p}/{t} غ',fit_miss:'ما وصلش للأهداف ديالو هاد النهار: {n}',
  budget_low:'هاد البودجي صغير على الوصفات لي عندك: أقل سيمانة بلا تكرار، بالپورسيونات ديالكم، بالوجبات والسناكس اللي كيزيدهم الأپليكاسيون بوحدو، كتبدا من ≈ {x}.',
@@ -718,6 +720,7 @@ da:{
 fr:{
  place_khddar:'Primeur · fruits et légumes',place_gezzar:'Boucherie · viande et volaille',place_7awwat:'Poissonnerie',place_ferran:'Boulangerie',place_7anout:'Épicerie',money_t:'Coûts, budget et dépenses',st_ok:'Équilibré',st_prot:'Protéines insuffisantes',st_fat:'Trop de lipides',st_carb:'Glucides insuffisants',st_kcal_lo:'Calories insuffisantes',st_kcal_hi:'Trop de calories',today_lbl:'aujourd\'hui',
  tab_ana:'Moi',settings_t:'Réglages',ob_welcome:'Bienvenue dans Makla Mizan',ob_intro:'Répondez à 4 questions et l\'app prépare les repas de la semaine et la liste de courses en DH.',ob_start:'Commencer',ob_skip:'Passer',next:'Suivant',back:'Retour',ob_people:'Combien de personnes mangent à la maison ?',ob_people_hint:'Les quantités à cuisiner et la liste sont calculées pour ce nombre.',ob_excl:'Que ne mangez-vous pas ?',ob_budget:'Quel budget par semaine ?',ob_budget_hint:'Facultatif. Laissez vide si vous n\'avez pas de budget.',ob_macros:'Calculer vos calories et protéines ?',ob_macros_yes:'Oui, j\'ai un objectif (sèche, muscle…)',ob_macros_yes_hint:'Poids, taille et âge servent à calculer votre portion.',ob_macros_no:'Non, juste le menu et la liste',ob_macros_no_hint:'Vous pourrez l\'ajouter plus tard dans « Moi ».',ob_done:'Votre menu est prêt !',me_default:'Moi',notargets_note:'Pour calculer vos calories et protéines, indiquez poids, taille et âge dans Moi → Profil.',go_profile:'Aller au profil',
+ sync_pause:'⏸ Mettre la synchronisation en pause',sync_pause_q:'Touchez encore pour confirmer',sync_pause_hint:'Rien ne sera envoyé ni reçu. Les données de ce téléphone et du serveur ne sont pas touchées. La reprise se fera plus tard, avec une comparaison avant toute écriture.',sync_st_paused:'Synchronisation en pause',sync_paused:'Synchronisation en pause depuis le {d}. Vos changements restent sur ce téléphone ({n} élément(s) modifié(s)).',sync_paused_hint:'L’autre ne voit pas vos changements et vous ne voyez pas les siens. La liste et le partage utilisent ses dernières portions reçues.',sync_paused_toast:'Synchronisation en pause',sync_paused_block:'Synchronisation en pause : impossible pour l’instant.',
  budget_snacks:'Ce montant comprend {s} d’en-cas.',budget_snacks_only:'Les repas seuls tiennent dans le budget ({m}) ; ce sont les en-cas ({s}) qui le dépassent.',
  fit_other:'{f} portion(s) · protéines {p}/{t} g',fit_miss:'Objectifs non atteints ce jour : {n}',
  budget_low:'Ce budget est trop bas pour vos recettes : la semaine la moins chère sans répétition, avec vos portions, repas et en-cas ajoutés automatiquement compris, commence à ≈ {x}.',
@@ -811,6 +814,7 @@ fr:{
 ar:{
  place_khddar:'الخضار · خضر وفواكه',place_gezzar:'الجزار · لحم ودجاج',place_7awwat:'بائع السمك',place_ferran:'المخبزة',place_7anout:'البقال',money_t:'التكلفة والميزانية والمصروف',st_ok:'متوازن',st_prot:'بروتين ناقص',st_fat:'دهون زائدة',st_carb:'نشويات ناقصة',st_kcal_lo:'سعرات ناقصة',st_kcal_hi:'سعرات زائدة',today_lbl:'اليوم',
  tab_ana:'أنا',settings_t:'الإعدادات',ob_welcome:'مرحبًا بك في Makla Mizan',ob_intro:'أجب عن 4 أسئلة، وسيُعدّ التطبيق وجبات الأسبوع ولائحة المشتريات بالدرهم.',ob_start:'لنبدأ',ob_skip:'تخطٍّ',next:'التالي',back:'رجوع',ob_people:'كم شخصًا يأكل في البيت؟',ob_people_hint:'تُحسب كميات الطبخ واللائحة لهذا العدد.',ob_excl:'ما الذي لا تأكلونه؟',ob_budget:'كم تريد أن تنفق في الأسبوع؟',ob_budget_hint:'اختياري. اتركه فارغًا إذا لم تكن لديك ميزانية.',ob_macros:'هل نحسب سعراتك وبروتينك؟',ob_macros_yes:'نعم، لدي هدف (تنشيف، عضلات…)',ob_macros_yes_hint:'نستعمل الوزن والطول والعمر لحساب حصتك.',ob_macros_no:'لا، فقط القائمة واللائحة',ob_macros_no_hint:'يمكنك إضافتها لاحقًا في «أنا».',ob_done:'قائمتك جاهزة!',me_default:'أنا',notargets_note:'لحساب سعراتك وبروتينك، أدخل الوزن والطول والعمر في أنا ← الملف الشخصي.',go_profile:'الذهاب إلى الملف',
+ sync_pause:'⏸ إيقاف المزامنة مؤقتًا',sync_pause_q:'اضغط مرة أخرى للتأكيد',sync_pause_hint:'لن يُرسل أو يُستقبل أي شيء. لا تُمس بيانات هذا الهاتف ولا بيانات الخادم. ستكون الاستعادة لاحقًا، مع مقارنة قبل أي كتابة.',sync_st_paused:'المزامنة متوقفة',sync_paused:'المزامنة متوقفة منذ {d}. تبقى تغييراتك على هذا الهاتف فقط ({n} عنصر معدّل).',sync_paused_hint:'لا يرى الآخر تغييراتك ولا ترى تغييراته. تستعمل اللائحة والتقسيم آخر حصص وصلت منه.',sync_paused_toast:'توقفت المزامنة',sync_paused_block:'المزامنة متوقفة: غير ممكن الآن.',
  budget_snacks:'يتضمن هذا المبلغ {s} من الوجبات الخفيفة.',budget_snacks_only:'الوجبات وحدها داخل الميزانية ({m})؛ الوجبات الخفيفة ({s}) هي التي تتجاوزها.',
  fit_other:'{f} حصة · بروتين {p}/{t} غ',fit_miss:'لم تتحقق أهدافه في هذا اليوم: {n}',
  budget_low:'هذه الميزانية منخفضة جدًا لوصفاتك: أرخص أسبوع بلا تكرار بحصصكم، شاملًا الوجبات والوجبات الخفيفة التي يضيفها التطبيق تلقائيًا، يبدأ من ≈ {x}.',
@@ -904,6 +908,7 @@ ar:{
 en:{
  place_khddar:'Greengrocer · fruit & veg',place_gezzar:'Butcher · meat & poultry',place_7awwat:'Fishmonger',place_ferran:'Bakery',place_7anout:'Grocery shop',money_t:'Costs, budget and spending',st_ok:'Balanced',st_prot:'Low protein',st_fat:'Too much fat',st_carb:'Low carbs',st_kcal_lo:'Low calories',st_kcal_hi:'Too many calories',today_lbl:'today',
  tab_ana:'Me',settings_t:'Settings',ob_welcome:'Welcome to Makla Mizan',ob_intro:'Answer 4 questions and the app plans the week\'s meals and a shopping list in DH.',ob_start:'Let\'s start',ob_skip:'Skip',next:'Next',back:'Back',ob_people:'How many people eat at home?',ob_people_hint:'Cooking amounts and the list are worked out for this number.',ob_excl:'What don\'t you eat?',ob_budget:'How much do you want to spend a week?',ob_budget_hint:'Optional. Leave empty if you have no budget.',ob_macros:'Work out your calories and protein?',ob_macros_yes:'Yes, I have a goal (cut, muscle…)',ob_macros_yes_hint:'Weight, height and age are used to size your portion.',ob_macros_no:'No, just the menu and the list',ob_macros_no_hint:'You can add it later under "Me".',ob_done:'Your menu is ready!',me_default:'Me',notargets_note:'To work out your calories and protein, enter weight, height and age in Me → Profile.',go_profile:'Go to profile',
+ sync_pause:'⏸ Pause sync',sync_pause_q:'Tap again to confirm',sync_pause_hint:'Nothing will be sent or received. Data on this phone and on the server is left as it is. Resuming will come later, with a comparison before anything is written.',sync_st_paused:'Sync paused',sync_paused:'Sync paused since {d}. Your changes stay on this phone ({n} item(s) changed).',sync_paused_hint:'The other person does not see your changes and you do not see theirs. The list and the split use their last portions received.',sync_paused_toast:'Sync paused',sync_paused_block:'Sync is paused: not possible right now.',
  budget_snacks:'This includes {s} of snacks.',budget_snacks_only:'The meals alone fit the budget ({m}); the snacks ({s}) are what goes over.',
  fit_other:'{f} portion(s) · protein {p}/{t} g',fit_miss:'Targets not met this day: {n}',
  budget_low:'This budget is too low for your recipes: the cheapest week without repeats, with your portions, meals and automatically added snacks included, starts at ≈ {x}.',
@@ -2748,6 +2753,13 @@ const SYNC_KNOWN=new Set(['meals','budget','oil','menuSet','menu','mday','recipe
 const SYNC_VER=2;
 const SYNC_KEY=KEY+'_sync', SYNC_COLORS=['#2f8f5b','#2f6fbf','#c2572b','#8a4fbf','#b8860b','#c23b6a'];
 let SY=null,_syncBusy=false,_syncAgain=false,_syncState='',_syncErr='',_syncTimer=null,_syncLast=0;
+/* Pause (Réglages): no request leaves the phone and nothing received changes it. Local data, SY.base and the server
+   stay as they are; the keys changed here are recorded in SY.pause.dirty so a later, explicit resume step can compare
+   local, server and base before writing anything. The pause is saved with SY and never ends by itself. */
+let _syncEpoch=0;const _syncCtls=new Set();
+const syncPaused=()=>!!(SY&&SY.pause);
+const syncLive=ep=>ep===_syncEpoch&&!syncPaused();
+const pausedErr=()=>Object.assign(new Error('PAUSED'),{paused:true,status:0});
 function syncLoad(){try{const o=JSON.parse(localStorage.getItem(SYNC_KEY)||'null');if(isObj(o)&&typeof o.hid==='string'&&/^[A-Za-z0-9]{24,40}$/.test(o.hid)&&isObj(o.me)){SY=Object.assign({base:{},attr:{},members:{},upd:''},o)}}catch(e){SY=null}
   if(SY&&(SY.ver||1)<SYNC_VER){const mine=new Set(S.profiles.map(p=>p.id));Object.keys(SY.base).forEach(k=>{if(k.startsWith('portion.')&&!mine.has(k.slice(8)))delete SY.base[k]});SY.upd='';SY.ver=SYNC_VER;syncSave()}}
 function syncSave(){try{if(SY)localStorage.setItem(SYNC_KEY,JSON.stringify(SY));else localStorage.removeItem(SYNC_KEY)}catch(e){}}
@@ -2794,10 +2806,16 @@ function syncApply(k,v){const dot=k.indexOf('.'),pre=dot<0?k:k.slice(0,dot),id=d
 /* Firestore values */
 const fsStr=s=>({stringValue:String(s)});
 const fsVal=x=>x==null?null:x.stringValue!=null?x.stringValue:x.integerValue!=null?+x.integerValue:x.doubleValue!=null?x.doubleValue:x.timestampValue!=null?Date.parse(x.timestampValue):x.mapValue?Object.fromEntries(Object.entries(x.mapValue.fields||{}).map(([k,y])=>[k,fsVal(y)])):null;
-async function syncFetch(url,opt){const sep=url.includes('?')?'&':'?';const r=await fetch(url+sep+'key='+FB.key,Object.assign({cache:'no-store'},opt||{}));
-  if(r.status===404)return null;const j=await r.json().catch(()=>({}));if(!r.ok){const e=new Error((j.error&&j.error.status)||('HTTP '+r.status));e.status=r.status;throw e}return j}
+/* every Firestore request: its own abort controller (the pause aborts them all), set last so no caller can replace it;
+   an answer that arrives after a pause is refused here, whoever called */
+async function syncFetch(url,opt){if(syncPaused())throw pausedErr();const ep=_syncEpoch,c=new AbortController();_syncCtls.add(c);
+  try{const sep=url.includes('?')?'&':'?';
+    const r=await fetch(url+sep+'key='+FB.key,Object.assign({cache:'no-store'},opt||{},{signal:c.signal}));if(ep!==_syncEpoch)throw pausedErr();
+    if(r.status===404)return null;const j=await r.json().catch(()=>({}));if(ep!==_syncEpoch)throw pausedErr();
+    if(!r.ok){const e=new Error((j.error&&j.error.status)||('HTTP '+r.status));e.status=r.status;throw e}return j}
+  finally{_syncCtls.delete(c)}}
 function syncMemberFields(){return {n:fsStr(SY.me.n),c:fsStr(SY.me.c)}}
-async function syncPush(){const snap=syncSnap(),changed=[];
+async function syncPush(ep=_syncEpoch){if(!syncLive(ep))throw pausedErr();const snap=syncSnap(),changed=[];
   const json={};Object.keys(snap).forEach(k=>{json[k]=JSON.stringify(snap[k]===undefined?null:snap[k]);if(SY.base[k]!==json[k])changed.push(k)});
   Object.keys(SY.base).forEach(k=>{if(!(k in snap)&&SY.base[k]!=='null'){json[k]='null';changed.push(k)}});
   const beat=Date.now()-(SY.beat||0)>5*60e3;
@@ -2809,10 +2827,11 @@ async function syncPush(){const snap=syncSnap(),changed=[];
   const body=JSON.stringify({writes:[{update:{name:SYNC_DOC_BASE+'/households/'+SY.hid,fields:doc},updateMask:{fieldPaths:paths},updateTransforms:tr}]});
   if(body.length>900000)throw Object.assign(new Error('TOO_BIG'),{status:413});
   const res=await syncFetch(syncApi()+':commit',{method:'POST',headers:{'Content-Type':'application/json'},body});
+  if(!syncLive(ep))throw pausedErr();
   const t=res&&res.commitTime?Date.parse(res.commitTime):Date.now();
   changed.slice(0,400).forEach(k=>{SY.base[k]=json[k];SY.attr[k]={by:SY.me.id,t}});SY.beat=Date.now();syncSave();
   return changed.length>400?_syncAgain=true:changed.length}
-async function syncPull(force){const doc=await syncFetch(syncApi()+'/households/'+SY.hid);if(!doc)return [];
+async function syncPull(force,ep=_syncEpoch){if(!syncLive(ep))throw pausedErr();const doc=await syncFetch(syncApi()+'/households/'+SY.hid);if(!syncLive(ep))throw pausedErr();if(!doc)return [];
   if(!force&&doc.updateTime&&doc.updateTime===SY.upd)return [];
   const F=doc.fields||{},E=(F.e&&F.e.mapValue&&F.e.mapValue.fields)||{};
   SY.members=fsVal(F.members)||{};
@@ -2830,20 +2849,36 @@ async function syncPull(force){const doc=await syncFetch(syncApi()+'/households/
     /* keep what normalize produced as the synced value, so it is not sent back as a change */
     const after=syncSnap();got.forEach(k=>{if(k in after)SY.base[k]=JSON.stringify(after[k])})}
   SY.upd=doc.updateTime||'';syncSave();return got}
-async function syncNow(force){if(!SY)return;if(_syncBusy){_syncAgain=true;return}_syncBusy=true;
-  try{if(force)await syncPull(true);await syncPush();const got=await syncPull(false);_syncState='ok';_syncErr='';_syncLast=Date.now();
+async function syncNow(force){if(!SY||syncPaused())return;if(_syncBusy){_syncAgain=true;return}_syncBusy=true;const ep=_syncEpoch;
+  try{if(force)await syncPull(true,ep);await syncPush(ep);const got=await syncPull(false,ep);if(!syncLive(ep))return;_syncState='ok';_syncErr='';_syncLast=Date.now();
     if(got.length){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}_foods=null;render();
       const by={};got.forEach(k=>{const a=SY.attr[k];if(a&&a.by!==SY.me.id)by[a.by]=(by[a.by]||0)+1});
       const who=Object.keys(by).map(id=>(SY.members[id]&&SY.members[id].n)||'?');if(who.length)toast(t('sync_got',{n:who.join(', '),x:got.length}))}}
-  catch(e){_syncState=navigator.onLine===false||e instanceof TypeError?'off':'err';_syncErr=e.status===403?'rules':e.status===413?'big':'';console.warn('sync',e)}
-  finally{_syncBusy=false;syncBadge();if(tab==='reglages'&&!document.activeElement.closest('#darBox'))renderDarBox();if(_syncAgain){_syncAgain=false;setTimeout(()=>syncNow(),300)}}}
-function syncSoon(){if(!SY)return;clearTimeout(_syncTimer);_syncTimer=setTimeout(()=>syncNow(),1200)}
+  catch(e){if(e.paused||!syncLive(ep))return;_syncState=navigator.onLine===false||e instanceof TypeError?'off':'err';_syncErr=e.status===403?'rules':e.status===413?'big':'';console.warn('sync',e)}
+  finally{_syncBusy=false;syncBadge();if(tab==='reglages'&&!document.activeElement.closest('#darBox'))renderDarBox();if(_syncAgain){_syncAgain=false;if(!syncPaused())setTimeout(()=>syncNow(),300)}}}
+function syncSoon(){if(!SY)return;if(syncPaused()){SY.pause.lastSave=Date.now();syncSave()}clearTimeout(_syncTimer);_syncTimer=setTimeout(()=>syncPaused()?syncMarkDirty():syncNow(),1200)}
+/* leaving the page: record now instead of waiting for the timer (best effort; start-up recomputes anyway) */
+function syncFlushDirty(){if(syncPaused()){clearTimeout(_syncTimer);syncMarkDirty()}}
+window.addEventListener('pagehide',syncFlushDirty);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')syncFlushDirty()});
+/* during the pause: which keys differ from what was last synced, since when, and their latest value's fingerprint.
+   Always recomputed from S and SY.base (on each save, on leaving the page and at start-up), so a missed timer only
+   costs a less precise date. It is information for the user: the resume step must compare S, SY.base and the server
+   itself and never decide a conflict from this list. */
+const fp=s=>{let h=5381;for(let i=0;i<s.length;i++)h=(h*33^s.charCodeAt(i))>>>0;return h.toString(36)+':'+s.length};
+function syncMarkDirty(at){if(!syncPaused())return;const snap=syncSnap(),d=SY.pause.dirty||(SY.pause.dirty={}),now=at||Date.now(),seen=new Set();
+  const mark=(k,j)=>{seen.add(k);if(SY.base[k]===j){delete d[k];return}const h=fp(j);if(!d[k])d[k]={first:now,last:now,h};else if(d[k].h!==h){d[k].last=now;d[k].h=h}};
+  Object.keys(snap).forEach(k=>mark(k,JSON.stringify(snap[k]===undefined?null:snap[k])));
+  Object.keys(SY.base).forEach(k=>{if(!seen.has(k)){if(SY.base[k]==='null')delete d[k];else mark(k,'null')}});
+  Object.keys(d).forEach(k=>{if(!seen.has(k))delete d[k]});syncSave()}
+function pauseSync(){if(!SY||syncPaused())return;if(delArm!=='pause'){delArm='pause';renderDarBox();return}delArm=null;
+  _syncEpoch++;_syncCtls.forEach(c=>{try{c.abort()}catch(e){}});_syncCtls.clear();clearTimeout(_syncTimer);_syncAgain=false;
+  SY.pause={since:Date.now(),dirty:{}};syncMarkDirty();syncBadge();renderDarBox();toast(t('sync_paused_toast'))}
 function syncPending(){if(!SY)return 0;const s=syncSnap();let n=0;Object.keys(s).forEach(k=>{if(SY.base[k]!==JSON.stringify(s[k]))n++});Object.keys(SY.base).forEach(k=>{if(!(k in s)&&SY.base[k]!=='null')n++});return n}
 setInterval(()=>{if(SY&&document.visibilityState==='visible')syncNow()},8000);
 document.addEventListener('visibilitychange',()=>{if(SY&&document.visibilityState==='visible')syncNow()});
 window.addEventListener('online',()=>syncNow());
 function syncBadge(){const el=document.getElementById('syncDot');if(!el)return;if(!SY){el.hidden=true;return}el.hidden=false;
-  const st=_syncState==='ok'&&syncPending()?'wait':(_syncState||'wait');el.className='syncdot '+st;const l=t('sync_st_'+st);el.title=l;el.setAttribute('aria-label',l)}
+  const st=syncPaused()?'paused':_syncState==='ok'&&syncPending()?'wait':(_syncState||'wait');el.className='syncdot '+st;const l=t('sync_st_'+st);el.title=l;el.setAttribute('aria-label',l)}
 const agoTxt=ms=>{const m=Math.round((Date.now()-ms)/60000);return m<1?t('ago_now'):m<60?t('ago_m',{n:m}):m<1440?t('ago_h',{n:Math.round(m/60)}):t('ago_d',{n:Math.round(m/1440)})};
 /* a coloured dot on things another member changed in the last two days */
 function syncMark(k){if(!SY)return '';const a=SY.attr[k];if(!a||a.by===SY.me.id||Date.now()-a.t>48*3600e3)return '';
@@ -2853,16 +2888,18 @@ const genCode=()=>{const a='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz234
 let darForm={n:'',c:SYNC_COLORS[0],code:''};
 function darMe(){const n=(document.getElementById('darName')||{}).value;const name=String(n||darForm.n||'').trim().slice(0,30);if(!name){const e=document.getElementById('darName');e&&e.focus();return null}
   return {id:'m'+uid()+uid(),n:name,c:darForm.c}}
-async function darCreate(){const me=darMe();if(!me)return;darListHome();SY={hid:genCode(),me,base:{},attr:{},members:{},upd:'',ver:SYNC_VER};syncSave();renderDarBox();await syncNow();renderDarBox()}
-async function darJoin(){const me=darMe();if(!me)return;const code=String((document.getElementById('darCode')||{}).value||darForm.code).trim().replace(/^.*#dar=/,'');
+async function darCreate(){if(syncPaused()){toast(t('sync_paused_block'));return}const me=darMe();if(!me)return;darListHome();SY={hid:genCode(),me,base:{},attr:{},members:{},upd:'',ver:SYNC_VER};syncSave();renderDarBox();await syncNow();renderDarBox()}
+async function darJoin(){if(syncPaused()){toast(t('sync_paused_block'));return}const me=darMe();if(!me)return;const code=String((document.getElementById('darCode')||{}).value||darForm.code).trim().replace(/^.*#dar=/,'');
   const msg=document.getElementById('darMsg');if(!/^[A-Za-z0-9]{24,40}$/.test(code)){if(msg)msg.textContent=t('dar_badcode');return}
   try{localStorage.setItem(KEY_PREV,JSON.stringify(S))}catch(e){}
-  SY={hid:code,me,base:{},attr:{},members:{},upd:'',ver:SYNC_VER};
-  try{const doc=await syncFetch(syncApi()+'/households/'+code);if(!doc){SY=null;if(msg)msg.textContent=t('dar_notfound');return}}
-  catch(e){SY=null;if(msg)msg.textContent=t(e.status===403?'dar_rules':'dar_offline');return}
+  /* the home being joined; while waiting for the server anything else may have replaced SY: only this one is undone */
+  const mine={hid:code,me,base:{},attr:{},members:{},upd:'',ver:SYNC_VER};SY=mine;const drop=()=>{if(SY===mine)SY=null};
+  const ep=_syncEpoch;
+  try{const doc=await syncFetch(syncApi()+'/households/'+code);if(ep!==_syncEpoch||SY!==mine){drop();return}if(!doc){drop();if(msg)msg.textContent=t('dar_notfound');return}}
+  catch(e){drop();if(e.paused||ep!==_syncEpoch||SY)return;if(msg)msg.textContent=t(e.status===403?'dar_rules':'dar_offline');return}
   syncSave();darListHome();await syncNow(true);render();toast(t('dar_joined'))}
 function darListHome(){if(!isObj(S.shop))S.shop={};S.shop.menu=true;S.profiles.forEach(p=>S.shop[p.id]=false);save()}
-function darLeave(){if(delArm!=='dar'){delArm='dar';renderDarBox();return}delArm=null;SY=null;delete S.portions;syncSave();save();syncBadge();render()}
+function darLeave(){if(syncPaused()){toast(t('sync_paused_block'));return}if(delArm!=='dar'){delArm='dar';renderDarBox();return}delArm=null;SY=null;delete S.portions;syncSave();save();syncBadge();render()}
 function darShareLink(){return location.origin+location.pathname+'#dar='+SY.hid}
 function darCopy(){const s=darShareLink();try{navigator.clipboard.writeText(s).then(()=>toast(t('toast_copied')),()=>prompt('',s))}catch(e){prompt('',s)}}
 function darBoxHTML(){
@@ -2875,13 +2912,18 @@ function darBoxHTML(){
     <p class="hint">${t('dar_privacy')}</p>`}
   const mem=Object.entries(SY.members||{});if(!mem.some(([id])=>id===SY.me.id))mem.unshift([SY.me.id,{n:SY.me.n,c:SY.me.c}]);
   const pend=syncPending();
+  if(syncPaused()){const n=Object.keys(SY.pause.dirty||{}).length,d=new Date(SY.pause.since).toLocaleString(lang()==='en'?'en-GB':'fr-FR',{dateStyle:'short',timeStyle:'short'});
+    return `<div class="row"><span><i class="syncdot paused" style="position:static;display:inline-block"></i> ${t('sync_st_paused')}</span></div>
+    <div class="warn">${t('sync_paused',{d:bdi(esc(d)),n:bdi(n)})}</div><p class="hint">${t('sync_paused_hint')}</p>
+    <div class="mems">${Object.entries(SY.members||{}).map(([id,m])=>`<div class="mem"><span class="swatch" style="background:${/^#[0-9a-f]{6}$/i.test(m.c)?m.c:'#888'}"></span><div class="mem-n"><b>${esc(m.n||'?')}${id===SY.me.id?' · '+t('dar_me'):''}</b></div></div>`).join('')}</div>`}
   return `<div class="row" style="justify-content:space-between"><span><i class="syncdot ${_syncState==='ok'&&pend?'wait':_syncState||'wait'}" style="position:static;display:inline-block"></i> ${t('sync_st_'+(_syncState==='ok'&&pend?'wait':_syncState||'wait'))}${_syncLast?' · '+agoTxt(_syncLast):''}</span><button class="btn sm" onclick="syncNow()">${t('dar_sync_now')}</button></div>
     ${_syncErr==='rules'?`<div class="warn">${t('dar_rules')}</div>`:_syncErr==='big'?`<div class="warn">${t('dar_big')}</div>`:''}
     <div class="mems">${mem.map(([id,m])=>`<div class="mem" style="align-items:center"><span class="swatch" style="background:${/^#[0-9a-f]{6}$/i.test(m.c)?m.c:'#888'}"></span><div class="mem-n"><b>${esc(m.n||'?')}${id===SY.me.id?' · '+t('dar_me'):''}</b>${m.t?`<small>${t('dar_seen',{x:agoTxt(m.t)})}</small>`:''}</div></div>`).join('')}</div>
     <div><span class="lbl">${t('dar_invite')}</span><div class="row"><code class="darcode">${esc(SY.hid)}</code><button class="btn sm" onclick="darCopy()">${t('dar_copy')}</button><a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(t('dar_wa')+' '+darShareLink())}">WhatsApp</a></div></div>
     <p class="hint">${t('dar_shared_what')}</p>
     <div><span class="lbl">${t('dar_profiles')}</span><div class="chips">${S.profiles.filter(p=>!p.example).map(p=>`<button class="chip" aria-pressed="${!!p.shared}" onclick="toggleShareProf('${p.id}')">${esc(p.name)}</button>`).join('')||`<span class="hint">—</span>`}</div><p class="hint">${t('dar_profiles_hint')}</p></div>
-    <div class="row"><button class="btn sm danger" onclick="darLeave()">${delArm==='dar'?t('confirm_del'):t('dar_leave')}</button></div>`}
+    <div class="row"><button class="btn sm" onclick="pauseSync()">${delArm==='pause'?t('sync_pause_q'):t('sync_pause')}</button><button class="btn sm danger" onclick="darLeave()">${delArm==='dar'?t('confirm_del'):t('dar_leave')}</button></div>
+    ${delArm==='pause'?`<p class="hint">${t('sync_pause_hint')}</p>`:''}`}
 function toggleShareProf(id){const p=S.profiles.find(x=>x.id===id);if(!p)return;if(p.shared)delete p.shared;else p.shared=true;save();renderDarBox()}
 function renderDarBox(){const el=document.getElementById('darBox');if(el)el.innerHTML=darBoxHTML()}
 function vDar(){return `<section class="panel stack"><h2 style="font-size:19px">👥 ${t('dar_title')}</h2><div id="darBox" class="stack">${darBoxHTML()}</div></section>`}
@@ -2903,7 +2945,7 @@ function applyTheme(){
 function setTheme(th){S.theme=th;save();applyTheme()}
 try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applyTheme)}catch(e){}
 
-load();syncLoad();migratePf();migrateXtra();render();applyTheme();if(!S.onboarded)obStart();syncBadge();darFromHash();if(SY)syncNow();
+load();syncLoad();migratePf();migrateXtra();if(syncPaused())syncMarkDirty(SY.pause.lastSave);render();applyTheme();if(!S.onboarded)obStart();syncBadge();darFromHash();if(SY)syncNow();
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persisted().then(ok=>{if(!ok)navigator.storage.persist()})}catch(e){}
 
 /* ---------- PWA ---------- */
