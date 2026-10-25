@@ -705,6 +705,29 @@ test('Menu', 'B1: the Menu tab, the list (week) and the split show the same menu
   near(r.split, r.fn, 0.1, 'split adds up to the same cost'); near(r.menuTab, Math.round(r.fn), 0.5, 'Menu tab shows it'); near(r.listTab, Math.round(r.fn), 0.5, 'list tab shows it');
   ok(r.fn > r.old1 * 1.05, 'real portions cost more than one portion each (the case B1 fixes)'); ok(r.warn && !r.note, 'over-budget warning shown');
 });
+test('Menu', 'B2: a lower budget never gives a dearer menu; a reachable budget is met; below the realistic floor the menu stays varied, generation stays fast and the floor is shown', async ({ page }) => {
+  const r = await page.evaluate(TWO => { eval('(' + TWO + ')')();
+    const seed = s => { let x = s; Math.random = () => { x = (x * 1664525 + 1013904223) % 4294967296; return x / 4294967296; }; };
+    const base = { people: 2, time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } };
+    const F = menuMinCost(Object.assign({ budget: '' }, base));
+    const run = (bud, s) => { seed(s); S.menuSet = Object.assign({ budget: bud }, JSON.parse(JSON.stringify(base))); const t0 = performance.now(); makeMenu();
+      const ids = S.menu.days.flatMap(d => [d.ghda, d['3cha']]); return { c: menuWeekCost(), ms: performance.now() - t0, rep: ids.length - new Set(ids).size, days: JSON.stringify(S.menu.days) }; };
+    const levels = ['', Math.round(F * 1.5), Math.round(F * 1.2), Math.round(F * 0.6), Math.round(F * 0.3)], N = 6, avg = {}, per = {};
+    levels.forEach(b => { per[b] = []; for (let k = 0; k < N; k++) per[b].push(run(b, 500 + k)); avg[b] = per[b].reduce((s, x) => s + x.c, 0) / N; });
+    const sameBelow = per[levels[3]].every((x, k) => x.days === per[levels[4]][k].days);
+    const msMax = Math.max(...levels.flatMap(b => per[b].map(x => x.ms))), repLow = per[levels[4]].reduce((s, x) => s + x.rep, 0) / N;
+    const msg = b => { S.menuSet.budget = b; makeMenu(); go('menu'); const w = document.querySelector('#view .mstat ~ .warn'); return w ? w.textContent : ''; };
+    const lowTxt = msg(levels[4]), okTxt = msg(Math.round(F * 3));
+    return { F, levels, avg: levels.map(b => Math.round(avg[b])), sameBelow, msMax, repLow, lowTxt, okTxt, lowKey: t('budget_low', { x: '' }).slice(0, 25) }; }, TWO.toString());
+  const [u, b15, b12, b06, b03] = r.avg;
+  ok(b15 <= u * 1.01 && b12 <= b15 * 1.01 && b06 <= b12 * 1.01 && b03 <= b06 * 1.01, 'cost never rises as the budget falls: ' + r.avg.join(' ≥ '));
+  ok(b12 <= r.levels[2] * 1.05, 'a budget 20 % above the floor is met (' + b12 + ' for ' + r.levels[2] + ')');
+  ok(b06 < u, 'a low budget makes the menu cheaper than no budget');
+  ok(r.sameBelow, 'below the floor every budget gives the same menu (no extra squeezing)');
+  ok(r.repLow <= 1, 'still varied below the floor (repeats/week: ' + r.repLow + ')'); ok(r.msMax < 1500, 'generation stays fast (' + Math.round(r.msMax) + ' ms)');
+  ok(r.lowTxt.includes(r.lowKey) && r.lowTxt.includes(String(Math.ceil(r.F / 10) * 10)), 'too-low budget: message with the floor (' + Math.ceil(r.F / 10) * 10 + ' DH)');
+  ok(!r.okTxt.includes(r.lowKey), 'no floor message when the budget is reachable');
+});
 test('Menu', 'a menu saved before v36 (one shared d.pf) loads: the value goes to the open profile, the other keeps the suggestion; bad values cleaned', async () => {
   const { ctx, page } = await openApp();
   try {
