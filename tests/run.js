@@ -797,6 +797,43 @@ test('Menu', 'B2: the generator costs a week exactly like the Menu tab and the l
   }
   ok(r.mixed.por[0][0] !== r.suggested.por[0][0], 'Mohammed’s ± changes the costed portions');
 });
+/* the two households where the final cost passed the budget after the automatic snacks (seeds 6 and 18 of the review: 500 → 664 and 500 → 656 DH) */
+const SNK_HOUSE = s => { const base = JSON.parse(JSON.stringify(S.profiles[0])), mk = o => Object.assign(JSON.parse(JSON.stringify(base)), o);
+  S.profiles = [mk({ id: 'pM', name: 'Mohammed', example: false, w: 70 + s % 25, h: 175, act: 1.2, goal: 'leanbulk', train: true, tdays: [0, 2, 4] }),
+    mk({ id: 'pR', name: 'Rayan', example: false, w: 55 + s % 20, h: 168, act: 1.375, goal: 'cut', train: true, tdays: [1, 3] })];
+  S.active = 'pR'; S.portions = {}; S.shop = { menu: true, pM: false, pR: false }; S.pantry = {}; };
+test('Menu', 'B2 snacks: in the two households where snacks pushed 500 DH to 664/656, the generator now counts them — its cost = Menu tab = list, snacks kept, and the overrun is stated with the snack share', async ({ page }) => {
+  const r = await page.evaluate(SNK => { eval('(' + SNK + ')');
+    const seed = s => { let x = s; Math.random = () => { x = (x * 1664525 + 1013904223) % 4294967296; return x / 4294967296; }; };
+    return [6, 18].map(s => { seed(s); eval('(' + SNK + ')')(s); seed(s);
+      S.menuSet = { people: 2, budget: 500, time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; makeMenu();
+      const set = S.menu.set, E = portionEst(set), strip = S.menu.days.map(d => { const c = Object.assign({}, d); delete c.xtra; return c; });
+      const gen = strip.reduce((a, d, i) => a + E.costAuto(d, i), 0), tab = menuWeekCost(), list = shopData().cost, snacks = menuSnackCost(), floor = menuMinCost(set);
+      // snacks were not dropped: every training/high-protein eater short by > 8 g on a day has their snacks
+      const missing = S.menu.days.filter((d, i) => nutEaters().some(e => { const x = dayFit(strip[i], e, [], i); return x.hasMain && x.tg.prot - x.sc.p > 8 && !xItems(d, e.id).length; })).length;
+      openDayInit = true; openDay = null; go('menu'); const w = document.querySelector('#view .mstat ~ .warn');
+      return { s, gen, tab, list, snacks, floor, missing, warn: w ? w.textContent : '', over: t('over_budget', { x: (tab - 500).toFixed(0) + ' ' + t('dh') }),
+        snk: tab - snacks <= 500 ? t('budget_snacks_only', { m: (tab - snacks).toFixed(0) + ' ' + t('dh'), s: snacks.toFixed(0) + ' ' + t('dh') }) : t('budget_snacks', { s: snacks.toFixed(0) + ' ' + t('dh') }), low: t('budget_low', { x: Math.ceil(floor / 10) * 10 + ' ' + t('dh') }) }; }); }, SNK_HOUSE.toString());
+  r.forEach(x => {
+    near(x.gen, x.tab, 1e-6, 'seed ' + x.s + ': generator cost = Menu tab (' + Math.round(x.tab) + ' DH)'); near(x.list, x.tab, 1e-6, 'seed ' + x.s + ': = list');
+    ok(x.snacks > 0 && x.missing === 0, 'seed ' + x.s + ': snacks kept for everyone who needs them');
+    if (x.tab > 500) { ok(x.warn.includes(x.over), 'seed ' + x.s + ': exact overrun shown'); ok(x.warn.includes(x.snk), 'seed ' + x.s + ': snack share shown (' + Math.round(x.snacks) + ' DH)');
+      ok(x.floor > 500 && x.warn.includes(x.low), 'seed ' + x.s + ': budget below the menu+snacks floor (' + Math.round(x.floor) + ' DH) is said'); }
+    else ok(!x.warn, 'seed ' + x.s + ': within budget, no warning');
+  });
+});
+test('Menu', 'B2 snacks: a reachable budget is met with the snacks included; when the meals fit but the snacks do not, the warning says exactly that', async ({ page }) => {
+  const r = await page.evaluate(SNK => { const seed = s => { let x = s; Math.random = () => { x = (x * 1664525 + 1013904223) % 4294967296; return x / 4294967296; }; };
+    eval('(' + SNK + ')')(6); const base = { people: 2, time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } };
+    const F = menuMinCost(Object.assign({ budget: '' }, base)), B = Math.round(F * 1.2);
+    seed(6); S.menuSet = Object.assign({ budget: B }, JSON.parse(JSON.stringify(base))); makeMenu(); const met = menuWeekCost();
+    // same menu, budget between the meals alone and meals + snacks
+    const tot = menuWeekCost(), s = menuSnackCost(), mid = Math.round(tot - s / 2); S.menu.set.budget = mid; save(); openDayInit = true; openDay = null; go('menu');
+    const w = document.querySelector('#view .mstat ~ .warn');
+    return { B, met, snacks: s, warn: w ? w.textContent : '', exp: t('budget_snacks_only', { m: (tot - s).toFixed(0) + ' ' + t('dh'), s: s.toFixed(0) + ' ' + t('dh') }), over: t('over_budget', { x: (tot - mid).toFixed(0) + ' ' + t('dh') }), kept: menuSnackCost() === s }; }, SNK_HOUSE.toString());
+  ok(r.met <= r.B * 1.02, 'budget 20 % above the menu+snacks floor is met (' + Math.round(r.met) + ' for ' + r.B + ')');
+  ok(r.snacks > 0, 'the menu has snacks'); ok(r.warn.includes(r.over) && r.warn.includes(r.exp), 'meals fit, snacks do not: said with both amounts'); ok(r.kept, 'snacks not removed');
+});
 test('Menu', 'a menu saved before v36 (one shared d.pf) loads: the value goes to the open profile, the other keeps the suggestion; bad values cleaned', async () => {
   const { ctx, page } = await openApp();
   try {
