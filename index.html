@@ -1877,19 +1877,27 @@ const pick=a=>a[Math.floor(Math.random()*a.length)];
 /* Breakfast recipes are often counted per piece (one beghrir, one msemen): serve enough pieces for ~350 kcal */
 const bQty=r=>{const k=recipeFood(r).m[0]||300;return Math.max(1,Math.min(4,Math.round(350/k)))};
 const BUDGET_W=100;
-/* Household portions of lunch+dinner on menu day i for a candidate day, before the menu exists: same rule as
-   dayFit/menuTotal (each eater's portion sized to calories). Eaters on another phone of the shared home count one
-   portion each, since their sizes are not known for new dishes. Used to cost a week like the Menu tab and the list. */
-function portionEst(set){const pr=P(),mc={},fc={},Z={k:0,cost:0};
-  const M=id=>id?(mc[id]||(mc[id]=sum([[id,1]]))):Z,FT=it=>{if(!it)return Z;const k=JSON.stringify(it);return fc[k]||(fc[k]=sum(it))};
-  const eat=S.profiles.filter(p=>!p.example&&!p.noTargets),etg=eat.map(p=>[0,1,2,3,4,5,6].map(i=>targets(p,i))),ptg=[0,1,2,3,4,5,6].map(i=>targets(pr,i));
-  const remote=isObj(S.portions)?Object.keys(S.portions).filter(id=>!eat.some(p=>p.id===id)).length:0;
-  const sugOf=(tg,ftk,mk)=>Math.max(.5,Math.min(2.5,Math.round((tg.kcal-ftk)/mk*4)/4));
-  const por=(d,i)=>{const mk=M(d.ghda).k+M(d['3cha']).k;if(!mk)return set.people;const ftk=FT(d.ftour).k;
-    if(!eat.length)return set.people-1+(pr.noTargets?1:sugOf(ptg[i],ftk,mk));
-    return etg.reduce((s,tg)=>s+sugOf(tg[i],ftk,mk),0)+remote+Math.max(0,set.people-eat.length-remote)};
-  const cost=(d,i)=>(M(d.ghda).cost+M(d['3cha']).cost)*por(d,i)+FT(d.ftour).cost*set.people;
+/* Cost of a menu week exactly as the Menu tab and the list count it (menuWeekCost via menuTotal / portionEaters), but
+   for days that may not be the saved menu yet, so the generator can cost candidate weeks:
+   - lunch+dinner × the household's portions of that day: each eater whose targets are known gets the portion dayFit
+     gives them (their ± choice in d.pfBy, else the suggested one, sized with their own top-ups); an eater on another
+     phone who published no targets keeps the portion that phone published; everyone else eats one portion;
+   - breakfast × people, and every top-up in d.xtra once. */
+function portionEst(set){const mc={},fc={},Z={k:0,cost:0};
+  const M=id=>id?(mc[id]||(mc[id]=sum([[id,1]]))):Z,FT=it=>{if(!it||!it.length)return Z;const k=JSON.stringify(it);return fc[k]||(fc[k]=sum(it))};
+  const NE=nutEaters(),ntg=NE.map(e=>[0,1,2,3,4,5,6].map(i=>e.tgs?e.tgs[i]:targets(e,i))),known=new Set(NE.map(e=>e.id));
+  const blind=isObj(S.portions)?Object.keys(S.portions).filter(id=>!known.has(id)&&!S.profiles.some(p=>p.id===id)).map(id=>S.portions[id]):[];
+  const n=set.people,pr=P(),ptg=[0,1,2,3,4,5,6].map(i=>targets(pr,i));
+  const fOf=(d,i,id,tg,mk)=>{const own=isObj(d.pfBy)?d.pfBy[id]:null;return own!=null?own:sugPortion(tg.kcal,FT((d.ftour||[]).concat(xItems(d,id))).k,mk)};
+  const por=(d,i)=>{const mk=M(d.ghda).k+M(d['3cha']).k;
+    if(!NE.length&&!blind.length)return n+(mk>0?fOf(d,i,pr.id,ptg[i],mk):1)-1;
+    const s=NE.reduce((a,e,j)=>a+(mk>0?fOf(d,i,e.id,ntg[j][i],mk):1),0)+blind.reduce((a,e)=>a+(+e.f[i]||1),0);
+    return Math.round((s+Math.max(0,n-NE.length-blind.length))*100)/100};
+  const xc=d=>isObj(d.xtra)?Object.keys(d.xtra).reduce((a,id)=>a+FT(xItems(d,id)).cost,0):0;
+  const cost=(d,i)=>(M(d.ghda).cost+M(d['3cha']).cost)*por(d,i)+FT(d.ftour).cost*n+xc(d);
   return {M,FT,por,cost}}
+/* the same cost for a whole list of days (the generator's view of a week) */
+function menuCostEst(set,days){const E=portionEst(set);return days.reduce((a,d,i)=>a+E.cost(d,i),0)}
 /* Cheapest week the recipes allow with no dish twice, costed with the household's portions: the realistic floor of a budget */
 function menuMinCost(set){const pl=menuPools(set),uniq=a=>a.filter((r,i)=>a.indexOf(r)===i),E=portionEst(set);
   const cheap=a=>a.slice().sort((x,y)=>recCost(x)-recCost(y));
@@ -2045,6 +2053,8 @@ function menuBreak(items,key,extra){const n=S.menu.set.people,ex=Math.round((ext
     <div class="ing3 hd"><span></span><span>${t('per_one')}</span><span>${ex?t('for_n_x',{n:bdi(n),x:bdi((ex>0?'+':'')+ex)}):t('for_n',{n:bdi(n)})}</span></div>${rows}${ex?`<p class="hint" style="margin:6px 0 0">${t('for_n_hint',{t:bdi(Math.round(tot*100)/100),x:bdi(Math.round((1+ex)*100)/100)})}</p>`:''}</div>`}
 /* How a menu day meets the active profile's targets; lunch and dinner portions are scaled to close the calorie gap */
 const XK=['snack','snack2','side'];
+/* suggested lunch+dinner portion: what closes the calorie gap left by breakfast and top-ups, in quarters, 0.5–2.5 */
+const sugPortion=(kcal,ftk,mk)=>mk>0?Math.max(.5,Math.min(2.5,Math.round((kcal-ftk)/mk*4)/4)):1;
 const xOf=(d,id)=>(isObj(d.xtra)&&isObj(d.xtra[id]))?d.xtra[id]:{};
 const xItems=(d,id)=>{const x=xOf(d,id);return [].concat(x.snack||[],x.snack2||[],x.side||[])};
 function setX(d,id,k,l){if(l&&l.length){if(!isObj(d.xtra))d.xtra={};if(!isObj(d.xtra[id]))d.xtra[id]={};d.xtra[id][k]=l}
@@ -2056,7 +2066,7 @@ function nutEaters(){const own=S.profiles.filter(p=>!p.example&&!p.noTargets);co
   return out}
 const eaterTrain=e=>e.remote?e.tgs.some(g=>g.trainDay):!!e.train;
 function dayFit(d,p,extra,wd){const wi=wd!=null?wd:S.menu?S.menu.days.indexOf(d):null;const tg=p.tgs?Object.assign({},p.tgs[wi>=0?wi:0]):targets(p,wi);const ft=sum((d.ftour||[]).concat(extra||xItems(d,p.id)));const main=sum([d.ghda,d['3cha']].filter(Boolean).map(id=>[id,1]));
-  let sug=1;if(main.k>0)sug=Math.max(.5,Math.min(2.5,Math.round((tg.kcal-ft.k)/main.k*4)/4));
+  const sug=sugPortion(tg.kcal,ft.k,main.k);
   const own=isObj(d.pfBy)?d.pfBy[p.id]:null,f=own!=null?own:sug;
   const sc={};['k','p','c','f'].forEach(x=>sc[x]=ft[x]+main[x]*f);const raw={};['k','p','c','f'].forEach(x=>raw[x]=ft[x]+main[x]);
   return {f,sug,tg,sc,raw,hasMain:main.k>0}}

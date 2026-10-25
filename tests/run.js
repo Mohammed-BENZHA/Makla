@@ -773,6 +773,30 @@ test('Menu', 'A1: top-ups saved before v38 (snack/side + snackFor) load into the
   } finally { await ctx.close(); }
 });
 
+test('Menu', 'B2: the generator costs a week exactly like the Menu tab and the list — two profiles with different portions (± and suggested), top-ups, a remote eater with and without targets', async ({ page }) => {
+  const r = await page.evaluate(TWO => { eval('(' + TWO + ')')();
+    S.menuSet = { people: 3, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; S.active = 'pM'; makeMenu();
+    const set = S.menu.set, out = {}, cmp = tag => { out[tag] = { gen: menuCostEst(set, S.menu.days), tab: menuWeekCost(), list: shopData().cost, por: S.menu.days.map((d, i) => [portionEst(set).por(d, i), menuTotal(i)]) }; };
+    // 1) nobody has chosen a portion yet: suggested portions for both
+    cmp('suggested');
+    // 2) Mohammed chose 2.5 on Monday, Rayan nothing (suggested); top-ups for each
+    const d = S.menu.days[0]; d.pfBy = { pM: 2.5 }; d.xtra = { pM: { snack: [['ton_ma', 1]] }, pR: { side: [['khobz', 0.5]] } }; save();
+    cmp('mixed');
+    // 3) both chose, different
+    S.menu.days[2].pfBy = { pM: 1.75, pR: 0.75 }; save(); cmp('both');
+    // 4) a third eater on another phone that published targets, then one that did not (old version)
+    S.menuSet.people = 3; const R = S.profiles[1]; S.profiles = [S.profiles[0]];
+    S.portions = { pR: { n: 'Rayan', f: S.menu.days.map((x, i) => (x.ghda || x['3cha']) ? dayFit(x, R, undefined, i).f : 1), tg: [0, 1, 2, 3, 4, 5, 6].map(i => { const g = targets(R, i); return { kcal: g.kcal, prot: g.prot, fat: g.fat, carbs: g.carbs, trainDay: !!g.trainDay, restDay: !!g.restDay }; }) } }; save(); cmp('remote');
+    S.portions = { pR: { n: 'Rayan', f: [1.25, 1, 0.75, 1, 1.5, 1, 1] } }; save(); cmp('remoteOld');
+    // the generator uses the same function: a generated week costs the same in the generator and in the Menu tab
+    S.profiles.push(R); S.portions = {}; S.menuSet.budget = 400; makeMenu(); cmp('generated');
+    return out; }, TWO.toString());
+  for (const [k, v] of Object.entries(r)) {
+    near(v.gen, v.tab, 1e-6, k + ': generator = Menu tab'); near(v.gen, v.list, 1e-6, k + ': generator = list');
+    v.por.forEach(([a, b], i) => near(a, b, 1e-9, k + ': day ' + i + ' portions'));
+  }
+  ok(r.mixed.por[0][0] !== r.suggested.por[0][0], 'Mohammed’s ± changes the costed portions');
+});
 test('Menu', 'a menu saved before v36 (one shared d.pf) loads: the value goes to the open profile, the other keeps the suggestion; bad values cleaned', async () => {
   const { ctx, page } = await openApp();
   try {
