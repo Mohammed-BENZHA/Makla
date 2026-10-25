@@ -493,6 +493,7 @@ nav.tabs button[aria-selected="true"],.tip{background:var(--accent-soft);backgro
 .syncdot{display:inline-block;width:10px;height:10px;border-radius:99px;background:var(--muted);flex:none}
 .syncdot[hidden]{display:none}
 .syncdot.ok{background:#2f9e5f}.syncdot.wait{background:#d4a017}.syncdot.err{background:var(--danger)}.syncdot.off{background:#9a9a9a}
+.ofit{display:flex;flex-direction:column;gap:4px;border-top:1px solid var(--line);padding-top:8px;font-size:13px}.ofit .pill{font-size:11px}
 .sdot{display:inline-block;width:9px;height:9px;border-radius:99px;margin-inline-end:6px;vertical-align:middle;box-shadow:0 0 0 2px var(--card)}
 .swatch{width:30px;height:30px;border-radius:99px;border:2px solid transparent;padding:0;display:inline-block;flex:none}
 button.swatch[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 2px var(--card) inset}
@@ -531,6 +532,7 @@ const I18N={
 dj:{
  place_khddar:'Khddar · khodra w fakiha',place_gezzar:'Gezzar · l7em w djaj',place_7awwat:'7awwat · l7out',place_ferran:'Khobz',place_7anout:'7anout · bi9ala',money_t:'Taman, budget w ch7al khlesti',st_ok:'Mtakamel',st_prot:'Na9s protein',st_fat:'Dhoun ktar',st_carb:'Na9s karb',st_kcal_lo:'Na9s calories',st_kcal_hi:'Calories ktar',today_lbl:'lyoum',
  tab_ana:'Ana',settings_t:'Réglages',ob_welcome:'Mar7ba f Makla Mizan',ob_intro:'Jawb 3la 4 d l\'as2ila, w l\'app twejjed lik l\'makla dyal simana w lista dyal t9edya b DH.',ob_start:'Yallah nbdaw',ob_skip:'Tkhatta',next:'Tab3',back:'Rje3',ob_people:'Ch7al d nass kaytaklou f dar?',ob_people_hint:'L\'kmiyat dyal l\'tayb w lista kayt7sbou 3la had l3add.',ob_excl:'Chno ma katakloch?',ob_budget:'Ch7al bghiti tkhless f simana?',ob_budget_hint:'Ikhtiyari. Khlli khawi ila ma 3endekch budget.',ob_macros:'Bghiti n7sbou calories w protein dyalek?',ob_macros_yes:'Ah, 3endi hadaf (tnchif, 3dalat…)',ob_macros_yes_hint:'Ghadi nsewlouk 3la wazn, tol w 3mer bach n7sbou l\'portion dyalek.',ob_macros_no:'La, ghir l\'menu w lista',ob_macros_no_hint:'T9der tzidha men ba3d f "Ana".',ob_done:'L\'menu dyalek wajed!',me_default:'Ana',notargets_note:'Bach l\'app t7seb calories w protein dyalek, 3mmer wazn, tol w 3mer dyalek f Ana → Profil.',go_profile:'Mchi l Profil',
+ fit_other:'{f} portion · protein {p}/{t} g',fit_miss:'Ma wselch l\'ahdaf dyalo had nhar: {n}',
  budget_low:'Had l\'budget sghir 3la les recettes li 3endek: a9al simana bla tkrar, b les portions dyalkom, katbda men ≈ {x}.',
  prog_q:'Program "{n}": {d} d ayyam w {c} makla jdida ghaytzado l {p}. L\'ayyam li 3endhom nefs smiya ghaytbeddlo, w Simana w ayyam tadrib ghayt7ddo. Data lokhra ma katmessch.',toast_prog:'Program tzad: chouf Ayyam w Simana',
  split_t:'Chkoun ykhless ch7al',split_others:'Lakhrin ({x})',split_hint:'Kol wa7ed kaykhless chno kaykoul: l\'portion dyalo f l\'ghda w l3cha, ftour wa7ed l kol wa7ed, w lmlja l li tzadet lih. Mli tkhless, 9sem l\'mablagh l7a9i9i dyal l\'ticket b had n-nisab.',src_days:'Ayyam dyal {n}',src_hint:'🏠 = l\'menu dyal ddar (mcharek). 👤 = makla li 7ttiti l rasek f Ana → Ayyam (khassa bik). Ma t3lmhomch b jouj ila kanet nefs l\'makla.',src_warn_home:'Had lista fiha 7tta Ayyam dyal {n}, zayda 3la l\'menu dyal ddar. L\'akhor ma kaychoufhomch, ya3ni lista dyalkom ghadi tkhtalef.',
@@ -622,6 +624,7 @@ dj:{
 da:{
  place_khddar:'الخضار · خضرة وفاكية',place_gezzar:'الجزار · اللحم والدجاج',place_7awwat:'الحوات · الحوت',place_ferran:'الخبز',place_7anout:'الحانوت · البقالة',money_t:'الثمن، البودجي وشحال خلصتي',st_ok:'متكامل',st_prot:'ناقص البروتين',st_fat:'الدهون كثار',st_carb:'ناقص الكارب',st_kcal_lo:'ناقصين السعرات',st_kcal_hi:'السعرات كثار',today_lbl:'اليوم',
  tab_ana:'أنا',settings_t:'الإعدادات',ob_welcome:'مرحبا فـMakla Mizan',ob_intro:'جاوب على 4 ديال الأسئلة، والأپليكاسيون توجد ليك الماكلة ديال السيمانة واللائحة ديال التقضية بالدرهم.',ob_start:'يالاه نبداو',ob_skip:'تخطى',next:'تابع',back:'رجع',ob_people:'شحال ديال الناس كيتاكلو فالدار؟',ob_people_hint:'الكميات ديال الطياب واللائحة كيتحسبو على هاد العدد.',ob_excl:'شنو ما كتاكلوش؟',ob_budget:'شحال بغيتي تخلص فالسيمانة؟',ob_budget_hint:'اختياري. خلي خاوي إلا ما عندكش بودجي.',ob_macros:'بغيتي نحسبو السعرات والبروتين ديالك؟',ob_macros_yes:'آه، عندي هدف (تنشيف، عضلات…)',ob_macros_yes_hint:'غادي نسولوك على الوزن والطول والعمر باش نحسبو الپورسيون ديالك.',ob_macros_no:'لا، غير المنيو واللائحة',ob_macros_no_hint:'تقدر تزيدها من بعد فـ"أنا".',ob_done:'المنيو ديالك واجد!',me_default:'أنا',notargets_note:'باش الأپليكاسيون تحسب السعرات والبروتين ديالك، عمر الوزن والطول والعمر ديالك فـ"أنا" ← البروفيل.',go_profile:'سير للبروفيل',
+ fit_other:'{f} پورسيون · بروتين {p}/{t} غ',fit_miss:'ما وصلش للأهداف ديالو هاد النهار: {n}',
  budget_low:'هاد البودجي صغير على الوصفات لي عندك: أقل سيمانة بلا تكرار، بالپورسيونات ديالكم، كتبدا من ≈ {x}.',
  prog_q:'البرنامج "{n}": {d} ديال الأيام و{c} ماكلة جديدة غيتزادو لـ{p}. الأيام لي عندهم نفس السمية غيتبدلو، والسيمانة وأيام التدريب غيتحددو. الداتا لخرا ما كتمسش.',toast_prog:'البرنامج تزاد: شوف الأيام والسيمانة',
  split_t:'شكون يخلص شحال',split_others:'الآخرين ({x})',split_hint:'كل واحد كيخلص شنو كياكل: الپورسيون ديالو فالغدا والعشا، فطور واحد لكل واحد، والملجة للي تزادت ليه. ملي تخلص، قسم المبلغ الحقيقي ديال التيكي بهاد النسب.',src_days:'أيام {n}',src_hint:'🏠 = المنيو ديال الدار (مشارك). 👤 = الماكلة اللي حطيتي لراسك ف أنا ← الأيام (خاصة بيك). ما تعلمهمش بجوج إلا كانت نفس الماكلة.',src_warn_home:'هاد اللائحة فيها حتى أيام {n}، زايدة على المنيو ديال الدار. الآخر ما كيشوفهمش، يعني اللائحة ديالكم غادي تختالف.',
@@ -713,6 +716,7 @@ da:{
 fr:{
  place_khddar:'Primeur · fruits et légumes',place_gezzar:'Boucherie · viande et volaille',place_7awwat:'Poissonnerie',place_ferran:'Boulangerie',place_7anout:'Épicerie',money_t:'Coûts, budget et dépenses',st_ok:'Équilibré',st_prot:'Protéines insuffisantes',st_fat:'Trop de lipides',st_carb:'Glucides insuffisants',st_kcal_lo:'Calories insuffisantes',st_kcal_hi:'Trop de calories',today_lbl:'aujourd\'hui',
  tab_ana:'Moi',settings_t:'Réglages',ob_welcome:'Bienvenue dans Makla Mizan',ob_intro:'Répondez à 4 questions et l\'app prépare les repas de la semaine et la liste de courses en DH.',ob_start:'Commencer',ob_skip:'Passer',next:'Suivant',back:'Retour',ob_people:'Combien de personnes mangent à la maison ?',ob_people_hint:'Les quantités à cuisiner et la liste sont calculées pour ce nombre.',ob_excl:'Que ne mangez-vous pas ?',ob_budget:'Quel budget par semaine ?',ob_budget_hint:'Facultatif. Laissez vide si vous n\'avez pas de budget.',ob_macros:'Calculer vos calories et protéines ?',ob_macros_yes:'Oui, j\'ai un objectif (sèche, muscle…)',ob_macros_yes_hint:'Poids, taille et âge servent à calculer votre portion.',ob_macros_no:'Non, juste le menu et la liste',ob_macros_no_hint:'Vous pourrez l\'ajouter plus tard dans « Moi ».',ob_done:'Votre menu est prêt !',me_default:'Moi',notargets_note:'Pour calculer vos calories et protéines, indiquez poids, taille et âge dans Moi → Profil.',go_profile:'Aller au profil',
+ fit_other:'{f} portion(s) · protéines {p}/{t} g',fit_miss:'Objectifs non atteints ce jour : {n}',
  budget_low:'Ce budget est trop bas pour vos recettes : la semaine la moins chère sans répétition avec vos portions, commence à ≈ {x}.',
  prog_q:'Programme « {n} » : {d} jours et {c} nouveaux aliments seront ajoutés à {p}. Les jours du même nom sont remplacés ; la semaine et les jours d\'entraînement sont réglés. Le reste ne change pas.',toast_prog:'Programme ajouté : voir Jours et Semaine',
  split_t:'Qui paie combien',split_others:'Autres ({x})',split_hint:'Chacun paie ce qu\'il mange : sa portion midi et soir, un petit-déjeuner chacun, et les en-cas pour qui ils ont été ajoutés. Appliquez ces pourcentages au montant réel du ticket.',src_days:'Jours de {n}',src_hint:'🏠 = menu du foyer (partagé). 👤 = repas que vous avez prévus pour vous dans Moi → Jours (personnels). Ne cochez pas les deux pour les mêmes repas.',src_warn_home:'Cette liste contient aussi les Jours de {n}, en plus du menu du foyer. L\'autre ne les voit pas : vos listes vont différer.',
@@ -804,6 +808,7 @@ fr:{
 ar:{
  place_khddar:'الخضار · خضر وفواكه',place_gezzar:'الجزار · لحم ودجاج',place_7awwat:'بائع السمك',place_ferran:'المخبزة',place_7anout:'البقال',money_t:'التكلفة والميزانية والمصروف',st_ok:'متوازن',st_prot:'بروتين ناقص',st_fat:'دهون زائدة',st_carb:'نشويات ناقصة',st_kcal_lo:'سعرات ناقصة',st_kcal_hi:'سعرات زائدة',today_lbl:'اليوم',
  tab_ana:'أنا',settings_t:'الإعدادات',ob_welcome:'مرحبًا بك في Makla Mizan',ob_intro:'أجب عن 4 أسئلة، وسيُعدّ التطبيق وجبات الأسبوع ولائحة المشتريات بالدرهم.',ob_start:'لنبدأ',ob_skip:'تخطٍّ',next:'التالي',back:'رجوع',ob_people:'كم شخصًا يأكل في البيت؟',ob_people_hint:'تُحسب كميات الطبخ واللائحة لهذا العدد.',ob_excl:'ما الذي لا تأكلونه؟',ob_budget:'كم تريد أن تنفق في الأسبوع؟',ob_budget_hint:'اختياري. اتركه فارغًا إذا لم تكن لديك ميزانية.',ob_macros:'هل نحسب سعراتك وبروتينك؟',ob_macros_yes:'نعم، لدي هدف (تنشيف، عضلات…)',ob_macros_yes_hint:'نستعمل الوزن والطول والعمر لحساب حصتك.',ob_macros_no:'لا، فقط القائمة واللائحة',ob_macros_no_hint:'يمكنك إضافتها لاحقًا في «أنا».',ob_done:'قائمتك جاهزة!',me_default:'أنا',notargets_note:'لحساب سعراتك وبروتينك، أدخل الوزن والطول والعمر في أنا ← الملف الشخصي.',go_profile:'الذهاب إلى الملف',
+ fit_other:'{f} حصة · بروتين {p}/{t} غ',fit_miss:'لم تتحقق أهدافه في هذا اليوم: {n}',
  budget_low:'هذه الميزانية منخفضة جدًا لوصفاتك: أرخص أسبوع بلا تكرار بحصصكم، يبدأ من ≈ {x}.',
  prog_q:'البرنامج «{n}»: ستضاف {d} أيام و{c} أطعمة جديدة إلى {p}. تستبدل الأيام التي تحمل نفس الاسم، ويضبط الأسبوع وأيام التدريب. لا يتغير شيء آخر.',toast_prog:'أضيف البرنامج: راجع الأيام والأسبوع',
  split_t:'من يدفع كم',split_others:'آخرون ({x})',split_hint:'يدفع كل واحد ما يأكله: حصته في الغداء والعشاء، فطور لكل واحد، والوجبات الخفيفة لمن أضيفت له. طبّق هذه النسب على المبلغ الحقيقي للفاتورة.',src_days:'أيام {n}',src_hint:'🏠 = قائمة البيت (مشتركة). 👤 = وجبات خطّطتها لنفسك في أنا ← الأيام (خاصة). لا تختر الاثنين لنفس الوجبات.',src_warn_home:'تتضمن هذه اللائحة أيضًا أيام {n}، زيادة على قائمة البيت. الآخر لا يراها، لذا ستختلف لوائحكم.',
@@ -895,6 +900,7 @@ ar:{
 en:{
  place_khddar:'Greengrocer · fruit & veg',place_gezzar:'Butcher · meat & poultry',place_7awwat:'Fishmonger',place_ferran:'Bakery',place_7anout:'Grocery shop',money_t:'Costs, budget and spending',st_ok:'Balanced',st_prot:'Low protein',st_fat:'Too much fat',st_carb:'Low carbs',st_kcal_lo:'Low calories',st_kcal_hi:'Too many calories',today_lbl:'today',
  tab_ana:'Me',settings_t:'Settings',ob_welcome:'Welcome to Makla Mizan',ob_intro:'Answer 4 questions and the app plans the week\'s meals and a shopping list in DH.',ob_start:'Let\'s start',ob_skip:'Skip',next:'Next',back:'Back',ob_people:'How many people eat at home?',ob_people_hint:'Cooking amounts and the list are worked out for this number.',ob_excl:'What don\'t you eat?',ob_budget:'How much do you want to spend a week?',ob_budget_hint:'Optional. Leave empty if you have no budget.',ob_macros:'Work out your calories and protein?',ob_macros_yes:'Yes, I have a goal (cut, muscle…)',ob_macros_yes_hint:'Weight, height and age are used to size your portion.',ob_macros_no:'No, just the menu and the list',ob_macros_no_hint:'You can add it later under "Me".',ob_done:'Your menu is ready!',me_default:'Me',notargets_note:'To work out your calories and protein, enter weight, height and age in Me → Profile.',go_profile:'Go to profile',
+ fit_other:'{f} portion(s) · protein {p}/{t} g',fit_miss:'Targets not met this day: {n}',
  budget_low:'This budget is too low for your recipes: the cheapest week without repeats with your portions, starts at ≈ {x}.',
  prog_q:'Program "{n}": {d} days and {c} new foods will be added to {p}. Days with the same name are replaced; the week and training days are set. Nothing else changes.',toast_prog:'Program added: see Days and Week',
  split_t:'Who pays what',split_others:'Others ({x})',split_hint:'Everyone pays for what they eat: their own lunch and dinner portion, one breakfast each, and snacks for whoever they were added for. Apply these percentages to the real receipt.',src_days:'{n}\'s days',src_hint:'🏠 = the home menu (shared). 👤 = meals you planned for yourself in Me → Days (personal). Do not tick both for the same meals.',src_warn_home:'This list also includes {n}\'s days on top of the home menu. The other person does not see them, so your lists will differ.',
@@ -1270,7 +1276,8 @@ function sanitizeIds(){
   const shop={};Object.keys(S.shop).forEach(k=>{const n=pmap[k]||k;if(OKID.test(n))shop[n]=!!S.shop[k]});S.shop=shop;
   S.recipes.forEach(r=>remap(r.items));
   if(Array.isArray(S.fav))S.fav=S.fav.map(id=>map[id]!=null?map[id]:id);
-  if(S.menu){S.menu.days.forEach(d=>{['ftour','snack','snack2','side'].forEach(k=>{if(d[k])remap(d[k])});['ghda','3cha'].forEach(k=>{if(d[k]!=null)d[k]=mapId(d[k]);if(d[k]!=null&&!(typeof d[k]==='string'&&OKID.test(d[k]))){d[k]=null;fx()}})})}
+  if(S.menu){S.menu.days.forEach(d=>{['ftour','snack','snack2','side'].forEach(k=>{if(d[k])remap(d[k])});
+    if(isObj(d.xtra)){const nx={};Object.keys(d.xtra).forEach(k=>{const x=d.xtra[k];if(isObj(x))XK.forEach(s=>{if(Array.isArray(x[s]))remap(x[s])});nx[pmap[k]||k]=x});d.xtra=nx}['ghda','3cha'].forEach(k=>{if(d[k]!=null)d[k]=mapId(d[k]);if(d[k]!=null&&!(typeof d[k]==='string'&&OKID.test(d[k]))){d[k]=null;fx()}})})}
   ['prices','pantry','checked'].forEach(key=>{const o={};Object.keys(S[key]).forEach(k=>{const n=mapId(k);if(OKID.test(n))o[n]=S[key][k];else fx()});S[key]=o});
   S.spend.forEach(x=>{if(!OKID.test(String(x.id))){x.id=uid();fx()}});
 }
@@ -1284,6 +1291,9 @@ function sanitizeMenu(m){
     ['ghda','3cha'].forEach(k=>{if(d[k]!=null&&typeof d[k]!=='string'){d[k]=null;fx()}});
     ['snackFor','sideFor'].forEach(k=>{if(d[k]!=null&&!(typeof d[k]==='string'&&OKID.test(d[k]))){delete d[k];fx()}});
     if(d.pf!=null){const v=+d.pf;if(!(v>=.5&&v<=3)){delete d.pf;fx()}}
+    /* protein snacks and carb sides of each eater: {profileId: {snack,snack2,side}}; '_' = owner unknown (old data) */
+    if(d.xtra!=null){if(!isObj(d.xtra)){delete d.xtra;fx()}else{Object.keys(d.xtra).forEach(k=>{const x=d.xtra[k];if(!OKID.test(k)||!isObj(x)){delete d.xtra[k];fx();return}
+      const c={};XK.forEach(s=>{if(x[s]!=null){const l=cleanList(x[s]);if(l.length)c[s]=l}});if(Object.keys(c).length)d.xtra[k]=c;else delete d.xtra[k]});if(!Object.keys(d.xtra).length)delete d.xtra}}
     /* portion chosen with ± by each profile: {profileId: 0.5–3} */
     if(d.pfBy!=null){if(!isObj(d.pfBy)){delete d.pfBy;fx()}else{Object.keys(d.pfBy).forEach(k=>{const v=+d.pfBy[k];if(!OKID.test(k)||!(v>=.5&&v<=3)){delete d.pfBy[k];fx()}else d.pfBy[k]=v});if(!Object.keys(d.pfBy).length)delete d.pfBy}}
     return d});
@@ -1337,7 +1347,9 @@ function sanitize(){
   if(S.budget!==''&&!(Number.isFinite(+S.budget)&&+S.budget>=0)){S.budget='';fx()}
   if(S.lastBackup!=null&&!Number.isFinite(+S.lastBackup))delete S.lastBackup;
   S.onboarded=!!S.onboarded;
-  if(S.portions!=null){if(!isObj(S.portions)){S.portions={};fx()}else Object.keys(S.portions).forEach(k=>{const e=S.portions[k];if(!OKID.test(k)||!isObj(e)||!Array.isArray(e.f)||e.f.length!==7||e.f.some(x=>!(+x>=.5&&+x<=3))){delete S.portions[k];fx()}else{e.f=e.f.map(Number);e.n=String(e.n||'').slice(0,60)}})}
+  if(S.portions!=null){if(!isObj(S.portions)){S.portions={};fx()}else Object.keys(S.portions).forEach(k=>{const e=S.portions[k];if(!OKID.test(k)||!isObj(e)||!Array.isArray(e.f)||e.f.length!==7||e.f.some(x=>!(+x>=.5&&+x<=3))){delete S.portions[k];fx()}else{e.f=e.f.map(Number);e.n=String(e.n||'').slice(0,60);
+    if(e.tg!=null&&!(Array.isArray(e.tg)&&e.tg.length===7&&e.tg.every(g=>isObj(g)&&['kcal','prot','fat','carbs'].every(k=>+g[k]>0&&+g[k]<2e4)))){delete e.tg;fx()}
+    else if(e.tg)e.tg=e.tg.map(g=>({kcal:+g.kcal,prot:+g.prot,fat:+g.fat,carbs:+g.carbs,trainDay:!!g.trainDay,restDay:!!g.restDay}))}})}
   if(S.tips!=null){if(!isObj(S.tips)){S.tips={};fx()}else Object.keys(S.tips).forEach(k=>{if(!OKID.test(k)||!S.tips[k])delete S.tips[k];else S.tips[k]=1})}
   sanitizeIds();
   if(S.fav!=null){if(!Array.isArray(S.fav)){S.fav=[];fx()}const ids=new Set(S.recipes.map(r=>r.id));const a=[...new Set(S.fav.filter(id=>typeof id==='string'&&ids.has(id)))];if(a.length!==S.fav.length)fx();S.fav=a}
@@ -1898,11 +1910,14 @@ function genWeek(set){
   const den=bud?Math.max(bud,menuMinCost(set)):1;
   /* Each day is scored against the active profile: lunch+dinner portions sized to calories, then missing protein and excess fat are penalised */
   const pr=P(),tgs=[0,1,2,3,4,5,6].map(i=>targets(pr,i)),mc={},fc={},Z={k:0,p:0,c:0,f:0,cost:0};
+  /* every eater counts the same, whichever profile is open; with nobody to size for, the open profile as before */
+  const NE=nutEaters(),EAT=NE.length?NE.map(e=>[0,1,2,3,4,5,6].map(i=>e.tgs?e.tgs[i]:targets(e,i))):(pr.noTargets?[]:[tgs]);
   const M=id=>id?(mc[id]||(mc[id]=sum([[id,1]]))):Z, FT=it=>{if(!it)return Z;const k=JSON.stringify(it);return fc[k]||(fc[k]=sum(it))};
   const WP=set.hp?45:25,WF=set.lf?45:25;
-  const nutPen=(d,i)=>{if(pr.noTargets)return 0;const tg=tgs[i],ft=FT(d.ftour),a=M(d.ghda),b=M(d['3cha']),mk=a.k+b.k;if(!mk)return 0;
-    const f=Math.max(.5,Math.min(2.5,(tg.kcal-ft.k)/mk)),pp=ft.p+(a.p+b.p)*f,ff=ft.f+(a.f+b.f)*f;
+  const pen1=(tg,ft,a,b,mk)=>{const f=Math.max(.5,Math.min(2.5,(tg.kcal-ft.k)/mk)),pp=ft.p+(a.p+b.p)*f,ff=ft.f+(a.f+b.f)*f;
     return Math.max(0,tg.prot-pp)/tg.prot*WP+Math.max(0,ff-tg.fat)/tg.fat*WF};
+  const nutPen=(d,i)=>{if(!EAT.length)return 0;const ft=FT(d.ftour),a=M(d.ghda),b=M(d['3cha']),mk=a.k+b.k;if(!mk)return 0;
+    return EAT.reduce((s,tg)=>s+pen1(tg[i],ft,a,b,mk),0)/EAT.length};
   const prot=id=>protOf(recipe(id)),fav=new Set(Array.isArray(S.fav)?S.fav:[]);
   /* The budget is for the whole household, so the week is costed like the Menu tab and the list (menuWeekCost) */
   const PE=bud?portionEst(set):null;
@@ -1954,7 +1969,7 @@ function menuTotal(i){if(!S.menu)return 0;const n=S.menu.set.people,ev=Object.va
    for each person, protein/carb top-ups once. The shopping list and the Menu tab both read it, so their costs agree. */
 function eachMenuItem(cb){if(!S.menu)return;const n=S.menu.set.people;
   S.menu.days.forEach((d,i)=>{const pm=menuTotal(i)/n;
-    const meals={ftour:d.ftour||[],ghda:d.ghda?[[d.ghda,pm]]:[],'3cha':d['3cha']?[[d['3cha'],pm]]:[],snack:[].concat(d.snack||[],d.snack2||[],d.side||[]).map(([id,q])=>[id,q/n])};
+    const meals={ftour:d.ftour||[],ghda:d.ghda?[[d.ghda,pm]]:[],'3cha':d['3cha']?[[d['3cha'],pm]]:[],snack:(isObj(d.xtra)?Object.keys(d.xtra).flatMap(id=>xItems(d,id)):[]).map(([id,q])=>[id,q/n])};
     Object.values(meals).forEach(list=>list.forEach(([id,q])=>{const f=food(id);if(f)cb(id,q,f,n)}))})}
 /* cost of what the menu's household eats in the week (DH) */
 function menuWeekCost(){let c=0;eachMenuItem((id,q,f,n)=>{c+=q*f.f*price(f)*n});return c}
@@ -1980,7 +1995,7 @@ function toggleExcl(e){const x=S.menuSet.excl;const i=x.indexOf(e);if(i>=0)x.spl
 function makeMenu(){openDayInit=false;const set=JSON.parse(JSON.stringify(S.menuSet||defaultSet()));if(!set.meals.ftour&&!set.meals.ghda&&!set.meals['3cha'])set.meals.ghda=true;
   const days=genWeek(set);if(!days){const e=document.getElementById('mErr');if(e)e.textContent=t('no_option');return}
   S.menu={set,days,at:Date.now()};
-  if(!P().noTargets&&(P().train||set.hp))days.forEach((d,i)=>{const x=dayFit(d,P());if(x.hasMain&&x.tg.prot-x.sc.p>8)fillProt(i,true)});if(S.shop.menu==null)S.shop.menu=true;menuEdit=false;swapAt=null;save();render();window.scrollTo(0,0)}
+  nutEaters().filter(e=>eaterTrain(e)||set.hp).forEach(e=>days.forEach((d,i)=>{const x=dayFit(d,e);if(x.hasMain&&x.tg.prot-x.sc.p>8)fillProt(i,true,e)}));if(S.shop.menu==null)S.shop.menu=true;menuEdit=false;swapAt=null;save();render();window.scrollTo(0,0)}
 /* Effect of a swap on the whole day: portions are re-sized to calories, so a "lighter" dish can still raise the day's fat.
    Lean / protein modes therefore rank by the resulting day, and only keep options that actually improve it. */
 let swapEff={};
@@ -2029,7 +2044,18 @@ function menuBreak(items,key,extra){const n=S.menu.set.people,ex=Math.round((ext
   return `<div class="ingbox"><button class="ing-t" aria-expanded="true" onclick="delete ingOpen['${key}'];render()">▾ ${t('ing_all')}</button>
     <div class="ing3 hd"><span></span><span>${t('per_one')}</span><span>${ex?t('for_n_x',{n:bdi(n),x:bdi((ex>0?'+':'')+ex)}):t('for_n',{n:bdi(n)})}</span></div>${rows}${ex?`<p class="hint" style="margin:6px 0 0">${t('for_n_hint',{t:bdi(Math.round(tot*100)/100),x:bdi(Math.round((1+ex)*100)/100)})}</p>`:''}</div>`}
 /* How a menu day meets the active profile's targets; lunch and dinner portions are scaled to close the calorie gap */
-function dayFit(d,p,extra,wd){const tg=targets(p,wd!=null?wd:S.menu?S.menu.days.indexOf(d):null);const ft=sum((d.ftour||[]).concat(extra||[].concat(d.snack||[],d.snack2||[],d.side||[])));const main=sum([d.ghda,d['3cha']].filter(Boolean).map(id=>[id,1]));
+const XK=['snack','snack2','side'];
+const xOf=(d,id)=>(isObj(d.xtra)&&isObj(d.xtra[id]))?d.xtra[id]:{};
+const xItems=(d,id)=>{const x=xOf(d,id);return [].concat(x.snack||[],x.snack2||[],x.side||[])};
+function setX(d,id,k,l){if(l&&l.length){if(!isObj(d.xtra))d.xtra={};if(!isObj(d.xtra[id]))d.xtra[id]={};d.xtra[id][k]=l}
+  else if(isObj(d.xtra)&&isObj(d.xtra[id])){delete d.xtra[id][k];if(!Object.keys(d.xtra[id]).length)delete d.xtra[id];if(!Object.keys(d.xtra).length)delete d.xtra}}
+/* Everyone whose targets this phone knows: its own profiles with targets, and the other phones' eaters that published
+   their daily targets (numbers only) with their portions. Remote eaters are profile-like objects with fixed targets. */
+function nutEaters(){const own=S.profiles.filter(p=>!p.example&&!p.noTargets);const out=own.slice();
+  if(isObj(S.portions))Object.keys(S.portions).forEach(id=>{const e=S.portions[id];if(!own.some(p=>p.id===id)&&e&&Array.isArray(e.tg))out.push({id,name:e.n||'?',tgs:e.tg,remote:true})});
+  return out}
+const eaterTrain=e=>e.remote?e.tgs.some(g=>g.trainDay):!!e.train;
+function dayFit(d,p,extra,wd){const wi=wd!=null?wd:S.menu?S.menu.days.indexOf(d):null;const tg=p.tgs?Object.assign({},p.tgs[wi>=0?wi:0]):targets(p,wi);const ft=sum((d.ftour||[]).concat(extra||xItems(d,p.id)));const main=sum([d.ghda,d['3cha']].filter(Boolean).map(id=>[id,1]));
   let sug=1;if(main.k>0)sug=Math.max(.5,Math.min(2.5,Math.round((tg.kcal-ft.k)/main.k*4)/4));
   const own=isObj(d.pfBy)?d.pfBy[p.id]:null,f=own!=null?own:sug;
   const sc={};['k','p','c','f'].forEach(x=>sc[x]=ft[x]+main[x]*f);const raw={};['k','p','c','f'].forEach(x=>raw[x]=ft[x]+main[x]);
@@ -2040,19 +2066,28 @@ function dayFit(d,p,extra,wd){const tg=targets(p,wd!=null?wd:S.menu?S.menu.days.
    Snack 1: tuna in water / eggs. Snack 2: dairy, unless the day already has 2 dairy meals or dairy is excluded. */
 const SNACK1=[['ton_ma',1],['bid',2],['bid',1]], SNACK2=[['perly',1],['lben',250],['perly',1]], SNACK2_ALT=[['sder',100],['kawkaw',20],['sder',50]];
 function dairyMeals(d){return [d.ftour||[],d.ghda?[[d.ghda,1]]:[],d['3cha']?[[d['3cha'],1]]:[]].filter(l=>l.length&&hasTag(itemIds(l),'dairy')).length}
-function fillProt(i,quiet){const d=S.menu.days[i],p=P(),ex=S.menu.set.excl;const ok=([id])=>food(id)&&okByExcl([id],ex);
+function fillProt(i,quiet,who){const d=S.menu.days[i],p=who||P(),ex=S.menu.set.excl;const ok=([id])=>food(id)&&okByExcl([id],ex);
   const l1=SNACK1.filter(ok),l2=(dairyMeals(d)>=2||ex.includes('dairy')?SNACK2_ALT:SNACK2).filter(ok);
   if(!l1.length&&!l2.length){toast(t('prot_none'));return}
   const s1=[],s2=[];const steps=[];for(let k=0;k<3;k++){if(l1[k])steps.push([s1,l1[k]]);if(l2[k])steps.push([s2,l2[k]])}
-  for(const [tgt,[id,q]] of steps){const x=dayFit(d,p,[].concat(s1,s2,d.side||[]));if(x.tg.prot-x.sc.p<=5)break;const e=tgt.find(z=>z[0]===id);if(e)e[1]+=q;else tgt.push([id,q])}
-  d.snack=s1;d.snack2=s2;d.snackFor=p.id;if(!quiet){save();render()}}
-function rmSnack(i){const d=S.menu.days[i];delete d.snack;delete d.snack2;delete d.snackFor;save();render()}
+  const side=xOf(d,p.id).side||[];
+  for(const [tgt,[id,q]] of steps){const x=dayFit(d,p,[].concat(s1,s2,side));if(x.tg.prot-x.sc.p<=5)break;const e=tgt.find(z=>z[0]===id);if(e)e[1]+=q;else tgt.push([id,q])}
+  setX(d,p.id,'snack',s1);setX(d,p.id,'snack2',s2);if(!quiet){save();render()}}
+function rmSnack(i){const d=S.menu.days[i];setX(d,P().id,'snack');setX(d,P().id,'snack2');save();render()}
 /* Carb top-up: bread, banana, dates (portions re-balance as calories rise) */
 const CARB_LADDER=[['khobz',.25],['banan',1],['khobz',.25],['tmer',30]];
-function fillCarb(i){const d=S.menu.days[i],p=P(),ex=S.menu.set.excl;const side=[];
-  for(const [id,q] of CARB_LADDER.filter(([id])=>food(id)&&okByExcl([id],ex))){const x=dayFit(d,p,[].concat(d.snack||[],d.snack2||[],side));if(x.tg.carbs-x.sc.c<=15)break;const e=side.find(z=>z[0]===id);if(e)e[1]+=q;else side.push([id,q])}
-  d.side=side;d.sideFor=p.id;save();render()}
-function rmSide(i){delete S.menu.days[i].side;delete S.menu.days[i].sideFor;save();render()}
+function fillCarb(i){const d=S.menu.days[i],p=P(),ex=S.menu.set.excl;const side=[],own=xOf(d,p.id);
+  for(const [id,q] of CARB_LADDER.filter(([id])=>food(id)&&okByExcl([id],ex))){const x=dayFit(d,p,[].concat(own.snack||[],own.snack2||[],side));if(x.tg.carbs-x.sc.c<=15)break;const e=side.find(z=>z[0]===id);if(e)e[1]+=q;else side.push([id,q])}
+  setX(d,p.id,'side',side);save();render()}
+function rmSide(i){setX(S.menu.days[i],P().id,'side');save();render()}
+/* Before v38 a day had one set of top-ups (d.snack/snack2/side) with snackFor/sideFor naming whom they were for.
+   They move to that person in d.xtra; without a name, to the open profile when this phone wrote the day, else to '_'
+   (still bought and shared in the split, but counted in nobody's nutrition). */
+function migrateXtra(){if(!S.menu)return;let ch=false;S.menu.days.forEach((d,i)=>{if(!isObj(d))return;
+  const a=SY&&SY.attr&&SY.attr['mday.'+i],other=a&&SY.me&&a.by!==SY.me.id,fb=other?'_':P().id;
+  [['snack','snackFor'],['snack2','snackFor'],['side','sideFor']].forEach(([k,w])=>{if(!Array.isArray(d[k]))return;
+    if(d[k].length){const id=typeof d[w]==='string'&&OKID.test(d[w])?d[w]:fb;setX(d,id,k,(xOf(d,id)[k]||[]).concat(d[k]))}delete d[k];ch=true});
+  ['snackFor','sideFor'].forEach(w=>{if(w in d){delete d[w];ch=true}})});if(ch)save()}
 const fShare=items=>{const m=sum(items);return m.k?m.f*9/m.k:0};
 function leanSwap(i,k){swapAt=i+':'+k;swapMode='lean';render()}
 function setPf(i,dir){const d=S.menu.days[i],id=P().id;
@@ -2069,20 +2104,28 @@ function dayFitHTML(d,i){const p=P();if(p.noTargets)return '';const x=dayFit(d,p
   const good=gap<=8&&Math.abs(x.sc.k-x.tg.kcal)<=x.tg.kcal*.1&&x.sc.f<=x.tg.fat*1.15&&x.sc.c>=x.tg.carbs*.85;
   const fq=(g,q)=>g.u==='g'?r0(q):({.25:'¼',.5:'½',.75:'¾'}[q]||r1(q));
   const lst=a=>(a||[]).map(([id,q])=>{const g=food(id);return g?`${nu(fq(g,q),esc(uLab(g)))} ${esc(shopName(g))}`:''}).filter(Boolean).join(' + ');
-  const sn=lst(d.snack)||lst(d.snack2);const cg=x.tg.carbs-x.sc.c, fx=x.sc.f-x.tg.fat;
+  const own=xOf(d,p.id);const sn=lst(own.snack)||lst(own.snack2);const cg=x.tg.carbs-x.sc.c, fx=x.sc.f-x.tg.fat;
   const fatK=['ghda','3cha'].filter(k=>d[k]).sort((a,b)=>sum([[d[b],1]]).f-sum([[d[a],1]]).f)[0];
   const sline=(lbl,when,a)=>a&&a.length?`<div class="snk1"><b>${t(lbl)}</b> <small>${t(when)}</small><br>${lst(a)} · <span class="p">${bdi(t('mP')+' '+r0(sum(a).p))}</span></div>`:'';
   return `<div class="dfit">
     <div class="dfit-h"><b>${esc(p.name)}${x.tg.trainDay?` <span class="tday">${t('train_day')}</span>`:x.tg.restDay?` <span class="rday">${t('rest_day')}</span>`:''}</b>${x.hasMain?`<div class="pstep"><button aria-label="${t('dec')}" onclick="setPf(${i},-1)">−</button><span><b class="num">${bdi(x.f)}</b> ${t('portion_short')}</span><button aria-label="${t('inc')}" onclick="setPf(${i},1)">+</button></div>`:''}</div>
     ${x.hasMain&&isObj(d.pfBy)&&d.pfBy[p.id]!=null&&x.f!==x.sug?`<p class="hint">${t('pf_sug',{x:bdi(x.sug)})} <button class="linkb" onclick="setPf(${i},0)">${t('use_sug')}</button></p>`:''}
     <div class="mini">${bars4(x.sc,x.tg)}</div>
-    ${sn?`<div class="snk"><div>${sline('snack1_lbl',x.tg.trainDay?'snack1_train':'snack1_when',d.snack)}${sline('snack2_lbl','snack2_when',d.snack2)}</div><button class="btn sm ghost" onclick="rmSnack(${i})">${t('del')}</button></div>`:''}
-    ${d.side&&d.side.length?`<div class="snk"><span><b>${t('side_lbl')}:</b> ${lst(d.side)} · <span class="c">${bdi(t('mC')+' '+r0(sum(d.side).c))}</span></span><button class="btn sm ghost" onclick="rmSide(${i})">${t('del')}</button></div>`:''}
+    ${sn?`<div class="snk"><div>${sline('snack1_lbl',x.tg.trainDay?'snack1_train':'snack1_when',own.snack)}${sline('snack2_lbl','snack2_when',own.snack2)}</div><button class="btn sm ghost" onclick="rmSnack(${i})">${t('del')}</button></div>`:''}
+    ${own.side&&own.side.length?`<div class="snk"><span><b>${t('side_lbl')}:</b> ${lst(own.side)} · <span class="c">${bdi(t('mC')+' '+r0(sum(own.side).c))}</span></span><button class="btn sm ghost" onclick="rmSide(${i})">${t('del')}</button></div>`:''}
     ${gap>8?`<div class="pgap"><span class="low">${t('prot_gap',{g:bdi(r0(gap))})}</span>${sn?'':`<button class="btn sm pri" onclick="fillProt(${i})">${t('add_prot')}</button>`}</div>${sn?`<p class="hint">${t('prot_still')}</p>`:''}`:''}
-    ${cg>25?`<div class="pgap"><span class="low">${t('carb_gap',{g:bdi(r0(cg))})}</span>${d.side&&d.side.length?'':`<button class="btn sm pri" onclick="fillCarb(${i})">${t('add_carb')}</button>`}</div>`:''}
+    ${cg>25?`<div class="pgap"><span class="low">${t('carb_gap',{g:bdi(r0(cg))})}</span>${own.side&&own.side.length?'':`<button class="btn sm pri" onclick="fillCarb(${i})">${t('add_carb')}</button>`}</div>`:''}
     ${fx>x.tg.fat*.15&&fatK?`<div class="pgap"><span class="low">${t('fat_hi',{x:bdi(r0(fx)),m:esc(recName(recipe(d[fatK])))})}</span><button class="btn sm" onclick="leanSwap(${i},'${fatK}')">${t('fat_fix')}</button></div>`:''}
     ${good?`<p class="ok">${t('fit_good')}</p>`:''}
+    ${othersFitHTML(d,i,p)}
   </div>`}
+/* The other eaters of the day, each with their own portion, top-ups and status, so a day is never shown as fine for
+   the household when it is only fine for the open profile */
+function fitLabel(x){const gap=x.tg.prot-x.sc.p,cg=x.tg.carbs-x.sc.c,fx=x.sc.f-x.tg.fat,dk=x.sc.k-x.tg.kcal;
+  return gap>8?['low','st_prot']:fx>x.tg.fat*.15?['low','st_fat']:cg>25?['warnp','st_carb']:Math.abs(dk)>x.tg.kcal*.1?['warnp',dk<0?'st_kcal_lo':'st_kcal_hi']:['ok','st_ok']}
+function othersFitHTML(d,i,p){const oth=nutEaters().filter(e=>e.id!==p.id);if(!oth.length||!(d.ghda||d['3cha']))return '';
+  return `<div class="ofit">${oth.map(e=>{const x=dayFit(d,e,undefined,i),lab=fitLabel(x);
+    return `<div><b>${esc(e.name)}</b> · ${t('fit_other',{f:bdi(x.f),p:bdi(r0(x.sc.p)),t:bdi(r0(x.tg.prot))})} <span class="pill ${lab[0]}">${lab[0]==='ok'?'✓ ':''}${t(lab[1])}</span></div>`}).join('')}</div>`}
 function setMeal(i,k,id){S.menu.days[i][k]=id;swapAt=null;save();render()}
 function randomMeal(i,k){const o=swapOptions(i,k);if(o.length)setMeal(i,k,pick(o).id)}
 function mealCard(i,k){const id=S.menu.days[i][k];const r=id&&recipe(id);if(!r)return '';const m=recMeta(r);const open=swapAt===i+':'+k;
@@ -2098,7 +2141,8 @@ const ftourName=items=>{const f=FTOUR.find(([,it])=>JSON.stringify(it)===JSON.st
 function dayPill(d){const p=P();if(p.noTargets||!(d.ghda||d['3cha']))return '';const x=dayFit(d,p);
   const gap=x.tg.prot-x.sc.p,cg=x.tg.carbs-x.sc.c,fx=x.sc.f-x.tg.fat,dk=x.sc.k-x.tg.kcal;
   const lab=gap>8?['low','st_prot']:fx>x.tg.fat*.15?['low','st_fat']:cg>25?['warnp','st_carb']:Math.abs(dk)>x.tg.kcal*.1?['warnp',dk<0?'st_kcal_lo':'st_kcal_hi']:['ok','st_ok'];
-  return `<span class="pill ${lab[0]}">${lab[0]==='ok'?'✓ ':''}${t(lab[1])}</span>`}
+  const miss=nutEaters().filter(e=>e.id!==p.id&&fitLabel(dayFit(d,e))[0]!=='ok').map(e=>e.name);
+  return `<span class="pill ${lab[0]}">${lab[0]==='ok'?'✓ ':''}${t(lab[1])}</span>${miss.length?` <span class="pill warnp" title="${esc(t('fit_miss',{n:miss.join(', ')}))}">⚠ ${esc(miss.join(', '))}</span>`:''}`}
 const todayIdx=()=>(new Date().getDay()+6)%7;
 let openDay=null,openDayInit=false;
 function vMenu(){
@@ -2127,8 +2171,8 @@ function vMenu(){
 function applyMenu(mode){if(!mode){delArm=delArm==='apply'?null:'apply';render();return}delArm=null;
   const p=P(),m=S.menu;const nd=m.days.map((d,i)=>{const f=dayFit(d,p).f;const day={id:uid(),name:tl('week_days',i)+' · '+t('tab_menu'),meals:emptyMeals()};
     if(d.ftour)day.meals.ftour=d.ftour.map(x=>x.slice());if(d.ghda)day.meals.ghda=[[d.ghda,f]];if(d['3cha'])day.meals['3cha']=[[d['3cha'],f]];
-    const sn=[].concat(d.snack||[],d.snack2||[]);if(sn.length){const ks=mealKeys();const sk=ks.includes('kaskrout')?'kaskrout':ks[ks.length-1];day.meals[sk]=(day.meals[sk]||[]).concat(sn.map(x=>x.slice()))}
-    if(d.side&&d.side.length){const lk=day.meals.ghda?'ghda':'ftour';day.meals[lk]=(day.meals[lk]||[]).concat(d.side.map(x=>x.slice()))}return day});
+    const ox=xOf(d,p.id),sn=[].concat(ox.snack||[],ox.snack2||[]);if(sn.length){const ks=mealKeys();const sk=ks.includes('kaskrout')?'kaskrout':ks[ks.length-1];day.meals[sk]=(day.meals[sk]||[]).concat(sn.map(x=>x.slice()))}
+    if(ox.side&&ox.side.length){const lk=day.meals.ghda?'ghda':'ftour';day.meals[lk]=(day.meals[lk]||[]).concat(ox.side.map(x=>x.slice()))}return day});
   if(mode==='replace')p.days=nd;else p.days.push(...nd);
   p.week=nd.map(x=>x.id);setCur(nd[0].id);S.shop.menu=false;S.shop[p.id]=true;save();render();toast(t('applied'))}
 
@@ -2195,7 +2239,7 @@ function delRecipe(id){if(delArm!=='rec'+id){delArm='rec'+id;render();return}
   editRec=null;delArm=null;save();render();toast(t('toast_deleted'))}
 /* Every list of [foodId, qty]: meals of all profile days and recipes */
 function eachList(fn){S.profiles.flatMap(p=>p.days).forEach(d=>Object.keys(d.meals).forEach(k=>fn(d.meals[k])));(S.recipes||[]).forEach(r=>fn(r.items));menuLists().forEach(fn)}
-function menuLists(){if(!S.menu||!Array.isArray(S.menu.days))return [];return S.menu.days.flatMap(d=>['ftour','snack','snack2','side'].filter(k=>Array.isArray(d[k])).map(k=>d[k]))}
+function menuLists(){if(!S.menu||!Array.isArray(S.menu.days))return [];return S.menu.days.flatMap(d=>['ftour','snack','snack2','side'].filter(k=>Array.isArray(d[k])).map(k=>d[k]).concat(isObj(d.xtra)?Object.values(d.xtra).flatMap(x=>XK.filter(s=>Array.isArray(x[s])).map(s=>x[s])):[]))}
 
 /* ---------- Week (one profile) ---------- */
 function weekSelect(c,setter){
@@ -2285,7 +2329,7 @@ function menuSplit(){if(!S.menu)return null;const n=S.menu.set.people,E=portionE
   const shareEq=c=>{const k=ids.length+others;if(!k)return;ids.forEach(id=>acc[id]+=c/k);oth+=c*others/k};
   S.menu.days.forEach((d,i)=>{['ghda','3cha'].forEach(k=>{const r=d[k]&&recipe(d[k]);if(!r)return;const c=recCost(r);ids.forEach(id=>acc[id]+=c*(+E[id].f[i]||1));oth+=c*others});
     if(d.ftour&&d.ftour.length){const c=sum(d.ftour).cost;ids.forEach(id=>acc[id]+=c);oth+=c*others}
-    [['snack',d.snackFor],['snack2',d.snackFor],['side',d.sideFor]].forEach(([k,who])=>{if(!Array.isArray(d[k])||!d[k].length)return;const c=sum(d[k]).cost;if(who&&acc[who]!=null)acc[who]+=c;else shareEq(c)})});
+    if(isObj(d.xtra))Object.keys(d.xtra).forEach(who=>{const l=xItems(d,who);if(!l.length)return;const c=sum(l).cost;if(acc[who]!=null)acc[who]+=c;else shareEq(c)})});
   const rows=ids.map(id=>({id,n:E[id].n,c:acc[id]})).sort((x,y)=>String(x.n).localeCompare(String(y.n)));if(others)rows.push({id:'',n:t('split_others',{x:others}),c:oth});return rows}
 function splitHTML(parts){const m=S.menu&&S.shop.menu?menuSplit():null;if(!m||m.length<2&&!SY)return '';
   /* personal "Ayyam" lists on the list belong to their owner */
@@ -2516,7 +2560,7 @@ function importData(){const msg=document.getElementById('impMsg');if(msg)msg.tex
 function importConfirm(){if(!_pendingImport)return;
   if(_pendingImport.prog){const pr=_pendingImport.prog;_pendingImport=null;progApply(pr);return}
   try{localStorage.setItem(KEY_PREV,JSON.stringify(S))}catch(e){}
-  S=_pendingImport.state;_pendingImport=null;_foods=null;migratePf();save();applyTheme();curDay=null;editRec=null;render();toast(t('toast_import'))}
+  S=_pendingImport.state;_pendingImport=null;_foods=null;migratePf();migrateXtra();save();applyTheme();curDay=null;editRec=null;render();toast(t('toast_import'))}
 /* A program file ({type:'makla-program'}) adds day templates, meals and foods to the open profile; nothing else is replaced.
    Days with the same name are overwritten, so importing the same file twice does not duplicate them. */
 const sameName=(a,b)=>String(a).trim().toLowerCase()===String(b).trim().toLowerCase();
@@ -2550,7 +2594,7 @@ function restorePrev(){if(delArm!=='prev'){delArm='prev';render();return}delArm=
   let o=null;try{o=JSON.parse(localStorage.getItem(KEY_PREV))}catch(e){}
   if(!isObj(o)||!Array.isArray(o.profiles)||!o.profiles.length){toast(t('import_err'));return}
   const cur=JSON.stringify(S),prev=S;try{S=o;_fixes=0;normalize();checkState()}catch(e){S=prev;_foods=null;toast(t('import_err'));return}
-  try{localStorage.setItem(KEY_PREV,cur)}catch(e){}migratePf();save();applyTheme();curDay=null;editRec=null;render();toast(t('toast_import'))}
+  try{localStorage.setItem(KEY_PREV,cur)}catch(e){}migratePf();migrateXtra();save();applyTheme();curDay=null;editRec=null;render();toast(t('toast_import'))}
 
 /* ---------- Onboarding: four questions, then a ready menu and list ---------- */
 let ob=null;
@@ -2684,7 +2728,8 @@ function syncSnap(){const o={};
   (S.custom||[]).forEach(f=>o['custom.'+f.id]=f);(S.spend||[]).forEach(x=>o['spend.'+x.id]=x);
   S.profiles.forEach(p=>{if(p.shared&&!p.example)o['profile.'+p.id]=p});
   if(isObj(S.portions))Object.keys(S.portions).forEach(id=>{o['portion.'+id]=S.portions[id]});
-  if(S.menu)S.profiles.forEach(p=>{if(!p.example&&!p.noTargets)o['portion.'+p.id]={n:p.name,f:S.menu.days.map(d=>(d.ghda||d['3cha'])?dayFit(d,p).f:1)}});
+  if(S.menu)S.profiles.forEach(p=>{if(!p.example&&!p.noTargets)o['portion.'+p.id]={n:p.name,f:S.menu.days.map(d=>(d.ghda||d['3cha'])?dayFit(d,p).f:1),
+    tg:[0,1,2,3,4,5,6].map(i=>{const g=targets(p,i);return {kcal:Math.round(g.kcal),prot:Math.round(g.prot),fat:Math.round(g.fat),carbs:Math.round(g.carbs),trainDay:!!g.trainDay,restDay:!!g.restDay}})}});
   return o}
 /* puts one received key into S (v === undefined: deleted) */
 function syncApply(k,v){const dot=k.indexOf('.'),pre=dot<0?k:k.slice(0,dot),id=dot<0?'':k.slice(dot+1);
@@ -2744,7 +2789,7 @@ async function syncPull(force){const doc=await syncFetch(syncApi()+'/households/
     let val;try{val=JSON.parse(e.v)}catch(_){return}
     if(local!==e.v){syncApply(k,val===null?undefined:val);if(e.by!==SY.me.id)got.push(k)}
     SY.base[k]=e.v});
-  if(got.length){const prev=S;try{S=JSON.parse(JSON.stringify(S));_fixes=0;normalize();_foods=null}catch(e){S=prev;console.error(e)}migratePf();
+  if(got.length){const prev=S;try{S=JSON.parse(JSON.stringify(S));_fixes=0;normalize();_foods=null}catch(e){S=prev;console.error(e)}migratePf();migrateXtra();
     /* keep what normalize produced as the synced value, so it is not sent back as a change */
     const after=syncSnap();got.forEach(k=>{if(k in after)SY.base[k]=JSON.stringify(after[k])})}
   SY.upd=doc.updateTime||'';syncSave();return got}
@@ -2821,7 +2866,7 @@ function applyTheme(){
 function setTheme(th){S.theme=th;save();applyTheme()}
 try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applyTheme)}catch(e){}
 
-load();syncLoad();migratePf();render();applyTheme();if(!S.onboarded)obStart();syncBadge();darFromHash();if(SY)syncNow();
+load();syncLoad();migratePf();migrateXtra();render();applyTheme();if(!S.onboarded)obStart();syncBadge();darFromHash();if(SY)syncNow();
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persisted().then(ok=>{if(!ok)navigator.storage.persist()})}catch(e){}
 
 /* ---------- PWA ---------- */

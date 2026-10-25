@@ -375,6 +375,9 @@ test('Backup', 'data saved by the previous version (v24) loads unchanged, with n
   // v36: the one shared extra portion (d.pf) becomes the open profile's own portion (d.pfBy), same value
   const legacy = A.menu.days.filter(d => d.pf != null); ok(legacy.length > 0, 'fixture has a legacy portion');
   A.menu.days.forEach(d => { if (d.pf != null) { d.pfBy = { [A.active]: d.pf }; delete d.pf; } });
+  // v38: top-ups (snack/snack2/side + snackFor/sideFor) move to their person in d.xtra; empty lists disappear
+  A.menu.days.forEach(d => { const x = {}; [['snack', 'snackFor'], ['snack2', 'snackFor'], ['side', 'sideFor']].forEach(([k, w]) => { if (Array.isArray(d[k]) && d[k].length) { const id = d[w] || A.active; (x[id] = x[id] || {})[k] = d[k]; } delete d[k]; });
+    delete d.snackFor; delete d.sideFor; if (Object.keys(x).length) d.xtra = x; });
   const keys = new Set([...Object.keys(A), ...Object.keys(B)]);
   for (const k of keys) eq(JSON.stringify(B[k]), JSON.stringify(A[k]), 'key ' + k);
   eq(r.fixes, 0, 'repairs on valid data'); eq(errors.length, 0, 'page errors');
@@ -686,13 +689,13 @@ test('Menu', 'portions per profile: Mohammed’s ± does not move Rayan’s and 
 test('Menu', 'B1: the Menu tab, the list (week) and the split show the same menu cost: real portions per person, breakfasts, top-ups; budget warning uses it', async ({ page }) => {
   const r = await page.evaluate(TWO => { eval('(' + TWO + ')')();
     S.menuSet = { people: 3, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; S.active = 'pM'; makeMenu();
-    const d = S.menu.days[0]; d.snack = [['bid', 2]]; d.snackFor = 'pM'; d.side = [['khobz', 0.5]]; d.sideFor = 'pR'; d.pfBy = { pM: 2.5, pR: 0.75 };
+    const d = S.menu.days[0]; d.xtra = { pM: { snack: [['bid', 2]] }, pR: { side: [['khobz', 0.5]] } }; d.pfBy = { pM: 2.5, pR: 0.75 };
     S.shop = { menu: true, pM: false, pR: false }; save();
     const num = s => parseFloat(String(s).replace(/[^\d.]/g, ''));
     // expected by hand: each day lunch+dinner × (Mohammed + Rayan + 1 other), breakfast × 3, top-ups once
     let exp = 0; S.menu.days.forEach((x, i) => { const E = portionEaters(), por = E.pM.f[i] + E.pR.f[i] + 1;
       ['ghda', '3cha'].forEach(k => { const rc = x[k] && recipe(x[k]); if (rc) exp += recCost(rc) * por; });
-      if (x.ftour) exp += sum(x.ftour).cost * 3; [].concat(x.snack || [], x.snack2 || [], x.side || []).forEach(it => exp += sum([it]).cost); });
+      if (x.ftour) exp += sum(x.ftour).cost * 3; Object.values(x.xtra || {}).forEach(o => [].concat(o.snack || [], o.snack2 || [], o.side || []).forEach(it => exp += sum([it]).cost)); });
     const old1 = S.menu.days.reduce((c, x) => c + ['ghda', '3cha'].reduce((s, k) => s + (x[k] && recipe(x[k]) ? recCost(recipe(x[k])) : 0), 0) + (x.ftour ? sum(x.ftour).cost : 0), 0) * 3;
     openDay = null; go('menu'); const menuTxt = document.querySelector('#view .mstat b').textContent;
     go('t9edya'); const weekTxt = document.querySelectorAll('#view .tot b')[1].textContent;
@@ -728,6 +731,48 @@ test('Menu', 'B2: a lower budget never gives a dearer menu; a reachable budget i
   ok(r.lowTxt.includes(r.lowKey) && r.lowTxt.includes(String(Math.ceil(r.F / 10) * 10)), 'too-low budget: message with the floor (' + Math.ceil(r.F / 10) * 10 + ' DH)');
   ok(!r.okTxt.includes(r.lowKey), 'no floor message when the budget is reachable');
 });
+test('Menu', 'A1: the menu is chosen for both profiles — the same week whichever profile is open — and each one gets their own protein snacks', async ({ page }) => {
+  const r = await page.evaluate(TWO => { eval('(' + TWO + ')')();
+    const seed = s => { let x = s; Math.random = () => { x = (x * 1664525 + 1013904223) % 4294967296; return x / 4294967296; }; };
+    const gen = (act, s) => { seed(s); S.active = act; S.menuSet = { people: 2, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true }, hp: true }; makeMenu(); return S.menu; };
+    let same = true; for (let s = 1; s <= 4; s++) { const a = JSON.stringify(gen('pM', s).days), b = JSON.stringify(gen('pR', s).days); if (a !== b) same = false; }
+    const m = gen('pR', 7), M = S.profiles[0], R = S.profiles[1];
+    const rows = m.days.map((d, i) => { const xm = dayFit(d, M, undefined, i), xr = dayFit(d, R, undefined, i), ownR = dayFit(d, R, xItems(d, 'pR'), i);
+      return { mSnack: xItems(d, 'pM').length, rSnack: xItems(d, 'pR').length, gapM: xm.tg.prot - xm.sc.p, gapR: xr.tg.prot - xr.sc.p, labM: fitLabel(xm)[1], labR: fitLabel(xr)[1], rOwnOnly: Math.abs(ownR.sc.p - xr.sc.p) < 1e-9, legacy: 'snack' in d || 'snackFor' in d }; });
+    // Mohammed's snack must not feed Rayan
+    const d0 = m.days[0], before = dayFit(d0, R, undefined, 0).sc.p; setX(d0, 'pM', 'snack', [['ton_ma', 3]]); const after = dayFit(d0, R, undefined, 0).sc.p;
+    return { same, rows, rUnmoved: Math.abs(after - before) < 1e-9 }; }, TWO.toString());
+  ok(r.same, 'same menu with Mohammed or Rayan open (same random seed)');
+  ok(r.rows.some(x => x.rSnack), 'Rayan gets protein snacks of his own');
+  r.rows.forEach((x, i) => ok(x.mSnack || x.gapM <= 8, 'day ' + i + ': Mohammed has a snack or does not need one'));
+  r.rows.forEach((x, i) => { ok(x.rOwnOnly && !x.legacy, 'day ' + i + ': Rayan’s numbers use only his own top-ups');
+    ok(x.gapM <= 8 || x.labM === 'st_prot', 'day ' + i + ': Mohammed fine or flagged'); ok(x.gapR <= 8 || x.labR === 'st_prot', 'day ' + i + ': Rayan fine or flagged'); });
+  ok(r.rUnmoved, 'a snack added for Mohammed does not change Rayan’s protein');
+});
+test('Menu', 'A2: a day that misses someone’s targets is flagged for them even when the open profile is fine; split and list follow each one’s top-ups', async ({ page }) => {
+  const r = await page.evaluate(TWO => { eval('(' + TWO + ')')();
+    S.menu.days[0] = { ghda: 'r_3des', '3cha': 'r_3des', xtra: { pM: { snack: [['ton_ma', 2]] }, pR: { snack: [['bid', 2]] } } }; S.active = 'pM'; save();
+    const R = S.profiles[1], xr = dayFit(S.menu.days[0], R, undefined, 0);
+    openDayInit = true; openDay = 0; go('menu'); const block = document.querySelector('#view .mday.open .ofit'), pills = [...document.querySelectorAll('#view .mday.open .mday-h .pill')].map(x => x.textContent);
+    const sp = Object.fromEntries(menuSplit().map(x => [x.n, x.c])), E = portionEaters(), rc = recCost(recipe('r_3des'));
+    return { rLab: fitLabel(xr)[1], rText: block ? block.textContent : '', pills, sp, expM: rc * 2 * E.pM.f[0] + sum([['ton_ma', 2]]).cost, expR: rc * 2 * E.pR.f[0] + sum([['bid', 2]]).cost,
+      list: shopData().cost, fn: menuWeekCost(), tuna: (shopData().rows.find(x => x.id === 'ton_ma') || {}).week, eggs: (shopData().rows.find(x => x.id === 'bid') || {}).week, lbl: t(fitLabel(xr)[1]) }; }, TWO.toString());
+  ok(r.rText.includes('Rayan') && r.rText.includes(r.lbl), 'Rayan’s line with his own status under the open profile (' + r.rLab + ')');
+  if (r.rLab !== 'st_ok') ok(r.pills.some(p => p.includes('Rayan')), 'folded day shows ⚠ Rayan');
+  near(r.sp.Mohammed, r.expM, 0.05, 'Mohammed pays his portions and his tuna'); near(r.sp.Rayan, r.expR, 0.05, 'Rayan pays his portions and his eggs');
+  near(r.list, r.fn, 1e-6, 'list = menu cost (B1 kept)'); near(r.tuna, 2, 1e-9, 'tuna for Mohammed on the list'); near(r.eggs, 2, 1e-9, 'eggs for Rayan on the list');
+});
+test('Menu', 'A1: top-ups saved before v38 (snack/side + snackFor) load into the right person; unnamed ones go to the open profile', async () => {
+  const { ctx, page } = await openApp();
+  try {
+    await page.evaluate(TWO => { eval('(' + TWO + ')')(); S.active = 'pM'; S.menu.days[0] = { ghda: 'r_3des', snack: [['ton_ma', 1]], snack2: [['perly', 1]], snackFor: 'pR', side: [['khobz', 0.5]] }; save(); }, TWO.toString());
+    await page.reload(); await page.waitForTimeout(300);
+    const r = await page.evaluate(() => ({ d: JSON.parse(localStorage.getItem('makla_mizan_v2')).menu.days[0], tuna: (shopData().rows.find(x => x.id === 'ton_ma') || {}).week }));
+    eq(JSON.stringify(r.d.xtra), JSON.stringify({ pR: { snack: [['ton_ma', 1]], snack2: [['perly', 1]] }, pM: { side: [['khobz', 0.5]] } }), 'moved to their person');
+    ok(!('snack' in r.d) && !('snackFor' in r.d) && !('side' in r.d), 'old fields removed'); near(r.tuna, 1, 1e-9, 'still on the list');
+  } finally { await ctx.close(); }
+});
+
 test('Menu', 'a menu saved before v36 (one shared d.pf) loads: the value goes to the open profile, the other keeps the suggestion; bad values cleaned', async () => {
   const { ctx, page } = await openApp();
   try {
@@ -851,6 +896,29 @@ test('Sync', 'portions per profile stay independent across two phones; an old ph
     ok(await A.page.evaluate(() => !('pf' in S.menu.days[0])), 'legacy value dropped on the receiving phone');
     await A.page.reload(); await A.page.waitForTimeout(300);
     near(await own(A.page), a1, 1e-9, 'Mohammed’s portion kept after reload on a shared home');
+  } finally { await A.ctx.close(); await B.ctx.close(); }
+});
+test('Sync', 'A1: two phones, one profile each: each phone knows the other’s targets (numbers only), the generated menu feeds both and each sees their own snacks; old unnamed top-ups from another phone are not given to the wrong person', async () => {
+  const A = await phone('Mohammed', '#2f8f5b'), B = await phone('Rayan', '#2f6fbf');
+  try {
+    const hid = await A.page.evaluate(async () => { Object.assign(P(), { name: 'Mohammed', example: false, sex: 'm', age: 28, w: 85, h: 178, act: 1.725, goal: 'leanbulk' });
+      S.menuSet = { people: 2, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; makeMenu(); await darCreate(); return SY.hid; });
+    await B.page.evaluate(async hid => { Object.assign(P(), { name: 'Rayan', example: false, sex: 'm', age: 24, w: 62, h: 170, act: 1.375, goal: 'cut' }); save(); darForm.code = hid; await darJoin(); }, hid);
+    const sync = async () => { for (const pg of [A.page, B.page, A.page, B.page]) await pg.evaluate(() => syncNow()); };
+    await sync();
+    const ea = await A.page.evaluate(() => nutEaters().map(e => [e.name, !!e.remote, e.tgs ? e.tgs[0].prot : targets(e, 0).prot]));
+    const rb = await B.page.evaluate(() => targets(P(), 0).prot);
+    eq(ea.length, 2, 'Mohammed’s phone sizes the menu for 2 eaters'); ok(ea.some(e => e[0] === 'Rayan' && e[1] && Math.abs(e[2] - rb) <= 1), 'with Rayan’s own protein target');
+    ok(!JSON.stringify(fsDocs[hid]).includes('leanbulk') && !JSON.stringify(fsDocs[hid]).includes('"w\\":62'), 'no body data or goal sent, only target numbers');
+    await A.page.evaluate(() => { S.menu.set.hp = true; S.menuSet.hp = true; makeMenu(); }); await sync();
+    const idb = await B.page.evaluate(() => P().id);
+    const a = await A.page.evaluate(id => S.menu.days.filter(d => xItems(d, id).length).length, idb);
+    const b = await B.page.evaluate(() => S.menu.days.map((d, i) => { const x = dayFit(d, P(), undefined, i), own = dayFit(d, P(), xItems(d, P().id), i); return [xItems(d, P().id).length, Math.abs(x.sc.p - own.sc.p) < 1e-9]; }));
+    ok(a > 0, 'Mohammed’s phone added snacks for Rayan'); eq(b.filter(x => x[0]).length, a, 'Rayan’s phone sees the same snacks as his'); ok(b.every(x => x[1]), 'Rayan’s numbers count only his own top-ups');
+    // an old version on B writes unnamed top-ups: A keeps them on the list but gives them to nobody's nutrition
+    await B.page.evaluate(() => { S.menu.days[1].snack = [['ton_ma', 5]]; delete S.menu.days[1].snackFor; save(); }); await A.page.evaluate(() => syncNow()); await B.page.evaluate(() => syncNow()); await A.page.evaluate(() => syncNow());
+    const o = await A.page.evaluate(() => ({ x: S.menu.days[1].xtra && S.menu.days[1].xtra._, mine: xItems(S.menu.days[1], P().id).some(([id, q]) => id === 'ton_ma' && q === 5) }));
+    ok(o.x && o.x.snack, 'kept as “owner unknown”'); ok(!o.mine, 'not given to Mohammed');
   } finally { await A.ctx.close(); await B.ctx.close(); }
 });
 test('Sync', 'portions stay put over many syncs; a phone that missed them (old version) repairs itself; unknown keys are kept for later', async () => {
