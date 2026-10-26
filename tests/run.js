@@ -29,7 +29,6 @@ function startServer() {
     const srv = http.createServer((req, rsp) => {
       if (serverDown) return req.socket.destroy();
       let p = decodeURIComponent(new URL(req.url, 'http://x').pathname);
-      if (p.startsWith('/fs')) return fakeFirestore(req, rsp, p);
       if (overrides[p] && overrides[p].delay && !req.headers['x-no-delay']) { const ms = overrides[p].delay; overrides[p].hits = (overrides[p].hits || 0) + 1; return setTimeout(() => { if (!rsp.writableEnded) { rsp.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' }); fs.createReadStream(path.join(ROOT, 'index.html')).pipe(rsp); } }, ms); }
       if (overrides[p] && overrides[p].body !== undefined) { const o = overrides[p]; rsp.writeHead(o.status || 200, { 'Content-Type': o.type || 'text/plain', 'Cache-Control': 'no-store' }); return rsp.end(o.body); }
       if (p.endsWith('/')) p += 'index.html';
@@ -42,35 +41,6 @@ function startServer() {
   });
 }
 
-
-/* ---------- minimal Firestore REST stand-in (GET a document, :commit with updateMask + REQUEST_TIME), for the sync tests ---------- */
-const fsDocs = {}; let fsClock = Date.now() - 3600e3; // server time follows the real clock (the "changed in the last 2 days" dots depend on it)
-const fsNow = () => new Date(fsClock += 1000).toISOString();
-/* requests in flight: fsDelay ms of delay. 'before' = wait, then handle; 'after' = handle (write) at once, answer late;
-   'drop' = wait, then do nothing if the client has gone. "Gone" = the connection closed before our answer was sent
-   (Node emits 'close' on the response without it being finished), i.e. the browser aborted the request. */
-let fsDelay = 0, fsDelayMode = 'before', fsDropped = 0, fsHandledLate = 0;
-function fakeFirestore(req, rsp, p) {
-  if (fsDelay && !req._delayed) { req._delayed = true; rsp.once('close', () => { if (!rsp.writableFinished) req._gone = true; });
-    if (fsDelayMode === 'after') { const end = rsp.end.bind(rsp); rsp.end = (...a) => setTimeout(() => { try { end(...a); } catch (e) {} }, fsDelay); return fakeFirestore(req, rsp, p); }
-    return setTimeout(() => { if (fsDelayMode === 'drop' && req._gone) { fsDropped++; return; } fsHandledLate++; fakeFirestore(req, rsp, p); }, fsDelay); }
-  const send = (code, obj) => { rsp.writeHead(code, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }); rsp.end(JSON.stringify(obj)); };
-  const deny = hid => !hid || hid.length < 24;   // same idea as the security rules: ids under 24 characters are refused
-  if (req.method === 'GET') { const hid = p.split('/households/')[1];
-    if (deny(hid)) return send(403, { error: { code: 403, status: 'PERMISSION_DENIED' } });
-    const d = fsDocs[hid]; return d ? send(200, { name: 'x/' + hid, fields: d.fields, updateTime: d.updateTime }) : send(404, { error: { code: 404, status: 'NOT_FOUND' } }); }
-  let body = ''; req.on('data', c => body += c); req.on('end', () => {
-    const w = JSON.parse(body).writes[0]; const hid = w.update.name.split('/households/')[1];
-    if (deny(hid)) return send(403, { error: { code: 403, status: 'PERMISSION_DENIED' } });
-    const d = fsDocs[hid] || (fsDocs[hid] = { fields: {} }); const now = fsNow();
-    const setPath = (path, val) => { const seg = path.split('.'); let f = d.fields;
-      for (let i = 0; i < seg.length - 1; i++) { f[seg[i]] = f[seg[i]] && f[seg[i]].mapValue ? f[seg[i]] : { mapValue: { fields: {} } }; f = f[seg[i]].mapValue.fields; }
-      if (val === undefined) delete f[seg[seg.length - 1]]; else f[seg[seg.length - 1]] = val; };
-    const getPath = path => { let f = w.update.fields, v; for (const sg of path.split('.')) { v = f && f[sg]; f = v && v.mapValue && v.mapValue.fields; } return v; };
-    (w.updateMask.fieldPaths || []).forEach(fp => setPath(fp, getPath(fp)));
-    (w.updateTransforms || []).forEach(tr => setPath(tr.fieldPath, { timestampValue: now }));
-    d.updateTime = now; send(200, { writeResults: [{ updateTime: now }], commitTime: now }); });
-}
 
 /* ---------- app helpers ---------- */
 let browser, BASE;
@@ -780,23 +750,19 @@ test('Menu', 'A1: top-ups saved before v38 (snack/side + snackFor) load into the
   } finally { await ctx.close(); }
 });
 
-test('Menu', 'B2: the generator costs a week exactly like the Menu tab and the list — two profiles with different portions (± and suggested), top-ups, a remote eater with and without targets', async ({ page }) => {
+test('Menu', 'B2: the generator costs a week exactly like the Menu tab and the list — two profiles with different portions (± and suggested), top-ups', async ({ page }) => {
   const r = await page.evaluate(TWO => { eval('(' + TWO + ')')();
     S.menuSet = { people: 3, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; S.active = 'pM'; makeMenu();
     const set = S.menu.set, out = {}, cmp = tag => { out[tag] = { gen: menuCostEst(set, S.menu.days), tab: menuWeekCost(), list: shopData().cost, por: S.menu.days.map((d, i) => [portionEst(set).por(d, i), menuTotal(i)]) }; };
     // 1) nobody has chosen a portion yet: suggested portions for both
     cmp('suggested');
     // 2) Mohammed chose 2.5 on Monday, Rayan nothing (suggested); top-ups for each
-    const d = S.menu.days[0]; d.pfBy = { pM: 2.5 }; d.xtra = { pM: { snack: [['ton_ma', 1]] }, pR: { side: [['khobz', 0.5]] } }; save();
+    const d = S.menu.days[0]; d.pfBy = { pM: dayFit(d, S.profiles[0], undefined, 0).sug === 2.5 ? 1.5 : 2.5 }; d.xtra = { pM: { snack: [['ton_ma', 1]] }, pR: { side: [['khobz', 0.5]] } }; save();
     cmp('mixed');
     // 3) both chose, different
     S.menu.days[2].pfBy = { pM: 1.75, pR: 0.75 }; save(); cmp('both');
-    // 4) a third eater on another phone that published targets, then one that did not (old version)
-    S.menuSet.people = 3; const R = S.profiles[1]; S.profiles = [S.profiles[0]];
-    S.portions = { pR: { n: 'Rayan', f: S.menu.days.map((x, i) => (x.ghda || x['3cha']) ? dayFit(x, R, undefined, i).f : 1), tg: [0, 1, 2, 3, 4, 5, 6].map(i => { const g = targets(R, i); return { kcal: g.kcal, prot: g.prot, fat: g.fat, carbs: g.carbs, trainDay: !!g.trainDay, restDay: !!g.restDay }; }) } }; save(); cmp('remote');
-    S.portions = { pR: { n: 'Rayan', f: [1.25, 1, 0.75, 1, 1.5, 1, 1] } }; save(); cmp('remoteOld');
     // the generator uses the same function: a generated week costs the same in the generator and in the Menu tab
-    S.profiles.push(R); S.portions = {}; S.menuSet.budget = 400; makeMenu(); cmp('generated');
+    S.menuSet.budget = 400; makeMenu(); cmp('generated');
     return out; }, TWO.toString());
   for (const [k, v] of Object.entries(r)) {
     near(v.gen, v.tab, 1e-6, k + ': generator = Menu tab'); near(v.gen, v.list, 1e-6, k + ': generator = list');
@@ -870,323 +836,6 @@ test('Menu', 'a menu saved before v36 (one shared d.pf) loads: the value goes to
     near(r.M, 1.75, 1e-9, 'old portion kept for the open profile'); near(r.R, sug.R, 1e-9, 'other profile keeps the suggestion');
     ok(!('pf' in r.d0) && r.d0.pfBy && r.d0.pfBy.pM === 1.75, 'migrated and saved as pfBy'); ok(!('pf' in r.d1) && !r.d1.pfBy, 'out-of-range and bad entries dropped');
   } finally { await ctx.close(); }
-});
-
-/* ======================================================================================
-   16. Shared home (sync between two phones)
-   ====================================================================================== */
-async function phone(name, color) { const env = await openApp(); await env.page.evaluate(([api, n, c]) => { localStorage.setItem('makla_sync_api', api); darForm.n = n; darForm.c = c; }, [BASE + 'fs', name, color]); return env; }
-test('Sync', 'two phones: ticks, menu and prices reach the other phone with the sender’s colour; private profile stays private; offline changes are sent later', async () => {
-  const A = await phone('Mohammed', '#2f8f5b'), B = await phone('Sara<b>x</b>', '#2f6fbf');
-  try {
-    const hid = await A.page.evaluate(async () => { makeMenu(); P().weights = [{ d: '2026-10-01', w: 81.2 }]; P().example = false; save(); go('reglages'); await darCreate(); return SY.hid; });
-    ok(/^[A-Za-z0-9]{28}$/.test(hid), 'random 28-character code'); ok(fsDocs[hid], 'home created on the server');
-    const joined = await B.page.evaluate(async hid => { go('reglages'); darForm.code = hid; render(); await darJoin(); return { menu: S.menu && S.menu.days.map(d => d.ghda), me: SY.me.id }; }, hid);
-    const menuA = await A.page.evaluate(() => S.menu.days.map(d => d.ghda));
-    eq(JSON.stringify(joined.menu), JSON.stringify(menuA), 'joining phone receives the menu');
-    // A ticks an item; B sees it with A's colour
-    const item = await A.page.evaluate(async () => { const id = shopData().rows[0].id; chk(id, true); await syncNow(); return id; });
-    const b1 = await B.page.evaluate(async id => { await syncNow(); go('t9edya'); const dot = document.querySelector(`#view .li[data-id="${id}"] .sdot`); return { ticked: !!S.checked[id], dot: dot && dot.style.background, title: dot && dot.title }; }, item);
-    ok(b1.ticked, 'tick reached the other phone'); ok(/47, 143, 91|2f8f5b/i.test(b1.dot || ''), 'marked with the sender colour: ' + b1.dot); ok((b1.title || '').includes('Mohammed'), 'marked with the sender name');
-    // B changes Wednesday's lunch; A sees it, marked in B's colour, and a toast names B (escaped)
-    const newId = await B.page.evaluate(async () => { const o = swapOptions(2, 'ghda')[0].id; setMeal(2, 'ghda', o); await syncNow(); return o; });
-    const a1 = await A.page.evaluate(async () => { await syncNow(); openDay = null; go('menu'); const dot = document.querySelectorAll('#view .mday-h')[2].querySelector('.sdot');
-      const toastTxt = document.getElementById('toastRoot').textContent; go('reglages'); return { ghda: S.menu.days[2].ghda, dot: dot && dot.style.background, toastTxt, html: !!document.querySelector('#darBox .mem b b') }; });
-    eq(a1.ghda, newId, 'menu change reached the first phone'); ok(/47, 111, 191|2f6fbf/i.test(a1.dot || ''), 'day marked in the other colour');
-    ok(a1.toastTxt.includes('Sara'), 'toast names who changed it'); ok(!a1.html, 'member name shown as text');
-    // edits to different things at the same time both survive
-    await A.page.evaluate(() => setP('bid', 1.9)); await B.page.evaluate(() => setP('maticha', 9));
-    await A.page.evaluate(() => syncNow()); await B.page.evaluate(() => syncNow()); await A.page.evaluate(() => syncNow());
-    const pa = await A.page.evaluate(() => [S.prices.bid, S.prices.maticha]), pb = await B.page.evaluate(() => [S.prices.bid, S.prices.maticha]);
-    eq(JSON.stringify(pa), '[1.9,9]', 'phone A has both prices'); eq(JSON.stringify(pb), '[1.9,9]', 'phone B has both prices');
-    // profiles stay on the phone unless shared
-    ok(!JSON.stringify(fsDocs[hid]).includes('81.2'), 'private weight never sent');
-    await A.page.evaluate(async () => { toggleShareProf(P().id); await syncNow(); });
-    const shared = await B.page.evaluate(async () => { await syncNow(); return S.profiles.some(p => p.weights && p.weights.some(w => w.w === 81.2)); });
-    ok(shared, 'a profile marked as shared reaches the other phone');
-    // offline: kept, then sent
-    serverDown = true;
-    const off = await B.page.evaluate(async () => { while (_syncBusy) await new Promise(r => setTimeout(r, 50)); const id = shopData().rows.find(x => !S.checked[x.id]).id; chk(id, true); await syncNow(); return { st: _syncState, pend: syncPending(), id }; });
-    serverDown = false;
-    ok(off.st === 'off' || off.st === 'err', 'offline state shown: ' + off.st); ok(off.pend > 0, 'change kept while offline');
-    await B.page.evaluate(() => syncNow());
-    const got = await A.page.evaluate(async id => { await syncNow(); return !!S.checked[id]; }, off.id);
-    ok(got, 'offline change sent when the connection returned');
-    eq(A.errors.length + B.errors.length, 0, 'page errors: ' + A.errors.concat(B.errors).join(' | '));
-  } finally { serverDown = false; await A.ctx.close(); await B.ctx.close(); }
-});
-test('Sync', 'wrong code, unknown home and refused server are explained; leaving keeps the data; Firestore is never served from cache', async () => {
-  const A = await phone('Ali', '#c2572b');
-  try {
-    const r = await A.page.evaluate(async () => { go('reglages'); const msg = () => document.getElementById('darMsg').textContent;
-      darForm.code = 'short'; renderDarBox(); await darJoin(); const bad = msg();
-      darForm.code = 'Z'.repeat(28); renderDarBox(); await darJoin(); const unknown = msg(); const notJoined = SY === null;
-      const before = S.recipes.length; await darCreate(); const inHome = !!SY; darLeave(); darLeave();
-      return { bad, unknown, notJoined, inHome, out: SY === null, kept: S.recipes.length === before, saved: localStorage.getItem('makla_mizan_v2_sync') }; });
-    ok(r.bad.length > 3 && r.unknown.length > 3 && r.bad !== r.unknown, 'two different explanations'); ok(r.notJoined, 'not joined to a missing home');
-    ok(r.inHome && r.out && r.kept, 'left the home, data kept'); eq(r.saved, null, 'home code forgotten on this phone');
-    const sw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
-    ok(!/endsWith\('googleapis\.com'\)/.test(sw) && /fonts\.googleapis\.com/.test(sw), 'service worker caches fonts only, never the Firestore API');
-  } finally { await A.ctx.close(); }
-});
-
-test('Sync', 'same home, different profiles open: both phones get the same shopping list (portions shared, body data not)', async () => {
-  const A = await phone('Mohammed', '#2f8f5b'), B = await phone('Rayan', '#2f6fbf');
-  try {
-    const hid = await A.page.evaluate(async () => { Object.assign(P(), { name: 'Mohammed', example: false, sex: 'm', age: 28, w: 85, h: 178, act: 1.725, goal: 'leanbulk' });
-      S.menuSet = { people: 2, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; makeMenu(); await darCreate(); return SY.hid; });
-    await B.page.evaluate(async hid => { Object.assign(P(), { name: 'Rayan', example: false, sex: 'm', age: 24, w: 62, h: 170, act: 1.375, goal: 'cut' }); save(); darForm.code = hid; await darJoin(); }, hid);
-    await A.page.evaluate(() => syncNow()); await B.page.evaluate(() => syncNow()); await A.page.evaluate(() => syncNow());
-    const list = page => page.evaluate(() => JSON.stringify(shopData().rows.map(r => [r.id, Math.round(r.buy * 1000)])));
-    const tot = page => page.evaluate(() => S.menu.days.map((d, i) => menuTotal(i)));
-    const [la, lb, ta, tb] = [await list(A.page), await list(B.page), await tot(A.page), await tot(B.page)];
-    eq(JSON.stringify(ta), JSON.stringify(tb), 'same household portions per day');
-    eq(la, lb, 'same shopping list on both phones');
-    const own = await A.page.evaluate(() => S.menu.days.map(d => dayFit(d, P()).f)), other = await B.page.evaluate(() => S.menu.days.map(d => dayFit(d, P()).f));
-    ta.forEach((v, i) => near(v, own[i] + other[i], 0.011, 'day ' + i + ' = Mohammed’s portion + Rayan’s portion'));
-    // who pays what: same split on both phones, each pays own portions, shares add up to the menu's food cost
-    const sp = page => page.evaluate(() => { const m = menuSplit(); return { m: m.map(x => [x.n, Math.round(x.c * 100) / 100]), tot: menuWeekCost(), sources: [S.shop.menu, ...S.profiles.map(p => !!S.shop[p.id])] }; });
-    const sa = await sp(A.page), sb = await sp(B.page);
-    eq(JSON.stringify(sa.m), JSON.stringify(sb.m), 'same split on both phones');
-    near(sa.m.reduce((s, x) => s + x[1], 0), sa.tot, 0.1, 'split adds up to the menu cost'); near(sa.tot, sb.tot, 0.01, 'same menu cost on both phones');
-    const byName = Object.fromEntries(sa.m); const exp = await A.page.evaluate(() => { const E = portionEaters(); const out = {}; Object.values(E).forEach(e => out[e.n] = 0);
-      S.menu.days.forEach((d, i) => { ['ghda', '3cha'].forEach(k => { const r = d[k] && recipe(d[k]); if (r) Object.values(E).forEach(e => out[e.n] += recCost(r) * e.f[i]); }); if (d.ftour) Object.values(E).forEach(e => out[e.n] += sum(d.ftour).cost); }); return out; });
-    near(byName.Mohammed, exp.Mohammed, 0.05, 'Mohammed pays his own portions'); near(byName.Rayan, exp.Rayan, 0.05, 'Rayan pays his own portions');
-    ok(byName.Mohammed > byName.Rayan, 'bigger eater pays more');
-    eq(JSON.stringify(sb.sources), JSON.stringify([true, false]), 'joining phone lists the home menu only');
-    ok(!JSON.stringify(fsDocs[hid]).includes('"w\\":62') && !JSON.stringify(fsDocs[hid]).includes('leanbulk'), 'no body data sent, only portion sizes');
-  } finally { await A.ctx.close(); await B.ctx.close(); }
-});
-
-test('Sync', 'portions per profile stay independent across two phones; an old phone’s shared d.pf is not given to the wrong person', async () => {
-  const A = await phone('Mohammed', '#2f8f5b'), B = await phone('Rayan', '#2f6fbf');
-  try {
-    const hid = await A.page.evaluate(async () => { Object.assign(P(), { name: 'Mohammed', example: false, sex: 'm', age: 28, w: 85, h: 178, act: 1.725, goal: 'leanbulk' });
-      S.menuSet = { people: 2, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; makeMenu(); S.menu.days.forEach(d => { delete d.snack; delete d.snack2; delete d.side; }); save(); await darCreate(); return SY.hid; });
-    await B.page.evaluate(async hid => { Object.assign(P(), { name: 'Rayan', example: false, sex: 'm', age: 24, w: 62, h: 170, act: 1.375, goal: 'cut' }); save(); darForm.code = hid; await darJoin(); }, hid);
-    const sync = async () => { await A.page.evaluate(() => syncNow()); await B.page.evaluate(() => syncNow()); await A.page.evaluate(() => syncNow()); await B.page.evaluate(() => syncNow()); };
-    await sync();
-    const own = pg => pg.evaluate(() => dayFit(S.menu.days[0], P()).f), sugB0 = await own(B.page);
-    const ida = await A.page.evaluate(() => P().id), idb = await B.page.evaluate(() => P().id);
-    const a1 = await A.page.evaluate(() => { setPf(0, 1); setPf(0, 1); return dayFit(S.menu.days[0], P()).f; }); await sync();
-    eq(await own(B.page), sugB0, 'Rayan’s phone: his portion did not follow Mohammed’s change');
-    near(await B.page.evaluate(id => portionEaters()[id].f[0], ida), a1, 1e-9, 'Rayan’s phone sees Mohammed’s new portion');
-    const b1 = await B.page.evaluate(() => { setPf(0, -1); return dayFit(S.menu.days[0], P()).f; }); await sync();
-    near(await own(A.page), a1, 1e-9, 'Mohammed’s phone: his portion did not follow Rayan’s change');
-    near(await A.page.evaluate(id => portionEaters()[id].f[0], idb), b1, 1e-9, 'Mohammed’s phone sees Rayan’s new portion');
-    const ta = await A.page.evaluate(() => menuTotal(0)), tb = await B.page.evaluate(() => menuTotal(0));
-    near(ta, a1 + b1, 0.011, 'day total = both own portions'); eq(ta, tb, 'same total on both phones');
-    // an old version on B writes the shared d.pf (as before v36): A must not give it to Mohammed
-    await B.page.evaluate(() => { S.menu.days[0].pf = 3; save(); }); await A.page.evaluate(() => syncNow()); await B.page.evaluate(() => syncNow()); await A.page.evaluate(() => syncNow());
-    near(await own(A.page), a1, 1e-9, 'old phone’s shared value ignored for Mohammed');
-    ok(await A.page.evaluate(() => !('pf' in S.menu.days[0])), 'legacy value dropped on the receiving phone');
-    await A.page.reload(); await A.page.waitForTimeout(300);
-    near(await own(A.page), a1, 1e-9, 'Mohammed’s portion kept after reload on a shared home');
-  } finally { await A.ctx.close(); await B.ctx.close(); }
-});
-test('Sync', 'A1: two phones, one profile each: each phone knows the other’s targets (numbers only), the generated menu feeds both and each sees their own snacks; old unnamed top-ups from another phone are not given to the wrong person', async () => {
-  const A = await phone('Mohammed', '#2f8f5b'), B = await phone('Rayan', '#2f6fbf');
-  try {
-    const hid = await A.page.evaluate(async () => { Object.assign(P(), { name: 'Mohammed', example: false, sex: 'm', age: 28, w: 85, h: 178, act: 1.725, goal: 'leanbulk' });
-      S.menuSet = { people: 2, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; makeMenu(); await darCreate(); return SY.hid; });
-    await B.page.evaluate(async hid => { Object.assign(P(), { name: 'Rayan', example: false, sex: 'm', age: 24, w: 62, h: 170, act: 1.375, goal: 'cut' }); save(); darForm.code = hid; await darJoin(); }, hid);
-    const sync = async () => { for (const pg of [A.page, B.page, A.page, B.page]) await pg.evaluate(() => syncNow()); };
-    await sync();
-    const ea = await A.page.evaluate(() => nutEaters().map(e => [e.name, !!e.remote, e.tgs ? e.tgs[0].prot : targets(e, 0).prot]));
-    const rb = await B.page.evaluate(() => targets(P(), 0).prot);
-    eq(ea.length, 2, 'Mohammed’s phone sizes the menu for 2 eaters'); ok(ea.some(e => e[0] === 'Rayan' && e[1] && Math.abs(e[2] - rb) <= 1), 'with Rayan’s own protein target');
-    ok(!JSON.stringify(fsDocs[hid]).includes('leanbulk') && !JSON.stringify(fsDocs[hid]).includes('"w\\":62'), 'no body data or goal sent, only target numbers');
-    await A.page.evaluate(() => { S.menu.set.hp = true; S.menuSet.hp = true; makeMenu(); }); await sync();
-    const idb = await B.page.evaluate(() => P().id);
-    const a = await A.page.evaluate(id => S.menu.days.filter(d => xItems(d, id).length).length, idb);
-    const b = await B.page.evaluate(() => S.menu.days.map((d, i) => { const x = dayFit(d, P(), undefined, i), own = dayFit(d, P(), xItems(d, P().id), i); return [xItems(d, P().id).length, Math.abs(x.sc.p - own.sc.p) < 1e-9]; }));
-    ok(a > 0, 'Mohammed’s phone added snacks for Rayan'); eq(b.filter(x => x[0]).length, a, 'Rayan’s phone sees the same snacks as his'); ok(b.every(x => x[1]), 'Rayan’s numbers count only his own top-ups');
-    // an old version on B writes unnamed top-ups: A keeps them on the list but gives them to nobody's nutrition
-    await B.page.evaluate(() => { S.menu.days[1].snack = [['ton_ma', 5]]; delete S.menu.days[1].snackFor; save(); }); await A.page.evaluate(() => syncNow()); await B.page.evaluate(() => syncNow()); await A.page.evaluate(() => syncNow());
-    const o = await A.page.evaluate(() => ({ x: S.menu.days[1].xtra && S.menu.days[1].xtra._, mine: xItems(S.menu.days[1], P().id).some(([id, q]) => id === 'ton_ma' && q === 5) }));
-    ok(o.x && o.x.snack, 'kept as “owner unknown”'); ok(!o.mine, 'not given to Mohammed');
-  } finally { await A.ctx.close(); await B.ctx.close(); }
-});
-test('Sync', 'pause (Réglages): no request from any path — save, timer, focus, online, start-up, direct calls, create/join/leave; local data, base and server untouched; changed keys recorded; still paused after reload', async () => {
-  const A = await phone('Mohammed', '#2f8f5b'), B = await phone('Rayan', '#2f6fbf');
-  try {
-    const hid = await A.page.evaluate(async () => { Object.assign(P(), { name: 'Mohammed', example: false }); S.menuSet = { people: 2, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; makeMenu(); await darCreate(); return SY.hid; });
-    await B.page.evaluate(async hid => { Object.assign(P(), { name: 'Rayan', example: false }); save(); darForm.code = hid; await darJoin(); }, hid);
-    for (const pg of [A.page, B.page, A.page]) await pg.evaluate(() => syncNow());
-    let reqA = 0; A.page.on('request', r => { if (r.url().includes('/fs/')) reqA++; });
-    const before = await A.page.evaluate(() => { go('reglages'); pauseSync(); const armed = !syncPaused(); pauseSync(); return { armed, paused: syncPaused(), base: JSON.stringify(SY.base), shot: JSON.stringify(syncSnap()) }; });
-    ok(before.armed && before.paused, 'pause asks for a second tap, then is on');
-    const docBefore = JSON.stringify(fsDocs[hid]);
-    const r = await A.page.evaluate(async () => { const wait = ms => new Promise(res => setTimeout(res, ms)); const out = {};
-      const d = S.menu.days[1], keep = d.ghda; setMeal(1, 'ghda', swapOptions(1, 'ghda')[0].id); setP('bid', 9); chk(shopData().rows[0].id, true); await wait(1500);
-      out.dirty = Object.keys(SY.pause.dirty).sort();
-      out.calls = [];
-      for (const [n, f] of [['syncNow', () => syncNow()], ['syncNowForce', () => syncNow(true)], ['syncPush', () => syncPush()], ['syncPull', () => syncPull(false)], ['syncFetch', () => syncFetch(syncApi() + '/households/' + SY.hid)]])
-        { try { await f(); out.calls.push(n + ':ok'); } catch (e) { out.calls.push(n + ':' + (e.paused ? 'paused' : e.message)); } }
-      syncSoon(); document.dispatchEvent(new Event('visibilitychange')); window.dispatchEvent(new Event('online')); await wait(1500);
-      const hidBefore = SY.hid; await darCreate(); await darJoin(); darLeave(); darLeave(); out.sameHome = !!SY && SY.hid === hidBefore;
-      out.portions = !!S.portions; out.base = JSON.stringify(SY.base);
-      // revert the price: its key leaves the changed list
-      setP('bid', ''); await wait(1500); out.dirty2 = Object.keys(SY.pause.dirty).sort();
-      return out; });
-    eq(r.calls.join(), 'syncNow:ok,syncNowForce:ok,syncPush:paused,syncPull:paused,syncFetch:paused', 'direct calls do nothing or are refused');
-    ok(r.dirty.includes('mday.1') && r.dirty.includes('price.bid') && r.dirty.some(k => k.startsWith('checked.')), 'changed keys recorded: ' + r.dirty.join(' '));
-    ok(!r.dirty2.includes('price.bid') && r.dirty2.includes('mday.1'), 'a change undone leaves the list');
-    ok(r.sameHome && r.portions, 'create / join / leave refused: same home, portions kept'); eq(r.base, before.base, 'synced base untouched');
-    await A.page.waitForTimeout(8500);   // one tick of the 8 s timer
-    await A.page.reload(); await A.page.waitForTimeout(1500);
-    const after = await A.page.evaluate(() => ({ paused: syncPaused(), dirty: Object.keys(SY.pause.dirty).length, base: JSON.stringify(SY.base), dot: document.getElementById('syncDot').className }));
-    ok(after.paused && after.dirty >= 2, 'still paused after reload, changes still recorded'); eq(after.base, before.base, 'base kept after reload'); ok(after.dot.includes('paused'), 'grey dot');
-    eq(reqA, 0, 'no request at all from the paused phone'); eq(JSON.stringify(fsDocs[hid]), docBefore, 'server document unchanged by the paused phone');
-    // the other phone keeps writing: nothing reaches the paused phone
-    const priceA = await A.page.evaluate(() => S.prices.lben);
-    await B.page.evaluate(async () => { setP('lben', 33); await syncNow(); });
-    ok(JSON.stringify(fsDocs[hid]) !== docBefore, 'other phone wrote to the server');
-    await A.page.evaluate(() => { document.dispatchEvent(new Event('visibilitychange')); return new Promise(res => setTimeout(res, 1500)); });
-    eq(await A.page.evaluate(() => S.prices.lben), priceA, 'paused phone did not receive it'); eq(reqA, 0, 'still no request');
-  } finally { await A.ctx.close(); await B.ctx.close(); }
-});
-test('Sync', 'pause during a request in flight: an answer arriving after the pause changes nothing; an interrupted send leaves its keys pending', async () => {
-  const A = await phone('Mohammed', '#2f8f5b'), B = await phone('Rayan', '#2f6fbf');
-  try {
-    const hid = await A.page.evaluate(async () => { Object.assign(P(), { name: 'Mohammed', example: false }); S.menuSet = { people: 2, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; makeMenu(); await darCreate(); return SY.hid; });
-    await B.page.evaluate(async hid => { Object.assign(P(), { name: 'Rayan', example: false }); save(); darForm.code = hid; await darJoin(); }, hid);
-    for (const pg of [A.page, B.page, A.page]) await pg.evaluate(() => syncNow());
-    // 1) a pull in flight: B changed a price; A's pull is slow and the pause comes first
-    await B.page.evaluate(async () => { setP('lben', 44); await syncNow(); });
-    fsDelay = 1500;
-    const r1 = await A.page.evaluate(async () => { const base = SY.base['price.lben'], p = S.prices.lben; const run = syncNow(); await new Promise(res => setTimeout(res, 300)); go('reglages'); pauseSync(); pauseSync(); await run; await new Promise(res => setTimeout(res, 2000));
-      return { same: S.prices.lben === p, base: SY.base['price.lben'] === base, toast: document.getElementById('toastRoot').textContent }; });
-    ok(r1.same && r1.base, 'answer after the pause not applied (price and base unchanged)'); ok(!r1.toast.includes('Rayan'), 'no “Rayan changed…” toast');
-    fsDelay = 0;
-    // 2) a send in flight, both server outcomes, read straight from the stand-in's document
-    const fieldOf = (hid, f) => { const e = fsDocs[hid] && fsDocs[hid].fields.e; const x = e && e.mapValue.fields[f]; return x ? x.mapValue.fields.v.stringValue : undefined; };
-    // control for 'drop': a slow request that is NOT aborted must be handled normally (so "gone" really means aborted)
-    { const D = await phone('Ctrl', '#8a4fbf'); try {
-        await D.page.evaluate(async () => { Object.assign(P(), { name: 'Ctrl', example: false }); await darCreate(); });
-        fsDelay = 800; fsDelayMode = 'drop'; fsDropped = 0; fsHandledLate = 0;
-        const okCtl = await D.page.evaluate(async () => { setP('bid', 5); clearTimeout(_syncTimer); await syncNow(); return SY.base['price.bid'] === '5' && _syncState === 'ok'; });
-        ok(okCtl && fsDropped === 0 && fsHandledLate >= 1, 'drop mode: a slow request that was not aborted is handled (control)');
-      } finally { fsDelay = 0; fsDelayMode = 'before'; await D.ctx.close(); } }
-    for (const mode of ['after', 'drop']) {
-      const C = await phone('Sara', '#c2572b');
-      try {
-        const chid = await C.page.evaluate(async () => { Object.assign(P(), { name: 'Sara', example: false }); await darCreate(); return SY.hid; });
-        const f = await C.page.evaluate(() => syncEnc('price.bid'));
-        let reqC = 0, pausedAt = 0; C.page.on('request', r => { if (r.url().includes('/fs/') && pausedAt) reqC++; });
-        fsDelay = 1500; fsDelayMode = mode; fsDropped = 0;
-        const r2 = await C.page.evaluate(async () => { setP('bid', 7); clearTimeout(_syncTimer); const base = SY.base['price.bid'], attr = JSON.stringify(SY.attr['price.bid'] || null);
-          const run = syncNow(); await new Promise(res => setTimeout(res, 300)); go('reglages'); pauseSync(); pauseSync(); window.__paused = Date.now(); await run; await new Promise(res => setTimeout(res, 2200));
-          return { base: SY.base['price.bid'] === base, attr: JSON.stringify(SY.attr['price.bid'] || null) === attr, dirty: 'price.bid' in SY.pause.dirty, ctls: _syncCtls.size }; });
-        pausedAt = 1;
-        const server = fieldOf(chid, f);
-        if (mode === 'after') eq(server, '7', 'after: the server wrote the change before answering late');
-        else { eq(server, undefined, 'drop: the server never wrote it'); eq(fsDropped, 1, 'drop: the aborted request was dropped'); }
-        ok(r2.base && r2.attr, mode + ': the paused phone did not move its synced base or attribution');
-        ok(r2.dirty, mode + ': the key stays pending for the resume step'); eq(r2.ctls, 0, mode + ': no controller left');
-        await C.page.reload(); await C.page.waitForTimeout(1200);
-        const r3 = await C.page.evaluate(() => ({ base: SY.base['price.bid'], dirty: 'price.bid' in SY.pause.dirty, paused: syncPaused() }));
-        ok(r3.paused && r3.dirty && r3.base === undefined, mode + ': same after reload'); eq(reqC, 0, mode + ': no request after the pause');
-      } finally { fsDelay = 0; fsDelayMode = 'before'; await C.ctx.close(); }
-    }
-  } finally { fsDelay = 0; await A.ctx.close(); await B.ctx.close(); }
-});
-test('Sync', 'pause: changes are found again from the saved data even when the page closes at once; leaving the page records them immediately', async () => {
-  const A = await phone('Mohammed', '#2f8f5b');
-  try {
-    await A.page.evaluate(async () => { Object.assign(P(), { name: 'Mohammed', example: false }); await darCreate(); go('reglages'); pauseSync(); pauseSync(); });
-    const t0 = await A.page.evaluate(() => { setP('bid', 11); return { at: Date.now(), dirty: 'price.bid' in SY.pause.dirty, last: SY.pause.lastSave }; });
-    ok(!t0.dirty && Math.abs(t0.last - t0.at) < 1000, 'saved and stamped, list not yet updated (timer pending)');
-    // the tab's renderer is crashed before the 1.2 s timer: no pagehide, no visibilitychange, no timer. This is the
-    // closest the test browser gets to the system killing the app; it does not cover a crash in the middle of a
-    // localStorage write or storage cleared by the system.
-    const stored = await A.page.evaluate(() => { const s = JSON.parse(localStorage.getItem('makla_mizan_v2_sync')); return { dirty: 'price.bid' in s.pause.dirty, last: s.pause.lastSave }; });
-    ok(!stored.dirty && stored.last === t0.last, 'on disk: change saved, list not updated, last save stamped');
-    const cdp = await A.ctx.newCDPSession(A.page); const crashed = new Promise(res => A.page.once('crash', () => res(true))); cdp.send('Page.crash').catch(() => {});
-    ok(await Promise.race([crashed, new Promise(res => setTimeout(() => res(false), 3000))]), 'renderer crashed');
-    const A2 = await A.ctx.newPage(); await A2.goto(BASE); await A2.waitForTimeout(300);
-    const r = await A2.evaluate(() => ({ e: SY.pause.dirty['price.bid'], v: S.prices.bid, paused: syncPaused() }));
-    eq(r.v, 11, 'the change itself was saved'); ok(r.paused && r.e && r.e.first === t0.last, 'found again at start-up from S and the base, dated by the last save');
-    A.page = A2;
-    const p = await A.page.evaluate(() => { setP('lben', 5); window.dispatchEvent(new Event('pagehide')); return 'price.lben' in SY.pause.dirty; });
-    ok(p, 'pagehide records at once');
-    const h = await A.page.evaluate(() => { setP('perly', 4); Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true }); document.dispatchEvent(new Event('visibilitychange')); return 'price.perly' in SY.pause.dirty; });
-    ok(h, 'going to the background records at once');
-  } finally { await A.ctx.close(); }
-});
-test('Sync', 'every Firestore request has its own abort signal from the app (a caller cannot replace it), controllers are released on success, refusal and network failure, and the pause aborts them all', async () => {
-  const A = await phone('Mohammed', '#2f8f5b');
-  try {
-    await A.page.evaluate(async () => { Object.assign(P(), { name: 'Mohammed', example: false }); await darCreate(); });
-    const r = await A.page.evaluate(async () => { const seen = [], real = window.fetch;
-      window.fetch = (u, o) => { seen.push({ u: String(u), own: [..._syncCtls].some(c => c.signal === (o && o.signal)), sig: o && o.signal }); return real(u, o); };
-      setP('bid', 3); clearTimeout(_syncTimer); await syncNow(true);
-      const all = seen.length > 0 && seen.every(x => x.own);
-      const mine = AbortSignal.abort(); let usedMine = true, ok1 = false; seen.length = 0;
-      try { await syncFetch(syncApi() + '/households/' + SY.hid, { signal: mine }); ok1 = true; usedMine = seen[0].sig === mine; } catch (e) { ok1 = 'threw ' + e.message; }
-      const after1 = _syncCtls.size;
-      let refused = ''; try { await syncFetch(syncApi() + '/households/short'); } catch (e) { refused = String(e.status); } const after2 = _syncCtls.size;
-      let netErr = ''; const api = localStorage.getItem('makla_sync_api'); try { await syncFetch('http://127.0.0.1:9/households/x'); } catch (e) { netErr = e.name; } const after3 = _syncCtls.size;
-      window.fetch = real; return { all, ok1, usedMine, after1, refused, after2, netErr, after3 }; });
-    ok(r.all, 'every request of a sync carried one of the app’s own signals');
-    eq(r.ok1, true, 'a caller’s already-aborted signal is ignored (request done)'); ok(!r.usedMine, 'the caller’s signal was not used');
-    eq(r.refused, '403', 'refused request'); eq(r.netErr, 'TypeError', 'network failure'); eq([r.after1, r.after2, r.after3].join(), '0,0,0', 'no controller left after success, refusal or failure');
-    fsDelay = 1500;
-    const q = await A.page.evaluate(async () => { const seen = [], real = window.fetch; window.fetch = (u, o) => { seen.push(o.signal); return real(u, o); };
-      const join = syncFetch(syncApi() + '/households/' + SY.hid).then(() => 'resolved', e => e.paused ? 'paused' : e.name);   // like darJoin's GET
-      const push = (setP('bid', 8), clearTimeout(_syncTimer), syncPush().then(() => 'resolved', e => e.paused ? 'paused' : e.name));
-      await new Promise(res => setTimeout(res, 300)); const inFlight = _syncCtls.size; go('reglages'); pauseSync(); pauseSync();
-      const res = await Promise.all([join, push]); window.fetch = real;
-      return { inFlight, aborted: seen.every(s => s.aborted), n: seen.length, res, left: _syncCtls.size }; });
-    eq(q.inFlight, 2, 'two requests in flight'); ok(q.n === 2 && q.aborted, 'the pause aborted both'); ok(q.res.every(x => x === 'paused' || x === 'AbortError'), 'both refused: ' + q.res.join()); eq(q.left, 0, 'released');
-  } finally { fsDelay = 0; await A.ctx.close(); }
-});
-test('Sync', 'joining a home only undoes its own attempt: if the state changed while waiting for the server, the new state is kept', async () => {
-  const A = await phone('Mohammed', '#2f8f5b'), B = await phone('Rayan', '#2f6fbf');
-  try {
-    const hid = await A.page.evaluate(async () => { Object.assign(P(), { name: 'Mohammed', example: false }); await darCreate(); return SY.hid; });
-    fsDelay = 1200;
-    const r = await B.page.evaluate(async hid => { Object.assign(P(), { name: 'Rayan', example: false }); save();
-      const other = { hid: 'Zz' + 'x'.repeat(26), me: { id: 'mOther', n: 'Other', c: '#888888' }, base: { 'price.bid': '"1"' }, attr: {}, members: {}, upd: '', ver: SYNC_VER };
-      const out = {};
-      // 1) while the join waits, SY is replaced and the epoch moves: the replacement survives
-      darForm.code = hid; let p = darJoin(); await new Promise(res => setTimeout(res, 200)); SY = other; _syncEpoch++; await p; out.kept = SY === other && SY.base['price.bid'] === '"1"';
-      // 2) same, with a home that does not exist (404 path)
-      darForm.code = 'Nn' + 'x'.repeat(26); p = darJoin(); await new Promise(res => setTimeout(res, 200)); SY = other; await p; out.kept404 = SY === other;
-      // 3) nothing replaced it but the epoch moved: its own attempt is undone
-      SY = null; darForm.code = hid; p = darJoin(); await new Promise(res => setTimeout(res, 200)); _syncEpoch++; await p; out.undone = SY === null;
-      return out; }, hid);
-    ok(r.kept, 'replaced state kept (not set to null)'); ok(r.kept404, 'kept on the “not found” path too'); ok(r.undone, 'its own attempt undone when the epoch moved');
-  } finally { fsDelay = 0; await A.ctx.close(); await B.ctx.close(); }
-});
-test('Sync', 'portions stay put over many syncs; a phone that missed them (old version) repairs itself; unknown keys are kept for later', async () => {
-  const A = await phone('Mohammed', '#2f8f5b'), B = await phone('Rayan', '#2f6fbf');
-  try {
-    const hid = await A.page.evaluate(async () => { Object.assign(P(), { name: 'Mohammed', example: false, sex: 'm', age: 28, w: 85, h: 178, act: 1.725, goal: 'leanbulk' });
-      S.menuSet = { people: 2, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; makeMenu(); await darCreate(); return SY.hid; });
-    const bid = await B.page.evaluate(async hid => { Object.assign(P(), { name: 'Rayan', example: false, sex: 'm', age: 24, w: 62, h: 170, act: 1.375, goal: 'cut' }); save(); darForm.code = hid; await darJoin(); return P().id; }, hid);
-    for (let k = 0; k < 4; k++) { await A.page.evaluate(() => syncNow()); await B.page.evaluate(() => syncNow()); }
-    const key = 'kportion_d' + bid.replace(/_/g, '_u').replace(/-/g, '_h');
-    const onServer = () => { const e = fsDocs[hid].fields.e.mapValue.fields[key]; return e && e.mapValue.fields.v.stringValue; };
-    const bVal = await B.page.evaluate(id => JSON.stringify(syncSnap()['portion.' + id]), bid);
-    eq(onServer(), bVal, 'Rayan’s portions are still on the server after many syncs (never deleted by the other phone)');
-    const st = async page => page.evaluate(() => ({ pend: syncPending(), names: menuSplit().map(x => x.n) }));
-    const sa = await st(A.page), sb = await st(B.page);
-    eq(sa.pend + sb.pend, 0, 'nothing left to send on either phone (no back-and-forth)');
-    eq(JSON.stringify(sa.names), '["Mohammed","Rayan"]', 'first phone counts Rayan by name');
-    // the real-world case: phone A was on the old version when Rayan's portions arrived — marked as received, never applied
-    await A.page.evaluate(id => { delete S.portions[id]; localStorage.setItem('makla_mizan_v2', JSON.stringify(S)); const sy = JSON.parse(localStorage.getItem('makla_mizan_v2_sync')); sy.ver = 1; localStorage.setItem('makla_mizan_v2_sync', JSON.stringify(sy)); }, bid);
-    await A.page.reload(); await A.page.waitForFunction(() => typeof S === 'object' && S && SY);
-    const fixed = await A.page.evaluate(async () => { await syncNow(); return menuSplit().map(x => x.n); });
-    eq(JSON.stringify(fixed), '["Mohammed","Rayan"]', 'after the update the phone repairs itself and counts Rayan');
-    // a key from a newer version is not marked as received
-    fsDocs[hid].fields.e.mapValue.fields.kfuture_dx = { mapValue: { fields: { v: { stringValue: '1' }, by: { stringValue: 'mX' }, t: { timestampValue: new Date().toISOString() } } } };
-    fsDocs[hid].updateTime = new Date(Date.now() + 1e6).toISOString();
-    const kept = await A.page.evaluate(async () => { await syncNow(); return 'future.x' in SY.base; });
-    eq(kept, false, 'unknown key left for a later version');
-    const la = await A.page.evaluate(() => JSON.stringify(shopData().rows.map(r => [r.id, Math.round(r.buy * 1000)]))), lb = await B.page.evaluate(() => JSON.stringify(shopData().rows.map(r => [r.id, Math.round(r.buy * 1000)])));
-    eq(la, lb, 'same list on both phones');
-  } finally { await A.ctx.close(); await B.ctx.close(); }
 });
 
 /* ---------- runner ---------- */

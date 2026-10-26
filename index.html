@@ -224,13 +224,6 @@ body.noscroll{overflow:hidden}
 .x:hover{background:var(--bg);box-shadow:var(--press)}
 .brand h1{color:var(--accent)}
 
-.mems{display:flex;flex-direction:column;gap:10px}
-.mem{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;padding:10px;border-radius:14px;background:var(--bg);box-shadow:var(--raise-sm)}
-.mem-n{display:flex;gap:8px;align-items:center;flex:1;min-width:0}
-.mem-n input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent)}
-.mem-n small{display:block;color:var(--muted);font-size:12px}
-.mem-f{width:86px}
-.mem .x{align-self:center}
 .split{display:flex;flex-direction:column;gap:6px}
 .split div{display:flex;justify-content:space-between;gap:10px;font-size:14px}
 .split b{color:var(--money)}
@@ -491,21 +484,14 @@ nav.tabs button[aria-selected="true"],.tip{background:var(--accent-soft);backgro
 .mcard .mm.mine{color:var(--ink);margin-top:2px}
 .mcard .mm.mine b{font-weight:700}
 .brand{display:flex;align-items:center;gap:8px}
-.syncdot{display:inline-block;width:10px;height:10px;border-radius:99px;background:var(--muted);flex:none}
-.syncdot[hidden]{display:none}
-.syncdot.ok{background:#2f9e5f}.syncdot.wait{background:#d4a017}.syncdot.err{background:var(--danger)}.syncdot.off{background:#9a9a9a}.syncdot.paused{background:transparent;box-shadow:inset 0 0 0 2px #9a9a9a}
 .ofit{display:flex;flex-direction:column;gap:4px;border-top:1px solid var(--line);padding-top:8px;font-size:13px}.ofit .pill{font-size:11px}
-.sdot{display:inline-block;width:9px;height:9px;border-radius:99px;margin-inline-end:6px;vertical-align:middle;box-shadow:0 0 0 2px var(--card)}
-.swatch{width:30px;height:30px;border-radius:99px;border:2px solid transparent;padding:0;display:inline-block;flex:none}
-button.swatch[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 2px var(--card) inset}
-.darcode{font-family:var(--mono);font-size:13px;background:var(--well);border:1px solid var(--edge);border-radius:8px;padding:6px 8px;word-break:break-all;flex:1 1 200px}
 </style>
 </head>
 <body>
 
 <div class="wrap">
   <header class="top">
-    <div class="brand"><h1>Makla Mizan</h1><i id="syncDot" class="syncdot" hidden role="img"></i></div>
+    <div class="brand"><h1>Makla Mizan</h1></div>
     <div class="who">
       <button id="installBtn" class="btn sm pri" hidden onclick="doInstall()"></button>
       <label class="lbl sr" id="profLbl" for="profSel">Profil</label>
@@ -533,13 +519,11 @@ const I18N={
 dj:{
  place_khddar:'Khddar · khodra w fakiha',place_gezzar:'Gezzar · l7em w djaj',place_7awwat:'7awwat · l7out',place_ferran:'Khobz',place_7anout:'7anout · bi9ala',money_t:'Taman, budget w ch7al khlesti',st_ok:'Mtakamel',st_prot:'Na9s protein',st_fat:'Dhoun ktar',st_carb:'Na9s karb',st_kcal_lo:'Na9s calories',st_kcal_hi:'Calories ktar',today_lbl:'lyoum',
  tab_ana:'Ana',settings_t:'Réglages',ob_welcome:'Mar7ba f Makla Mizan',ob_intro:'Jawb 3la 4 d l\'as2ila, w l\'app twejjed lik l\'makla dyal simana w lista dyal t9edya b DH.',ob_start:'Yallah nbdaw',ob_skip:'Tkhatta',next:'Tab3',back:'Rje3',ob_people:'Ch7al d nass kaytaklou f dar?',ob_people_hint:'L\'kmiyat dyal l\'tayb w lista kayt7sbou 3la had l3add.',ob_excl:'Chno ma katakloch?',ob_budget:'Ch7al bghiti tkhless f simana?',ob_budget_hint:'Ikhtiyari. Khlli khawi ila ma 3endekch budget.',ob_macros:'Bghiti n7sbou calories w protein dyalek?',ob_macros_yes:'Ah, 3endi hadaf (tnchif, 3dalat…)',ob_macros_yes_hint:'Ghadi nsewlouk 3la wazn, tol w 3mer bach n7sbou l\'portion dyalek.',ob_macros_no:'La, ghir l\'menu w lista',ob_macros_no_hint:'T9der tzidha men ba3d f "Ana".',ob_done:'L\'menu dyalek wajed!',me_default:'Ana',notargets_note:'Bach l\'app t7seb calories w protein dyalek, 3mmer wazn, tol w 3mer dyalek f Ana → Profil.',go_profile:'Mchi l Profil',
- sync_pause:'⏸ Wa9ef sync mo2a99atan',sync_pause_q:'Brek merra khra bach twe9fha',sync_pause_hint:'Ma ghaytsifet walo w ma ghayji walo men l\'akhor. Data f had tele w f serveur ma katmessch. Rjou3 dyal sync ghaykoun men ba3d, b comparaison 9bel ma ykteb chi 7aja.',sync_st_paused:'Sync mw9fa',sync_paused:'Sync mw9fa men {d}. Tabdilat dyalek kayb9aw ghir f had tele ({n} d l7wayej tbeddlo).',sync_paused_hint:'L\'akhor ma kaychouf walo men tabdilat dyalek, w nta ma katchouf walo men dyalo. La liste w l\'partage kayst3mlo akhir portions li jaw men 3ndo.',sync_paused_toast:'Sync tw9fat',sync_paused_block:'Sync mw9fa: had l\'7aja ma kat9derch daba.',
  budget_snacks:'Fih {s} dyal snacks f had l\'mablagh.',budget_snacks_only:'L\'wjbat b wa7dhom dakhlin f l\'budget ({m}); les snacks ({s}) homa li kayfawtouh.',
  fit_other:'{f} portion · protein {p}/{t} g',fit_miss:'Ma wselch l\'ahdaf dyalo had nhar: {n}',
  budget_low:'Had l\'budget sghir 3la les recettes li 3endek: a9al simana bla tkrar, b les portions dyalkom, b l\'wjbat w les snacks li kayzidhom l\'app b rasso, katbda men ≈ {x}.',
  prog_q:'Program "{n}": {d} d ayyam w {c} makla jdida ghaytzado l {p}. L\'ayyam li 3endhom nefs smiya ghaytbeddlo, w Simana w ayyam tadrib ghayt7ddo. Data lokhra ma katmessch.',toast_prog:'Program tzad: chouf Ayyam w Simana',
- split_t:'Chkoun ykhless ch7al',split_others:'Lakhrin ({x})',split_hint:'Kol wa7ed kaykhless chno kaykoul: l\'portion dyalo f l\'ghda w l3cha, ftour wa7ed l kol wa7ed, w lmlja l li tzadet lih. Mli tkhless, 9sem l\'mablagh l7a9i9i dyal l\'ticket b had n-nisab.',src_days:'Ayyam dyal {n}',src_hint:'🏠 = l\'menu dyal ddar (mcharek). 👤 = makla li 7ttiti l rasek f Ana → Ayyam (khassa bik). Ma t3lmhomch b jouj ila kanet nefs l\'makla.',src_warn_home:'Had lista fiha 7tta Ayyam dyal {n}, zayda 3la l\'menu dyal ddar. L\'akhor ma kaychoufhomch, ya3ni lista dyalkom ghadi tkhtalef.',
- sync_got:'{n} bdel {x} d l7wayej',sync_st_ok:'Mrbbot, kolchi mt7addeth',sync_st_wait:'Kaytsifet…',sync_st_off:'Bla connexion: tbdilat dyalek ghadi titsiftou mli yrje3 l\'internet',sync_st_err:'Mochkil f synchronisation',ago_now:'daba',ago_m:'{n} d9i9a',ago_h:'{n} sa3a',ago_d:'{n} yom',dar_title:'Dar mcharka',dar_intro:'Charek l\'menu, lista w les recettes m3a li sakn m3ak: kol tbdil kayban 3nd b jouj b rasso, bla ma tsifto walou.',dar_name:'Smiytek',dar_color:'Loun dyalek',dar_create:'Dir dar jdida',dar_code_lbl:'3ndek code wla lien? Lsa9o hna',dar_join:'Dkhel',dar_badcode:'Had l\'code machi s7i7.',dar_notfound:'Ma kayna 7tta dar b had l\'code.',dar_rules:'Serveur rafed: les règles dyal Firestore ma t7attouch.',dar_offline:'Ma kaynach connexion. 3awed men b3d.',dar_joined:'Dkhelti l ddar!',dar_privacy:'Data dyal ddar katsjjel f serveur (Firebase, f Europe). Li 3ndo l\'code y9der ychoufha, ma t3tihch l chi wa7ed akhor. L\'profils ma kaytchrkouch ila ma bghitich.',dar_sync_now:'T7deth daba',dar_big:'Data kbira bezzaf bach titsifet.',dar_me:'nta',dar_seen:'7ell l\'app {x}',dar_invite:'3red chi wa7ed',dar_copy:'Nsakh lien',dar_wa:'Dkhel l ddar dyalna f Makla Mizan:',dar_shared_what:'Mcharek: menu, recettes, ❤, lista (✓ w 3endi f dar), prix, l\'flous w budget. Khass b kol telephone: lougha, mode, w l\'profils li ma mcharkinch.',dar_leave:'Khrej men ddar',dar_profiles:'Profils mcharkin',dar_profiles_hint:'Profil mcharek: l\'akhor ychouf lwazn w lhadaf dyalo w y9der ybeddlhom.',
+ split_t:'Chkoun ykhless ch7al',split_others:'Lakhrin ({x})',split_hint:'Kol wa7ed kaykhless chno kaykoul: l\'portion dyalo f l\'ghda w l3cha, ftour wa7ed l kol wa7ed, w lmlja l li tzadet lih. Mli tkhless, 9sem l\'mablagh l7a9i9i dyal l\'ticket b had n-nisab.',src_days:'Ayyam dyal {n}',src_hint:'🏠 = l\'menu dyal ddar (mcharek). 👤 = makla li 7ttiti l rasek f Ana → Ayyam (khassa bik). Ma t3lmhomch b jouj ila kanet nefs l\'makla.',
  one_portion:'1 portion',share_lbl:'{n} ({x} portion)',
  gw_title:'Hadaf dyal lwazn',gw_range:'Majal s7i7 l tol dyalek (IMC 18.5–24.9): {a}–{b} kg.',gw_muscle:'Ila kanti katrina bezzaf, IMC kaybaligh f l3dalat; l9yas dyal lkerch kay3tik fikra a7sen.',gw_lbl:'Lwazn li bghiti (kg)',gw_set:'Sjjel lhadaf',gw_clear:'Mse7 lhadaf',gw_bad:'Kteb wazn bin 35 w 250 kg.',gw_low:'Had lwazn t7t lmajal s7i7 dyal tol dyalek ({a} kg). L\'app ma kat9belch hadaf t7t had l7ad.',gw_belowrange:'Had lhadaf wela t7t lmajal s7i7 dyal tol dyalek ({a} kg). Beddlo.',gw_left:'Ba9i {x} kg',gw_progress:'Dazt {d} men {t} kg ({p}%)',gw_rate:'{r} kg f simana',gw_eta:'B had rythme, ghadi twsel f ta9riban {w} simana ({date}).',gw_noeta:'Bach n7sbou rythme w imta twsel, khass 14 yom w 6 d lwaznat 3la l9all.',gw_away:'F had l2asabi3 lekhrin, lwazn ghadi 3eks lhadaf dyalek.',gw_stall:'Lmoyenne ma tbeddlatch ta9riban 3 simanat. Jerreb tn9ess 100–150 kcal f nhar (awla zid lmchi), w 3awed chouf mn b3d 2 simanat.',gw_stall_gain:'Lmoyenne ma tbeddlatch ta9riban 3 simanat. Jerreb tzid 100–150 kcal f nhar, w 3awed chouf mn b3d 2 simanat.',gw_gain_fast:'Katzid b zerba ({r}% f simana). F zid 3dalat, 0.25–0.5% f simana kafi; ktar men hadchi ghaliban chhem.',gw_done:'Wselti l hadaf dyalek! Beddel lhadaf f lprofil l "7afed" bach tb9a fih.',gw_conflict_lose:'Hadaf dyal lwazn kay9oul tn9ess, walakin lhadaf f lprofil kayzid f calories. Chouf wach khassek tbeddlo.',gw_conflict_gain:'Hadaf dyal lwazn kay9oul tzid, walakin lhadaf f lprofil kayn9ess f calories. Chouf wach khassek tbeddlo.',wa_title:'L9yas dyal lkerch (ikhtiyari)',wa_lbl:'Lkerch (cm)',wa_hint:'9yes b mitro f lwest bin akher dl3a w ras l3dem dyal lwerk, mn b3d ma tkhrrej nnfes, merra f simana f nefs lwe9t.',wa_ratio:'Lkerch / tol',wa_ok:'Mzyana (t7t 0.5)',wa_mid:'Rd lbal (0.5–0.6)',wa_hi:'Mertaf3a (0.6 w ktar)',wa_change:'{x} cm men awel 9yas',wa_recomp:'Lkerch kayn9ess w lwazn chbah tabet: ghaliban katn9ess chhem w katzid 3dalat. Kemmel.',
  cook_btn:'Tayb',cook_ing:'Chno khassek',cook_portions:'7issa',cook_ing_hint:'L\'kmiyat 3la 7sab 3dad l7issas. Lma ma m7soubch, w l3triya majmou3a f str wa7ed.',cook_start:'Bda tayb',cook_step:'Khatwa {i} men {n}',cook_finish:'Salit',cook_done:'Bssa7a w raha!',cook_done_hint:'Ila bdelti chi 7aja f tari9a, ktebha f lwasfa bach tb9a lik.',cook_awake:'L\'écran ma kaytfach',cook_nosteps:'Had lwasfa ma fihach khatawat. Ktebhom f lwasfa (kol str = khatwa).',cook_n_steps:'{n} d lkhatawat',cook_no_steps_short:'Ma kaynach khatawat',steps_lbl:'Tari9a (kol str = khatwa)',steps_dj_note:'Lkhatawat mktoubin b ddarija.',fav:'Li kan7ebb',
@@ -571,7 +555,6 @@ dj:{
  floor_note:"Lhadaf t-rfe3 l {k} kcal: hada l7ed l'adna bla tbib. Ila bghiti tn9es ktar, chouf tbib wla diététicien.",
  minor_note:"Ta7t 18 3am: l'app kat7seb ghir \"7afed 3la lwazn\". Tnchif f had l'3mer khasso tbib.",
  avg_n:' ({n}/7 ayyam m3emrin)',
- 
  export_file:'Telecharger fichier',import_file:'Importer men fichier',last_backup:'Akhir sauvegarde: {d}',never_backup:'Mazal ma dertich sauvegarde.',
  backup_old:'Daz ktar men 30 yom men akhir sauvegarde. Dir wa7da jdida.',go_backup:'Dir sauvegarde',
  edit:'Beddel',save:'Sjel',cancel:'Lgha',toast_saved:'Tsjel',toast_deleted:'Tmse7',custom_list:'Makla li zedti',
@@ -588,7 +571,6 @@ dj:{
  target_hint:"BMR (Mifflin-St Jeor): {bmr} kcal · Maintenance (TDEE): {tdee} kcal · Lhadaf = TDEE × {x}. Had l'ar9am ta9ribiya (±10%). Tbe3 lwazn dyalek 2–3 simanat w beddel 3la 7sab chno w9e3.",
  toast_profile_new:'Profil jdid tzad',toast_profile_del:'Profil tmse7',new_profile_name:'Profil {n}',
  no_day:'Ma kayn 7ta nhar.',new_day:'+ Nhar jdid',day_prefix:'Nhar',
- 
  hint_days:"Sawb 2–3 d les ayyam \"template\" (b7al nhar training w nhar raha), w men ba3d 3tihom l ayyam simana f l'onglet \"Simana\".",
  dup:'Nsakh',del:'Mse7',none:'— walo',cost_day:'Taman dyal had nhar',
  add_food:'+ Zid makla',empty_meal:'Khawya. Brk 3la "Zid makla".',
@@ -597,11 +579,6 @@ dj:{
  no_result:"Ma l9it walo. Zid makla dyalek f l'onglet \"Prix\".",toast_added:'{n} tzad',
  week_of:'Simana dyal {n}',pick_template:"Khtar l'template dyal kol nhar",avg_day:'Moyenne dyal nhar',
  cost_week:'Taman dyal simana',simana_hint:"Lista dyal t9edya kayna f l'onglet \"T9edya\", w katjme3 ga3 nass dyal dar.",
- 
- 
- 
- 
- 
  who_in:'Chkoun dakhel f t9edya?',pick_someone:'Khtar chi wa7ed.',week_list:'Lista dyal simana',restart:'Bda men jdid',
  list_hint:"Lkmiyat m7soubin b ma katchri: l'9tani w rouz b l'wazn nay, l7out w djaj b l3dem dyalhom. Dowwer 3la lfou9 (sakhra w ghiyab).",
  list_empty:"Ma kayn walo. 3mmer l'ayyam w l'makla dyal dar.",week:'Simana',month:'Chhar (~30 yom)',
@@ -619,7 +596,6 @@ dj:{
  week_days:['Tnin','Tlat','Larb3','Lkhmis','Jjem3a','Ssebt','L7ed'],
  goals:['Tnchif (n9es chhem)','Recomp (3dalat + n9es chhem)','7afed 3la lwazn','Zid 3dalat (b chwiya)','Zid lwazn (bzzerba)'],
  acts:['Bureau, 9lil l7araka','Khfif (1–3 d les séances f simana)','Mtwasset (3–5 f simana)','3ali (6–7 f simana)','Khdma te9ila + sport kol nhar'],
- 
  notes:{bone:'Dkhel l\'wazn li katakol, bla l3dem. L\'app katzid l3dem (~25%) f lista dyal t9edya.',sardine:'Dkhel l\'wazn li katakol, bla ras w chouk. L\'app katzid l\'ba9i (~40%) f lista dyal t9edya.',merla:'Dkhel l\'wazn dyal l\'filet. L\'app kat7seb l7out kamel (~2×) f lista dyal t9edya.',dry:'Prix dyal kg nay',oil:'Zid lzit li katdir f tayb, 7it hiya li kat-khrej l7sab',whole:'Dkhel l\'wazn kima chritiha (b l3dem). L\'macros m7soubin 3la ~65% li katakol.',asbought:'Dkhel l\'wazn kima chritih (b l3dem). L\'macros m7soubin ghir 3la li katakol.'},
  sugar:'Sokar (dyal atay)',
  foods:["Bid roumi","Bid beldi","Khobz kamel (khobza ~200g)","Khobz byed (khobza ~200g)","Msemen","Harcha","Choufan (flocons d'avoine)","7lib (kas 200 ml)","Perly / yaourt (7ok)","Fromage mtellat","Whey (scoop 30g)","Atay b sokar (kas)","Sder djaj (nay)","Fkhad djaj bla jeld (nay)","Sardine (nay, li katakol)","Merla / 7out byed (nay, filet)","L7em bgri habra (nay)","Kefta bgri (nay)","Kefta dinde (nay)","Kebda djaj (nay)","Ton (7ok, ~80g msfi)","Rouz (tayeb)","Ma9arouna (tayba)","3des (tayeb)","Loubia (tayba)","7mes (tayeb)","Batata (nay)","Batata 7lowa (nay)","Khodra (maticha, khyar, bsla…)","Banan","Tfa7a / limouna","Tmer","Avoka","Zit dyal tayb (mo3al9a kbira)","Zit zitoun (mo3al9a kbira)","Louz","Kawkaw","Amlou (mo3al9a 20g)",'Rouz (nay)','Ma9arouna (nay)','3des (nay)','Loubia (nay)','7mes (nay)','Maticha','Bsla','Khizzou','9ar3a','Zitoun','Djaja kamla (b l3dem)','Jben (mo3al9a 20g)','Confiture (mo3al9a 20g)','L3sel (mo3al9a 20g)','Zebda (mo3al9a 14g)','Sokar (mo3al9a sghira 5g)','9hwa mto7na (l kas)','L7em b l3dem (ghanmi/bgri)','7out kamel (b l3dem)','Zbib','Felfla','Kesksou (nay)','Tacos (M, l7em wa7ed)','Burger','Panini','Chawarma (sandwich)','Sandwich kefta','Pizza (sghira)','Rfissa (plat)','T3am / kesksou (plat)','Bissara (zlafa)','Sfenj','Briwat (kefta wla 7out)','Ma9ouda','Pastilla (portion)','7rira (zlafa)','Smida','D9i9 lfors (farine)','D9i9 kamel','D9i9 l7emmes','Smida d dra','Belboula d ch3ir','Herbel (9em7 mfssekh)','Berkoukech','Cha3riya (vermicelle)','Foul yabs','Left','L9r3a l7emra','Lkrom (chou)','Dnjal','Jelbana','Touma','9zbour w m3dnous','L7amed (limoun)','L7amed msyer','Ber9ou9 yabes','Sferjel','L9o9','Meloukhia','Khyar','Barba','Loubia khedra','Bekkoula (khoubbiza)','Champignon','Mais (7ok)','Nna3na3','Bbouzroug (moules)','9imroun (crevettes)','Calamar','Douwara (kercha w ...)','Kour3in','Kebda d l7ouli','Lmkh','L7em rras','Ti7al','Gueddid','Kachir','Fromage rouge','Lben','Znjlan','Koko','Ch7ma','Smen','Zit argan (m3el9a kbira)','L3triya (tawabil)','Mel7a','Za3fran 7orr','Khmira','Maizena','L7elba','Ma zhar','Khal','Sauce soja','Mayonnaise','7lib m7elli (Nestlé)','Sauce chocolat','Atay 7boub','Lwr9a d lbastilla','Khess','Selk','Sbanekh','Krafes','Besbas','Fjel','Chouflour','Brocoli','Poro (poireau)','Felfla 7arra','Foul tari','Khorchef','Bsla khedra','Skinjbir tari','Slawiya (courge)','L9el9as','Tfa7a','Limouna (orange)','Mandarina','L3neb','Ddla7','Lbetikh (melon)','Lkhoukh','Lmchmach','Lbr9ou9 tari','Lkarmous','Lhendiya','Rrman','Lfrawla','Lanjas (poire)','7ebb lmlouk','Ananas','Kiwi','Mangue','Zfzouf','Mzah (nèfle)','Limoun l7lou / citron vert','Karmous yabes','Mchmach yabes','Gergaa','Pistache','Kajou','Bndo9 (noisette)','Zri3a d lkettan','Zri3a d l9er3a','Chia','Jelbana yabsa','3des 7mer (corail)','Loubia 7amra','7emmes (7ok, tayeb)','Quinoa','Boulgour','Ch3ir (7bob)','Dra (7bob)','Rouz kamel (brun)','Ton b l\'ma (7ok, ~80g msfi)']
@@ -627,13 +603,11 @@ dj:{
 da:{
  place_khddar:'الخضار · خضرة وفاكية',place_gezzar:'الجزار · اللحم والدجاج',place_7awwat:'الحوات · الحوت',place_ferran:'الخبز',place_7anout:'الحانوت · البقالة',money_t:'الثمن، البودجي وشحال خلصتي',st_ok:'متكامل',st_prot:'ناقص البروتين',st_fat:'الدهون كثار',st_carb:'ناقص الكارب',st_kcal_lo:'ناقصين السعرات',st_kcal_hi:'السعرات كثار',today_lbl:'اليوم',
  tab_ana:'أنا',settings_t:'الإعدادات',ob_welcome:'مرحبا فـMakla Mizan',ob_intro:'جاوب على 4 ديال الأسئلة، والأپليكاسيون توجد ليك الماكلة ديال السيمانة واللائحة ديال التقضية بالدرهم.',ob_start:'يالاه نبداو',ob_skip:'تخطى',next:'تابع',back:'رجع',ob_people:'شحال ديال الناس كيتاكلو فالدار؟',ob_people_hint:'الكميات ديال الطياب واللائحة كيتحسبو على هاد العدد.',ob_excl:'شنو ما كتاكلوش؟',ob_budget:'شحال بغيتي تخلص فالسيمانة؟',ob_budget_hint:'اختياري. خلي خاوي إلا ما عندكش بودجي.',ob_macros:'بغيتي نحسبو السعرات والبروتين ديالك؟',ob_macros_yes:'آه، عندي هدف (تنشيف، عضلات…)',ob_macros_yes_hint:'غادي نسولوك على الوزن والطول والعمر باش نحسبو الپورسيون ديالك.',ob_macros_no:'لا، غير المنيو واللائحة',ob_macros_no_hint:'تقدر تزيدها من بعد فـ"أنا".',ob_done:'المنيو ديالك واجد!',me_default:'أنا',notargets_note:'باش الأپليكاسيون تحسب السعرات والبروتين ديالك، عمر الوزن والطول والعمر ديالك فـ"أنا" ← البروفيل.',go_profile:'سير للبروفيل',
- sync_pause:'⏸ وقف السانكرو مؤقتاً',sync_pause_q:'بريك مرة خرى باش توقفها',sync_pause_hint:'ما غادي يتصيفط والو وما غادي يجي والو من الآخر. الداتا فهاد التيليفون وفالسيرفور ما كتمسش. الرجوع ديال السانكرو غادي يكون من بعد، بمقارنة قبل ما يكتب شي حاجة.',sync_st_paused:'السانكرو موقفة',sync_paused:'السانكرو موقفة من {d}. التبديلات ديالك كيبقاو غير فهاد التيليفون ({n} ديال الحوايج تبدلو).',sync_paused_hint:'الآخر ما كيشوف والو من التبديلات ديالك، ونتا ما كتشوف والو من ديالو. اللائحة والقسمة كيستعملو آخر پورسيونات جاو من عندو.',sync_paused_toast:'السانكرو توقفات',sync_paused_block:'السانكرو موقفة: هاد الحاجة ما كتقدرش دابا.',
  budget_snacks:'فيه {s} ديال السناكس فهاد المبلغ.',budget_snacks_only:'الوجبات بوحدهم داخلين فالبودجي ({m})؛ السناكس ({s}) هوما اللي كيفوتوه.',
  fit_other:'{f} پورسيون · بروتين {p}/{t} غ',fit_miss:'ما وصلش للأهداف ديالو هاد النهار: {n}',
  budget_low:'هاد البودجي صغير على الوصفات لي عندك: أقل سيمانة بلا تكرار، بالپورسيونات ديالكم، بالوجبات والسناكس اللي كيزيدهم الأپليكاسيون بوحدو، كتبدا من ≈ {x}.',
  prog_q:'البرنامج "{n}": {d} ديال الأيام و{c} ماكلة جديدة غيتزادو لـ{p}. الأيام لي عندهم نفس السمية غيتبدلو، والسيمانة وأيام التدريب غيتحددو. الداتا لخرا ما كتمسش.',toast_prog:'البرنامج تزاد: شوف الأيام والسيمانة',
- split_t:'شكون يخلص شحال',split_others:'الآخرين ({x})',split_hint:'كل واحد كيخلص شنو كياكل: الپورسيون ديالو فالغدا والعشا، فطور واحد لكل واحد، والملجة للي تزادت ليه. ملي تخلص، قسم المبلغ الحقيقي ديال التيكي بهاد النسب.',src_days:'أيام {n}',src_hint:'🏠 = المنيو ديال الدار (مشارك). 👤 = الماكلة اللي حطيتي لراسك ف أنا ← الأيام (خاصة بيك). ما تعلمهمش بجوج إلا كانت نفس الماكلة.',src_warn_home:'هاد اللائحة فيها حتى أيام {n}، زايدة على المنيو ديال الدار. الآخر ما كيشوفهمش، يعني اللائحة ديالكم غادي تختالف.',
- sync_got:'{n} بدل {x} ديال الحوايج',sync_st_ok:'مربوط، كلشي متحدث',sync_st_wait:'كيتصيفط…',sync_st_off:'بلا كونيكسيون: التبديلات ديالك غادي يتصيفطو ملي يرجع الإنترنت',sync_st_err:'مشكل فالسانكرونيزاسيون',ago_now:'دابا',ago_m:'{n} دقيقة',ago_h:'{n} ساعة',ago_d:'{n} يوم',dar_title:'دار مشاركة',dar_intro:'شارك المنيو واللائحة والوصفات مع اللي ساكن معاك: كل تبديل كيبان عند بجوج بوحدو، بلا ما تصيفطو والو.',dar_name:'سميتك',dar_color:'اللون ديالك',dar_create:'دير دار جديدة',dar_code_lbl:'عندك كود ولا ليان؟ لصقو هنا',dar_join:'دخل',dar_badcode:'هاد الكود ماشي صحيح.',dar_notfound:'ما كايناش دار بهاد الكود.',dar_rules:'السيرفور رافض: القواعد ديال Firestore ما تحطوش.',dar_offline:'ما كايناش كونيكسيون. عاود من بعد.',dar_joined:'دخلتي للدار!',dar_privacy:'الداتا ديال الدار كتسجل فسيرفور (Firebase، فأوروبا). اللي عندو الكود يقدر يشوفها، ما تعطيهش لشي واحد آخر. البروفيلات ما كيتشاركوش إلا ما بغيتيش.',dar_sync_now:'تحدث دابا',dar_big:'الداتا كبيرة بزاف باش تتصيفط.',dar_me:'نتا',dar_seen:'حل الأپليكاسيون {x}',dar_invite:'عرض شي واحد',dar_copy:'نسخ الليان',dar_wa:'دخل للدار ديالنا ف Makla Mizan:',dar_shared_what:'مشارك: المنيو، الوصفات، ❤، اللائحة (✓ وعندي فالدار)، الأثمنة، الفلوس والبودجي. خاص بكل تيليفون: اللغة، المود، والبروفيلات اللي ما مشاركينش.',dar_leave:'خرج من الدار',dar_profiles:'بروفيلات مشاركة',dar_profiles_hint:'بروفيل مشارك: الآخر كيشوف الوزن والهدف ديالو ويقدر يبدلهم.',
+ split_t:'شكون يخلص شحال',split_others:'الآخرين ({x})',split_hint:'كل واحد كيخلص شنو كياكل: الپورسيون ديالو فالغدا والعشا، فطور واحد لكل واحد، والملجة للي تزادت ليه. ملي تخلص، قسم المبلغ الحقيقي ديال التيكي بهاد النسب.',src_days:'أيام {n}',src_hint:'🏠 = المنيو ديال الدار (مشارك). 👤 = الماكلة اللي حطيتي لراسك ف أنا ← الأيام (خاصة بيك). ما تعلمهمش بجوج إلا كانت نفس الماكلة.',
  one_portion:'پورسيون وحدة',share_lbl:'{n} ({x} پورسيون)',
  gw_title:'الهدف ديال الوزن',gw_range:'المجال الصحي لطولك (IMC 18.5–24.9): {a}–{b} كيلو.',gw_muscle:'إلا كنتي كتريني بزاف، IMC كيغلط فالعضلات؛ القياس ديال الكرش كيعطيك فكرة حسن.',gw_lbl:'الوزن اللي بغيتي (كيلو)',gw_set:'سجل الهدف',gw_clear:'مسح الهدف',gw_bad:'كتب وزن بين 35 و250 كيلو.',gw_low:'هاد الوزن تحت المجال الصحي لطولك ({a} كيلو). الأپليكاسيون ما كتقبلش هدف تحت هاد الحد.',gw_belowrange:'هاد الهدف ولا تحت المجال الصحي لطولك ({a} كيلو). بدلو.',gw_left:'باقي {x} كيلو',gw_progress:'دزتي {d} من {t} كيلو ({p}%)',gw_rate:'{r} كيلو فالسيمانة',gw_eta:'بهاد الريتم، غادي توصل تقريبا ف{w} سيمانة ({date}).',gw_noeta:'باش نحسبو الريتم وإمتا توصل، خاص 14 يوم و6 ديال الوزنات على الأقل.',gw_away:'فهاد الأسابيع اللخرين، الوزن غادي عكس الهدف ديالك.',gw_stall:'المعدل ما تبدلش تقريبا 3 سيمانات. جرب تنقص 100–150 سعرة فالنهار (ولا زيد المشي)، وعاود شوف من بعد 2 سيمانات.',gw_stall_gain:'المعدل ما تبدلش تقريبا 3 سيمانات. جرب تزيد 100–150 سعرة فالنهار، وعاود شوف من بعد 2 سيمانات.',gw_gain_fast:'كتزيد بالزربة ({r}% فالسيمانة). فزيادة العضلات، 0.25–0.5% فالسيمانة كافية؛ كثر من هادشي غالبا شحم.',gw_done:'وصلتي للهدف ديالك! بدل الهدف فالبروفيل لـ"حافظ" باش تبقى فيه.',gw_conflict_lose:'الهدف ديال الوزن كيقول تنقص، ولكن الهدف فالبروفيل كيزيد فالسعرات. شوف واش خاصك تبدلو.',gw_conflict_gain:'الهدف ديال الوزن كيقول تزيد، ولكن الهدف فالبروفيل كينقص فالسعرات. شوف واش خاصك تبدلو.',wa_title:'القياس ديال الكرش (اختياري)',wa_lbl:'الكرش (سم)',wa_hint:'قيس بالميترو فالوسط بين آخر ضلعة وراس العظم ديال الورك، من بعد ما تخرج النفس، مرة فالسيمانة فنفس الوقت.',wa_ratio:'الكرش / الطول',wa_ok:'مزيانة (تحت 0.5)',wa_mid:'رد البال (0.5–0.6)',wa_hi:'مرتفعة (0.6 وكثر)',wa_change:'{x} سم من أول قياس',wa_recomp:'الكرش كينقص والوزن شبه ثابت: غالبا كتنقص الشحم وكتزيد العضلات. كمل.',
  cook_btn:'طيّب',cook_ing:'شنو خاصك',cook_portions:'حصة',cook_ing_hint:'الكميات على حساب عدد الحصص. الما ما محسوبش، والعطرية مجموعة فسطر واحد.',cook_start:'بدا طيّب',cook_step:'الخطوة {i} من {n}',cook_finish:'صاليت',cook_done:'بالصحة والراحة!',cook_done_hint:'إلا بدلتي شي حاجة فالطريقة، كتبها فالوصفة باش تبقى ليك.',cook_awake:'الإيكران ما كيطفاش',cook_nosteps:'هاد الوصفة ما فيهاش خطوات. كتبهم فالوصفة (كل سطر = خطوة).',cook_n_steps:'{n} ديال الخطوات',cook_no_steps_short:'ما كايناش خطوات',steps_lbl:'الطريقة (كل سطر = خطوة)',steps_dj_note:'الخطوات مكتوبين بالدارجة بالحروف اللاتينية.',fav:'اللي كنبغي',
@@ -665,7 +639,6 @@ da:{
  floor_note:'الهدف ترفع لـ{k} كالوري: هادا الحد الأدنى بلا طبيب. إلا بغيتي تنقص كثر، شوف طبيب ولا ديتيتيسيان.',
  minor_note:'تحت 18 عام: الأپليكاسيون كتحسب غير "حافظ على الوزن". التنشيف فهاد العمر خاصو طبيب.',
  avg_n:' ({n}/7 أيام معمرين)',
- 
  export_file:'تيليشارجي الفيشي',import_file:'إمپورطي من فيشي',last_backup:'آخر سوفگارد: {d}',never_backup:'مازال ما درتي حتى سوفگارد.',
  backup_old:'داز كثر من 30 يوم من آخر سوفگارد. دير وحدة جديدة.',go_backup:'دير سوفگارد',
  edit:'بدل',save:'سجل',cancel:'لغي',toast_saved:'تسجل',toast_deleted:'تمسح',custom_list:'الماكلة لي زدتي',
@@ -682,7 +655,6 @@ da:{
  target_hint:'BMR (Mifflin-St Jeor): {bmr} كالوري · الصيانة (TDEE): {tdee} كالوري · الهدف = TDEE × {x}. هاد الأرقام تقريبية (±10%). تبع الوزن ديالك 2–3 سيمانات وبدل على حساب شنو وقع.',
  toast_profile_new:'تزاد بروفيل جديد',toast_profile_del:'تمسح البروفيل',new_profile_name:'بروفيل {n}',
  no_day:'ما كاين حتى نهار.',new_day:'+ نهار جديد',day_prefix:'نهار',
- 
  hint_days:'صاوب 2–3 ديال الأيام "نموذج" (بحال نهار التمرين ونهار الراحة)، ومن بعد عطيهم لأيام السيمانة فـ"السيمانة".',
  dup:'نسخ',del:'مسح',none:'— والو',cost_day:'الثمن ديال هاد النهار',
  add_food:'+ زيد ماكلة',empty_meal:'خاوية. بركـ على "زيد ماكلة".',
@@ -691,11 +663,6 @@ da:{
  no_result:'ما لقيت والو. زيد ماكلة ديالك فـ"الأثمنة".',toast_added:'تزاد {n}',
  week_of:'السيمانة ديال {n}',pick_template:'ختار النموذج ديال كل نهار',avg_day:'المعدل ديال النهار',
  cost_week:'الثمن ديال السيمانة',
- 
- 
- 
- 
- 
  who_in:'شكون داخل فالتقضية؟',pick_someone:'ختار شي واحد.',week_list:'اللائحة ديال السيمانة',restart:'بدا من جديد',
  list_hint:'الكميات محسوبين بما كتشري: القطاني والروز بالوزن ناي، الحوت والدجاج بالعظم ديالهم. دوّر على الفوق.',
  list_empty:'ما كاين والو. عمّر الأيام والماكلة ديال الدار.',week:'السيمانة',month:'الشهر (~30 يوم)',
@@ -713,7 +680,6 @@ da:{
  week_days:['التنين','التلات','لاربع','الخميس','الجمعة','السبت','الحد'],
  goals:['تنشيف (نقص الشحم)','ريكومپ (عضلات + نقص الشحم)','حافظ على الوزن','زيد العضلات بشوية','زيد الوزن بالزربة'],
  acts:['بيرو، قليل الحركة','خفيف (1–3 ديال السيونسات فالسيمانة)','متوسط (3–5 فالسيمانة)','عالي (6–7 فالسيمانة)','خدمة تقيلة + سبور كل نهار'],
- 
  notes:{bone:'دخل الوزن لي كتاكل، بلا عظم. الأپليكاسيون كتزيد العظم (~25%) فلائحة التقضية.',sardine:'دخل الوزن لي كتاكل، بلا راس وشوك. الأپليكاسيون كتزيد الباقي (~40%) فلائحة التقضية.',merla:'دخل الوزن ديال الفيلي. الأپليكاسيون كتحسب الحوت كامل (~2×) فلائحة التقضية.',dry:'الثمن ديال الكيلو ناي',oil:'زيد الزيت لي كدير فالطيب، حيت هي لي كتخرج الحساب',whole:'دخل الوزن كيما شريتيها (بالعظم). الماكروز محسوبين على ~65% لي كتاكل.',asbought:'دخل الوزن كيما شريتيه (بالعظم). الماكروز محسوبين غير على لي كتاكل.'},
  sugar:'السكر (ديال أتاي)',
  foods:['بيض رومي','بيض بلدي','خبز كامل (خبزة ~200 غ)','خبز أبيض (خبزة ~200 غ)','مسمن','حرشة','الشوفان','حليب (كاس 200 مل)','بيرلي / ياغورت (حك)','فرماج مثلث','واي (سكوب 30 غ)','أتاي بالسكر (كاس)','صدر الدجاج (ناي)','فخاد الدجاج بلا جلد (ناي)','سردين (ناي، لي كتاكل)','ميرلا / حوت بيض (ناي، فيلي)','لحم بگري هبرة (ناي)','كفتة بگري (ناية)','كفتة الداند (ناية)','كبدة الدجاج (ناية)','طون (حك، ~80 غ مصفي)','روز (طايب)','مقارونة (طايبة)','عدس (طايب)','لوبيا (طايبة)','حمص (طايب)','بطاطا (ناية)','بطاطا حلوة (ناية)','خضرة (ماطيشة، خيار، بصلة…)','بنان','تفاحة / ليمونة','تمر','أفوكا','زيت ديال الطيب (معيلقة كبيرة)','زيت الزيتون (معيلقة كبيرة)','لوز','كاوكاو','أملو (معيلقة 20 غ)','روز (ناي)','مقارونة (ناية)','عدس (ناي)','لوبيا (ناية)','حمص (ناي)','ماطيشة','بصلة','خيزو','قرعة','زيتون','دجاجة كاملة (بالعظم)','جبن (معيلقة 20 غ)','كونفيتور (معيلقة 20 غ)','العسل (معيلقة 20 غ)','الزبدة (معيلقة 14 غ)','السكر (معيلقة صغيرة 5 غ)','القهوة المطحونة (للكاس)','اللحم بالعظم (غنمي/بگري)','حوت كامل (بالعظم)','الزبيب','الفلفلة','الكسكسو (ناي)','تاكوس (M، لحم واحد)','بورگر','پانيني','شاورما (ساندويتش)','ساندويتش كفتة','پيتزا (صغيرة)','الرفيسة (طبسيل)','الطعام / الكسكسو (طبسيل)','البيصارة (زلافة)','السفنج','البريوات (كفتة ولا حوت)','المقودة','البسطيلة (حصة)','الحريرة (زلافة)','السميدة','دقيق الفورص','الدقيق الكامل','دقيق الحمص','سميدة الذرة','بلبولة الشعير','الهربل (القمح)','البركوكش','الشعرية','الفول اليابس','اللفت','القرعة الحمراء','الكرنب','الدنجال','الجلبانة','الثومة','القزبور والمعدنوس','الحامض','الحامض المصير','البرقوق اليابس','السفرجل','القوق','الملوخية','الخيار','الباربا','اللوبيا الخضرا','البقولة','الفطر','المايس','النعناع','بوزروك','القمرون','الكالامار','الدوارة','الكرعين','كبدة الحولي','المخ','لحم الراس','الطيحال','القديد','الكاشير','فرماج روج','اللبن','الزنجلان','الكوكو','الشحمة','السمن','زيت أركان (معيلقة كبيرة)','العطرية','الملحة','الزعفران الحر','الخميرة','الميزينا','الحلبة','ما الزهر','الخل','صوص صوجا','المايونيز','الحليب المحلي','صوص الشوكولا','أتاي حبوب','ورقة البسطيلة','الخس','السلق','السبانخ','الكرافس','البسباس','الفجل','الشوفلور','البروكولي','البورو','الفلفلة الحارة','الفول الطري','الخرشف','البصلة الخضرا','السكنجبير الطري','السلاوية','القلقاس','التفاحة','الليمونة','المندرينة','العنب','الدلاح','البطيخ','الخوخ','المشماش','البرقوق الطري','الكرموس','الهندية','الرمان','الفراولة','الإجاص','حب الملوك','الأناناس','الكيوي','المانگا','الزفزوف','المزاح','الحامض الحلو','الكرموس اليابس','المشماش اليابس','الكركاع','الپيسطاش','الكاجو','البندق','زريعة الكتان','زريعة القرعة','الشيا','الجلبانة اليابسة','العدس الحمر','اللوبيا الحمرا','الحمص (حك، طايب)','الكينوا','البرغل','الشعير','الذرة','الروز الكامل','طون بالما (حك، ~80 غ مصفي)']
@@ -721,13 +687,11 @@ da:{
 fr:{
  place_khddar:'Primeur · fruits et légumes',place_gezzar:'Boucherie · viande et volaille',place_7awwat:'Poissonnerie',place_ferran:'Boulangerie',place_7anout:'Épicerie',money_t:'Coûts, budget et dépenses',st_ok:'Équilibré',st_prot:'Protéines insuffisantes',st_fat:'Trop de lipides',st_carb:'Glucides insuffisants',st_kcal_lo:'Calories insuffisantes',st_kcal_hi:'Trop de calories',today_lbl:'aujourd\'hui',
  tab_ana:'Moi',settings_t:'Réglages',ob_welcome:'Bienvenue dans Makla Mizan',ob_intro:'Répondez à 4 questions et l\'app prépare les repas de la semaine et la liste de courses en DH.',ob_start:'Commencer',ob_skip:'Passer',next:'Suivant',back:'Retour',ob_people:'Combien de personnes mangent à la maison ?',ob_people_hint:'Les quantités à cuisiner et la liste sont calculées pour ce nombre.',ob_excl:'Que ne mangez-vous pas ?',ob_budget:'Quel budget par semaine ?',ob_budget_hint:'Facultatif. Laissez vide si vous n\'avez pas de budget.',ob_macros:'Calculer vos calories et protéines ?',ob_macros_yes:'Oui, j\'ai un objectif (sèche, muscle…)',ob_macros_yes_hint:'Poids, taille et âge servent à calculer votre portion.',ob_macros_no:'Non, juste le menu et la liste',ob_macros_no_hint:'Vous pourrez l\'ajouter plus tard dans « Moi ».',ob_done:'Votre menu est prêt !',me_default:'Moi',notargets_note:'Pour calculer vos calories et protéines, indiquez poids, taille et âge dans Moi → Profil.',go_profile:'Aller au profil',
- sync_pause:'⏸ Mettre la synchronisation en pause',sync_pause_q:'Touchez encore pour confirmer',sync_pause_hint:'Rien ne sera envoyé ni reçu. Les données de ce téléphone et du serveur ne sont pas touchées. La reprise se fera plus tard, avec une comparaison avant toute écriture.',sync_st_paused:'Synchronisation en pause',sync_paused:'Synchronisation en pause depuis le {d}. Vos changements restent sur ce téléphone ({n} élément(s) modifié(s)).',sync_paused_hint:'L’autre ne voit pas vos changements et vous ne voyez pas les siens. La liste et le partage utilisent ses dernières portions reçues.',sync_paused_toast:'Synchronisation en pause',sync_paused_block:'Synchronisation en pause : impossible pour l’instant.',
  budget_snacks:'Ce montant comprend {s} d’en-cas.',budget_snacks_only:'Les repas seuls tiennent dans le budget ({m}) ; ce sont les en-cas ({s}) qui le dépassent.',
  fit_other:'{f} portion(s) · protéines {p}/{t} g',fit_miss:'Objectifs non atteints ce jour : {n}',
  budget_low:'Ce budget est trop bas pour vos recettes : la semaine la moins chère sans répétition, avec vos portions, repas et en-cas ajoutés automatiquement compris, commence à ≈ {x}.',
  prog_q:'Programme « {n} » : {d} jours et {c} nouveaux aliments seront ajoutés à {p}. Les jours du même nom sont remplacés ; la semaine et les jours d\'entraînement sont réglés. Le reste ne change pas.',toast_prog:'Programme ajouté : voir Jours et Semaine',
- split_t:'Qui paie combien',split_others:'Autres ({x})',split_hint:'Chacun paie ce qu\'il mange : sa portion midi et soir, un petit-déjeuner chacun, et les en-cas pour qui ils ont été ajoutés. Appliquez ces pourcentages au montant réel du ticket.',src_days:'Jours de {n}',src_hint:'🏠 = menu du foyer (partagé). 👤 = repas que vous avez prévus pour vous dans Moi → Jours (personnels). Ne cochez pas les deux pour les mêmes repas.',src_warn_home:'Cette liste contient aussi les Jours de {n}, en plus du menu du foyer. L\'autre ne les voit pas : vos listes vont différer.',
- sync_got:'{n} a modifié {x} élément(s)',sync_st_ok:'Connecté, tout est à jour',sync_st_wait:'Envoi…',sync_st_off:'Hors ligne : vos modifications partiront au retour de la connexion',sync_st_err:'Problème de synchronisation',ago_now:'à l\'instant',ago_m:'il y a {n} min',ago_h:'il y a {n} h',ago_d:'il y a {n} j',dar_title:'Foyer partagé',dar_intro:'Partagez le menu, la liste et les recettes avec votre colocataire : chaque modification apparaît chez les deux, sans rien envoyer.',dar_name:'Votre prénom',dar_color:'Votre couleur',dar_create:'Créer un foyer',dar_code_lbl:'Vous avez un code ou un lien ? Collez-le ici',dar_join:'Rejoindre',dar_badcode:'Ce code n\'est pas valide.',dar_notfound:'Aucun foyer avec ce code.',dar_rules:'Le serveur refuse : les règles Firestore ne sont pas en place.',dar_offline:'Pas de connexion. Réessayez plus tard.',dar_joined:'Vous avez rejoint le foyer !',dar_privacy:'Les données du foyer sont enregistrées sur un serveur (Firebase, en Europe). Quiconque a le code peut les voir : ne le donnez qu\'à votre foyer. Les profils ne sont pas partagés sauf si vous le choisissez.',dar_sync_now:'Synchroniser',dar_big:'Données trop volumineuses pour être envoyées.',dar_me:'vous',dar_seen:'a ouvert l\'app {x}',dar_invite:'Inviter quelqu’un',dar_copy:'Copier le lien',dar_wa:'Rejoins notre foyer sur Makla Mizan :',dar_shared_what:'Partagé : menu, recettes, ❤, liste (✓ et « à la maison »), prix, dépenses et budget. Propre à chaque téléphone : langue, thème et profils non partagés.',dar_leave:'Quitter le foyer',dar_profiles:'Profils partagés',dar_profiles_hint:'Profil partagé : l\'autre voit son poids et son objectif et peut les modifier.',
+ split_t:'Qui paie combien',split_others:'Autres ({x})',split_hint:'Chacun paie ce qu\'il mange : sa portion midi et soir, un petit-déjeuner chacun, et les en-cas pour qui ils ont été ajoutés. Appliquez ces pourcentages au montant réel du ticket.',src_days:'Jours de {n}',src_hint:'🏠 = menu du foyer (partagé). 👤 = repas que vous avez prévus pour vous dans Moi → Jours (personnels). Ne cochez pas les deux pour les mêmes repas.',
  one_portion:'1 portion',share_lbl:'{n} ({x} portions)',
  gw_title:'Objectif de poids',gw_range:'Zone saine pour votre taille (IMC 18,5–24,9) : {a}–{b} kg.',gw_muscle:'Si vous vous entraînez beaucoup, l\'IMC compte le muscle comme du gras ; le tour de taille est plus parlant.',gw_lbl:'Poids visé (kg)',gw_set:'Enregistrer l\'objectif',gw_clear:'Effacer l\'objectif',gw_bad:'Entrez un poids entre 35 et 250 kg.',gw_low:'Ce poids est sous la zone saine pour votre taille ({a} kg). L\'app n\'accepte pas d\'objectif en dessous.',gw_belowrange:'Cet objectif est maintenant sous la zone saine pour votre taille ({a} kg). Modifiez-le.',gw_left:'Encore {x} kg',gw_progress:'{d} kg faits sur {t} ({p} %)',gw_rate:'{r} kg par semaine',gw_eta:'À ce rythme, objectif atteint dans environ {w} semaines ({date}).',gw_noeta:'Pour calculer le rythme et la date, il faut au moins 14 jours et 6 pesées.',gw_away:'Ces dernières semaines, le poids va dans le sens inverse de l\'objectif.',gw_stall:'La moyenne ne bouge plus depuis environ 3 semaines. Essayez −100 à −150 kcal par jour (ou plus de marche) et revoyez dans 2 semaines.',gw_stall_gain:'La moyenne ne bouge plus depuis environ 3 semaines. Essayez +100 à +150 kcal par jour et revoyez dans 2 semaines.',gw_gain_fast:'Prise rapide ({r} % par semaine). Pour du muscle, 0,25–0,5 % par semaine suffit ; au-delà, c\'est surtout du gras.',gw_done:'Objectif atteint ! Passez l\'objectif du profil sur « Maintien » pour y rester.',gw_conflict_lose:'Le poids visé est plus bas, mais l\'objectif du profil ajoute des calories. Vérifiez-le.',gw_conflict_gain:'Le poids visé est plus haut, mais l\'objectif du profil retire des calories. Vérifiez-le.',wa_title:'Tour de taille (facultatif)',wa_lbl:'Tour de taille (cm)',wa_hint:'Mesurez à mi-chemin entre la dernière côte et le haut de la hanche, après une expiration normale, une fois par semaine à la même heure.',wa_ratio:'Taille / hauteur',wa_ok:'Bon (sous 0,5)',wa_mid:'À surveiller (0,5–0,6)',wa_hi:'Élevé (0,6 et plus)',wa_change:'{x} cm depuis la 1re mesure',wa_recomp:'Le tour de taille baisse et le poids reste stable : vous perdez probablement du gras en gagnant du muscle. Continuez.',
  cook_btn:'Cuisiner',cook_ing:'Ingrédients',cook_portions:'portions',cook_ing_hint:'Quantités pour le nombre de portions choisi. L\'eau n\'est pas comptée ; les épices sont regroupées sur une ligne.',cook_start:'Commencer',cook_step:'Étape {i} sur {n}',cook_finish:'Terminé',cook_done:'Bon appétit !',cook_done_hint:'Si vous changez la méthode, notez-la dans la recette pour la garder.',cook_awake:'L\'écran reste allumé',cook_nosteps:'Pas encore d\'étapes pour cette recette. Ajoutez-les dans la recette (une ligne = une étape).',cook_n_steps:'{n} étapes',cook_no_steps_short:'Pas d\'étapes',steps_lbl:'Étapes (une ligne = une étape)',steps_dj_note:'Les étapes sont écrites en darija.',fav:'Favoris',
@@ -759,7 +723,6 @@ fr:{
  floor_note:"Objectif relevé à {k} kcal : c'est le minimum sans suivi médical. Pour descendre plus bas, consultez un médecin ou un diététicien.",
  minor_note:"Moins de 18 ans : l'app calcule uniquement le maintien du poids. Une sèche à cet âge nécessite un avis médical.",
  avg_n:' ({n}/7 jours remplis)',
- 
  export_file:'Télécharger le fichier',import_file:'Importer un fichier',last_backup:'Dernière sauvegarde : {d}',never_backup:'Aucune sauvegarde pour le moment.',
  backup_old:'Plus de 30 jours depuis la dernière sauvegarde. Faites-en une nouvelle.',go_backup:'Sauvegarder',
  edit:'Modifier',save:'Enregistrer',cancel:'Annuler',toast_saved:'Enregistré',toast_deleted:'Supprimé',custom_list:'Vos aliments',
@@ -776,7 +739,6 @@ fr:{
  target_hint:"BMR (Mifflin-St Jeor) : {bmr} kcal · Maintien (TDEE) : {tdee} kcal · Objectif = TDEE × {x}. Ces valeurs sont approximatives (±10 %). Suivez votre poids 2 à 3 semaines et ajustez.",
  toast_profile_new:'Profil ajouté',toast_profile_del:'Profil supprimé',new_profile_name:'Profil {n}',
  no_day:'Aucun jour.',new_day:'+ Nouveau jour',day_prefix:'Jour',
- 
  hint_days:"Créez 2 ou 3 journées types (entraînement, repos), puis attribuez-les aux jours de la semaine dans l'onglet « Semaine ».",
  dup:'Dupliquer',del:'Supprimer',none:'— aucun',cost_day:'Coût de la journée',
  add_food:'+ Ajouter',empty_meal:'Vide. Appuyez sur « Ajouter ».',
@@ -785,11 +747,6 @@ fr:{
  no_result:"Aucun résultat. Ajoutez votre aliment dans l'onglet « Prix ».",toast_added:'{n} ajouté',
  week_of:'Semaine de {n}',pick_template:'Choisissez la journée type de chaque jour',avg_day:'Moyenne journalière',
  cost_week:'Coût de la semaine',
- 
- 
- 
- 
- 
  who_in:'Qui est inclus dans les courses ?',pick_someone:'Choisissez au moins une personne.',week_list:'Liste de la semaine',restart:'Tout décocher',
  list_hint:"Quantités telles qu'achetées : légumineuses et riz en poids sec, poisson et poulet avec les arêtes et os. Arrondissez un peu au-dessus (pertes).",
  list_empty:'Rien pour le moment. Remplissez vos jours et les repas du foyer.',week:'Semaine',month:'Mois (~30 jours)',
@@ -807,7 +764,6 @@ fr:{
  week_days:['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'],
  goals:['Sèche (perte de gras)','Recomposition (muscle + perte de gras)','Maintien du poids','Prise de muscle (légère)','Prise de masse (rapide)'],
  acts:['Sédentaire (bureau)','Léger (1–3 séances/sem.)','Modéré (3–5 séances/sem.)','Élevé (6–7 séances/sem.)','Travail physique + sport quotidien'],
- 
  notes:{bone:'Saisissez le poids mangé, sans os. L\'app ajoute les os (~25 %) sur la liste de courses.',sardine:'Saisissez le poids mangé, sans tête ni arêtes. L\'app ajoute le reste (~40 %) sur la liste de courses.',merla:'Saisissez le poids du filet. L\'app compte le poisson entier (~2×) sur la liste de courses.',dry:'Prix du kg cru (sec)',oil:"Comptez l'huile de cuisson : c'est elle qui fausse le plus le calcul",whole:'Saisissez le poids acheté (avec os). Macros calculées sur ~65 % comestible.',asbought:'Saisissez le poids acheté (avec os). Macros calculées sur la partie comestible.'},
  sugar:'Sucre (thé)',
  foods:["Œufs","Œufs beldi","Pain complet (~200 g)","Pain blanc (~200 g)","Msemen","Harcha","Flocons d'avoine","Lait (verre 200 ml)","Yaourt / Perly (pot)","Fromage portion","Whey (dose 30 g)","Thé sucré (verre)","Blanc de poulet (cru)","Cuisse de poulet sans peau (crue)","Sardine (crue, partie comestible)","Merlan / poisson blanc (filet cru)","Bœuf maigre (cru)","Kefta de bœuf (crue)","Kefta de dinde (crue)","Foie de poulet (cru)","Thon (boîte, ~80 g égoutté)","Riz (cuit)","Pâtes (cuites)","Lentilles (cuites)","Haricots blancs (cuits)","Pois chiches (cuits)","Pomme de terre (crue)","Patate douce (crue)","Légumes (tomate, concombre, oignon…)","Banane","Pomme / orange","Dattes","Avocat","Huile de cuisson (c. à soupe)","Huile d'olive (c. à soupe)","Amandes","Cacahuètes","Amlou (c. à soupe 20 g)",'Riz (cru)','Pâtes (crues)','Lentilles (crues)','Haricots blancs (crus)','Pois chiches (crus)','Tomate','Oignon','Carotte','Courgette','Olives','Poulet entier (avec os)','Fromage frais jben (c. à s. 20 g)','Confiture (c. à s. 20 g)','Miel (c. à s. 20 g)','Beurre (c. à s. 14 g)','Sucre (c. à c. 5 g)','Café moulu (par tasse)','Viande avec os (agneau/bœuf)','Poisson entier (avec arêtes)','Raisins secs','Poivron','Couscous (sec)','Tacos (M, 1 viande)','Burger','Panini','Chawarma (sandwich)','Sandwich kefta','Pizza (petite)','Rfissa (assiette)','Couscous (assiette)','Bissara (bol)','Sfenj (beignet)','Briouates (kefta ou poisson)','Maakouda','Pastilla (part)','Harira (bol)','Semoule fine','Farine blanche','Farine complète','Farine de pois chiches','Semoule de maïs','Orge concassée','Blé décortiqué','Berkoukech (gros grains)','Vermicelles','Fèves sèches','Navet','Potiron','Chou','Aubergine','Petits pois','Ail','Coriandre et persil','Citron','Citron confit','Pruneaux','Coing','Artichaut','Gombo','Concombre','Betterave','Haricots verts','Mauve (bakoula)','Champignons','Maïs (boîte)','Menthe fraîche','Moules','Crevettes','Calamar','Tripes et abats','Pieds de veau','Foie d\'agneau','Cervelle','Tête (viande)','Rate','Viande séchée (gueddid)','Cachir (mortadelle)','Fromage rouge (édam)','Lben (lait fermenté)','Sésame','Noix de coco râpée','Graisse (ch7ma)','Smen (beurre rance)','Huile d\'argan (c. à s.)','Épices (mélange)','Sel','Safran','Levure','Maïzena','Fenugrec','Eau de fleur d\'oranger','Vinaigre','Sauce soja','Mayonnaise','Lait concentré sucré','Sauce chocolat','Thé vert','Feuilles de pastilla (warqa)','Laitue','Blettes','Épinards','Céleri','Fenouil','Radis','Chou-fleur','Brocoli','Poireau','Piment','Fèves fraîches','Cardon','Oignon vert','Gingembre frais','Courge','Taro','Pomme','Orange','Mandarine / clémentine','Raisin','Pastèque','Melon','Pêche','Abricot','Prune fraîche','Figue','Figue de Barbarie','Grenade','Fraise','Poire','Cerises','Ananas','Kiwi','Mangue','Jujube','Nèfle','Citron vert','Figues sèches','Abricots secs','Noix','Pistaches','Noix de cajou','Noisettes','Graines de lin','Graines de courge','Graines de chia','Pois cassés','Lentilles corail','Haricots rouges','Pois chiches en boîte','Quinoa','Boulgour','Orge (grains)','Maïs (grains secs)','Riz complet','Thon au naturel (boîte, ~80 g égoutté)']
@@ -815,13 +771,11 @@ fr:{
 ar:{
  place_khddar:'الخضار · خضر وفواكه',place_gezzar:'الجزار · لحم ودجاج',place_7awwat:'بائع السمك',place_ferran:'المخبزة',place_7anout:'البقال',money_t:'التكلفة والميزانية والمصروف',st_ok:'متوازن',st_prot:'بروتين ناقص',st_fat:'دهون زائدة',st_carb:'نشويات ناقصة',st_kcal_lo:'سعرات ناقصة',st_kcal_hi:'سعرات زائدة',today_lbl:'اليوم',
  tab_ana:'أنا',settings_t:'الإعدادات',ob_welcome:'مرحبًا بك في Makla Mizan',ob_intro:'أجب عن 4 أسئلة، وسيُعدّ التطبيق وجبات الأسبوع ولائحة المشتريات بالدرهم.',ob_start:'لنبدأ',ob_skip:'تخطٍّ',next:'التالي',back:'رجوع',ob_people:'كم شخصًا يأكل في البيت؟',ob_people_hint:'تُحسب كميات الطبخ واللائحة لهذا العدد.',ob_excl:'ما الذي لا تأكلونه؟',ob_budget:'كم تريد أن تنفق في الأسبوع؟',ob_budget_hint:'اختياري. اتركه فارغًا إذا لم تكن لديك ميزانية.',ob_macros:'هل نحسب سعراتك وبروتينك؟',ob_macros_yes:'نعم، لدي هدف (تنشيف، عضلات…)',ob_macros_yes_hint:'نستعمل الوزن والطول والعمر لحساب حصتك.',ob_macros_no:'لا، فقط القائمة واللائحة',ob_macros_no_hint:'يمكنك إضافتها لاحقًا في «أنا».',ob_done:'قائمتك جاهزة!',me_default:'أنا',notargets_note:'لحساب سعراتك وبروتينك، أدخل الوزن والطول والعمر في أنا ← الملف الشخصي.',go_profile:'الذهاب إلى الملف',
- sync_pause:'⏸ إيقاف المزامنة مؤقتًا',sync_pause_q:'اضغط مرة أخرى للتأكيد',sync_pause_hint:'لن يُرسل أو يُستقبل أي شيء. لا تُمس بيانات هذا الهاتف ولا بيانات الخادم. ستكون الاستعادة لاحقًا، مع مقارنة قبل أي كتابة.',sync_st_paused:'المزامنة متوقفة',sync_paused:'المزامنة متوقفة منذ {d}. تبقى تغييراتك على هذا الهاتف فقط ({n} عنصر معدّل).',sync_paused_hint:'لا يرى الآخر تغييراتك ولا ترى تغييراته. تستعمل اللائحة والتقسيم آخر حصص وصلت منه.',sync_paused_toast:'توقفت المزامنة',sync_paused_block:'المزامنة متوقفة: غير ممكن الآن.',
  budget_snacks:'يتضمن هذا المبلغ {s} من الوجبات الخفيفة.',budget_snacks_only:'الوجبات وحدها داخل الميزانية ({m})؛ الوجبات الخفيفة ({s}) هي التي تتجاوزها.',
  fit_other:'{f} حصة · بروتين {p}/{t} غ',fit_miss:'لم تتحقق أهدافه في هذا اليوم: {n}',
  budget_low:'هذه الميزانية منخفضة جدًا لوصفاتك: أرخص أسبوع بلا تكرار بحصصكم، شاملًا الوجبات والوجبات الخفيفة التي يضيفها التطبيق تلقائيًا، يبدأ من ≈ {x}.',
  prog_q:'البرنامج «{n}»: ستضاف {d} أيام و{c} أطعمة جديدة إلى {p}. تستبدل الأيام التي تحمل نفس الاسم، ويضبط الأسبوع وأيام التدريب. لا يتغير شيء آخر.',toast_prog:'أضيف البرنامج: راجع الأيام والأسبوع',
- split_t:'من يدفع كم',split_others:'آخرون ({x})',split_hint:'يدفع كل واحد ما يأكله: حصته في الغداء والعشاء، فطور لكل واحد، والوجبات الخفيفة لمن أضيفت له. طبّق هذه النسب على المبلغ الحقيقي للفاتورة.',src_days:'أيام {n}',src_hint:'🏠 = قائمة البيت (مشتركة). 👤 = وجبات خطّطتها لنفسك في أنا ← الأيام (خاصة). لا تختر الاثنين لنفس الوجبات.',src_warn_home:'تتضمن هذه اللائحة أيضًا أيام {n}، زيادة على قائمة البيت. الآخر لا يراها، لذا ستختلف لوائحكم.',
- sync_got:'غيّر {n} {x} عنصرًا',sync_st_ok:'متصل، كل شيء محدّث',sync_st_wait:'جارٍ الإرسال…',sync_st_off:'غير متصل: ستُرسل تغييراتك عند عودة الاتصال',sync_st_err:'مشكلة في المزامنة',ago_now:'الآن',ago_m:'منذ {n} د',ago_h:'منذ {n} س',ago_d:'منذ {n} ي',dar_title:'بيت مشترك',dar_intro:'شارك القائمة واللائحة والوصفات مع من يسكن معك: يظهر كل تغيير عند الاثنين تلقائيًا دون إرسال أي شيء.',dar_name:'اسمك',dar_color:'لونك',dar_create:'إنشاء بيت جديد',dar_code_lbl:'لديك رمز أو رابط؟ الصقه هنا',dar_join:'انضمام',dar_badcode:'هذا الرمز غير صالح.',dar_notfound:'لا يوجد بيت بهذا الرمز.',dar_rules:'الخادم يرفض: قواعد Firestore غير مضبوطة.',dar_offline:'لا يوجد اتصال. أعد المحاولة لاحقًا.',dar_joined:'انضممت إلى البيت!',dar_privacy:'تُحفظ بيانات البيت على خادم (Firebase في أوروبا). من يملك الرمز يمكنه رؤيتها، فلا تعطه لغير أهل البيت. لا تُشارك الملفات الشخصية إلا إذا اخترت ذلك.',dar_sync_now:'مزامنة الآن',dar_big:'البيانات كبيرة جدًا للإرسال.',dar_me:'أنت',dar_seen:'فتح التطبيق {x}',dar_invite:'دعوة شخص',dar_copy:'نسخ الرابط',dar_wa:'انضم إلى بيتنا في Makla Mizan:',dar_shared_what:'مشترك: القائمة، الوصفات، ❤، اللائحة (✓ و«في البيت»)، الأسعار، المصاريف والميزانية. خاص بكل هاتف: اللغة، المظهر والملفات غير المشتركة.',dar_leave:'مغادرة البيت',dar_profiles:'ملفات مشتركة',dar_profiles_hint:'الملف المشترك: يرى الآخر وزنه وهدفه ويمكنه تعديلهما.',
+ split_t:'من يدفع كم',split_others:'آخرون ({x})',split_hint:'يدفع كل واحد ما يأكله: حصته في الغداء والعشاء، فطور لكل واحد، والوجبات الخفيفة لمن أضيفت له. طبّق هذه النسب على المبلغ الحقيقي للفاتورة.',src_days:'أيام {n}',src_hint:'🏠 = قائمة البيت (مشتركة). 👤 = وجبات خطّطتها لنفسك في أنا ← الأيام (خاصة). لا تختر الاثنين لنفس الوجبات.',
  one_portion:'حصة واحدة',share_lbl:'{n} ({x} حصة)',
  gw_title:'هدف الوزن',gw_range:'المجال الصحي لطولك (مؤشر كتلة الجسم 18.5–24.9): {a}–{b} كغ.',gw_muscle:'إذا كنت تتدرب كثيرًا، يحسب المؤشر العضلات كأنها دهون؛ محيط الخصر أدق.',gw_lbl:'الوزن المستهدف (كغ)',gw_set:'حفظ الهدف',gw_clear:'حذف الهدف',gw_bad:'أدخل وزنًا بين 35 و250 كغ.',gw_low:'هذا الوزن أقل من المجال الصحي لطولك ({a} كغ). لا يقبل التطبيق هدفًا أقل من ذلك.',gw_belowrange:'أصبح هذا الهدف أقل من المجال الصحي لطولك ({a} كغ). عدّله.',gw_left:'بقي {x} كغ',gw_progress:'أنجزت {d} من {t} كغ ({p}%)',gw_rate:'{r} كغ في الأسبوع',gw_eta:'بهذا الإيقاع ستصل خلال نحو {w} أسابيع ({date}).',gw_noeta:'لحساب الإيقاع وموعد الوصول، يلزم 14 يومًا و6 قياسات على الأقل.',gw_away:'في الأسابيع الأخيرة، يسير الوزن عكس هدفك.',gw_stall:'لم يتغير المتوسط منذ نحو 3 أسابيع. جرّب خفض 100–150 سعرة يوميًا (أو زيادة المشي) وراجع بعد أسبوعين.',gw_stall_gain:'لم يتغير المتوسط منذ نحو 3 أسابيع. جرّب زيادة 100–150 سعرة يوميًا وراجع بعد أسبوعين.',gw_gain_fast:'زيادة سريعة ({r}% في الأسبوع). لبناء العضلات تكفي 0.25–0.5% أسبوعيًا؛ ما فوق ذلك غالبًا دهون.',gw_done:'وصلت إلى هدفك! غيّر هدف الملف إلى «المحافظة» لتبقى عليه.',gw_conflict_lose:'الوزن المستهدف أقل، لكن هدف الملف يضيف سعرات. راجعه.',gw_conflict_gain:'الوزن المستهدف أعلى، لكن هدف الملف ينقص السعرات. راجعه.',wa_title:'محيط الخصر (اختياري)',wa_lbl:'الخصر (سم)',wa_hint:'قِس في المنتصف بين آخر ضلع وأعلى عظم الورك، بعد زفير عادي، مرة في الأسبوع في نفس الوقت.',wa_ratio:'الخصر / الطول',wa_ok:'جيد (أقل من 0.5)',wa_mid:'انتبه (0.5–0.6)',wa_hi:'مرتفع (0.6 فأكثر)',wa_change:'{x} سم منذ أول قياس',wa_recomp:'الخصر ينقص والوزن شبه ثابت: غالبًا تفقد الدهون وتكسب العضلات. واصل.',
  cook_btn:'اطبخ',cook_ing:'المكونات',cook_portions:'حصص',cook_ing_hint:'الكميات حسب عدد الحصص المختار. الماء غير محسوب، والتوابل مجموعة في سطر واحد.',cook_start:'ابدأ',cook_step:'الخطوة {i} من {n}',cook_finish:'انتهيت',cook_done:'بالصحة والعافية!',cook_done_hint:'إذا غيّرت طريقة التحضير، اكتبها في الوصفة لتحتفظ بها.',cook_awake:'الشاشة تبقى مضاءة',cook_nosteps:'لا توجد خطوات لهذه الوصفة بعد. أضفها في الوصفة (كل سطر = خطوة).',cook_n_steps:'{n} خطوات',cook_no_steps_short:'بدون خطوات',steps_lbl:'طريقة التحضير (كل سطر = خطوة)',steps_dj_note:'الخطوات مكتوبة بالدارجة المغربية بحروف لاتينية.',fav:'المفضلة',
@@ -853,7 +807,6 @@ ar:{
  floor_note:'رُفع الهدف إلى {k} سعرة: هذا هو الحد الأدنى دون إشراف طبي. للنزول أكثر، استشر طبيبًا أو أخصائي تغذية.',
  minor_note:'دون 18 سنة: يحسب التطبيق الحفاظ على الوزن فقط. التنشيف في هذا العمر يحتاج استشارة طبية.',
  avg_n:' ({n}/7 أيام مملوءة)',
- 
  export_file:'تنزيل الملف',import_file:'استيراد من ملف',last_backup:'آخر نسخة احتياطية: {d}',never_backup:'لا توجد نسخة احتياطية بعد.',
  backup_old:'مرّ أكثر من 30 يومًا على آخر نسخة احتياطية. أنشئ واحدة جديدة.',go_backup:'نسخ احتياطي',
  edit:'تعديل',save:'حفظ',cancel:'إلغاء',toast_saved:'تم الحفظ',toast_deleted:'تم الحذف',custom_list:'أطعمتك',
@@ -870,7 +823,6 @@ ar:{
  target_hint:'معدل الأيض الأساسي (Mifflin-St Jeor): {bmr} سعرة · سعرات الثبات (TDEE): {tdee} سعرة · الهدف = TDEE × {x}. هذه القيم تقريبية (±10%). تابع وزنك 2–3 أسابيع وعدّل حسب النتيجة.',
  toast_profile_new:'أُضيف ملف جديد',toast_profile_del:'حُذف الملف',new_profile_name:'ملف {n}',
  no_day:'لا يوجد أي يوم.',new_day:'+ يوم جديد',day_prefix:'يوم',
- 
  hint_days:'أنشئ يومين أو ثلاثة نموذجية (يوم تمرين ويوم راحة)، ثم وزّعها على أيام الأسبوع في خانة "الأسبوع".',
  dup:'نسخ',del:'حذف',none:'— لا شيء',cost_day:'تكلفة هذا اليوم',
  add_food:'+ أضف طعامًا',empty_meal:'فارغة. اضغط على "أضف طعامًا".',
@@ -879,11 +831,6 @@ ar:{
  no_result:'لا توجد نتائج. أضف طعامك في خانة "الأسعار".',toast_added:'أُضيف {n}',
  week_of:'أسبوع {n}',pick_template:'اختر اليوم النموذجي لكل يوم',avg_day:'المعدل اليومي',
  cost_week:'تكلفة الأسبوع',
- 
- 
- 
- 
- 
  who_in:'من يدخل في المشتريات؟',pick_someone:'اختر شخصًا واحدًا على الأقل.',week_list:'لائحة الأسبوع',restart:'إلغاء التحديد',
  list_hint:'الكميات كما تُشترى: القطاني والأرز بالوزن الجاف، والسمك والدجاج مع العظم. قرّب إلى الأعلى قليلًا (الضياع).',
  list_empty:'لا شيء بعد. املأ الأيام ووجبات الأسرة.',week:'الأسبوع',month:'الشهر (~30 يومًا)',
@@ -901,7 +848,6 @@ ar:{
  week_days:['الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت','الأحد'],
  goals:['تنشيف (خسارة الدهون)','إعادة تشكيل الجسم (عضلات + خسارة دهون)','الحفاظ على الوزن','زيادة عضلية خفيفة','زيادة سريعة في الوزن'],
  acts:['خامل (عمل مكتبي)','خفيف (1–3 حصص أسبوعيًا)','متوسط (3–5 حصص أسبوعيًا)','مرتفع (6–7 حصص أسبوعيًا)','عمل بدني + رياضة يومية'],
- 
  notes:{bone:'أدخل الوزن الذي تأكله، بدون عظم. يضيف التطبيق العظم (~25%) في لائحة المشتريات.',sardine:'أدخل الوزن الذي تأكله، بدون رأس وشوك. يضيف التطبيق الباقي (~40%) في لائحة المشتريات.',merla:'أدخل وزن الفيليه. يحسب التطبيق السمكة كاملة (~2×) في لائحة المشتريات.',dry:'سعر الكيلو نيئًا (جافًّا)',oil:'احسب زيت الطبخ، فهو أكبر مصدر خفي للسعرات',whole:'أدخل الوزن كما اشتريته (بالعظم). الماكروز محسوبة على ~65% من الجزء المأكول.',asbought:'أدخل الوزن كما اشتريته (بالعظم). الماكروز محسوبة على الجزء المأكول فقط.'},
  sugar:'السكر (للشاي)',
  foods:['بيض عادي','بيض بلدي','خبز كامل (رغيف ~200 غ)','خبز أبيض (رغيف ~200 غ)','مسمن','حرشة','رقائق الشوفان','حليب (كأس 200 مل)','ياغورت (علبة)','جبن مثلث','واي بروتين (مغرفة 30 غ)','شاي بالسكر (كأس)','صدر دجاج (نيء)','فخذ دجاج بدون جلد (نيء)','سردين (نيء، الجزء المأكول)','سمك أبيض (فيليه نيء)','لحم بقري هبرة (نيء)','كفتة بقري (نيئة)','كفتة ديك رومي (نيئة)','كبد دجاج (نيء)','تونة (علبة، ~80 غ مصفاة)','أرز (مطبوخ)','معكرونة (مطبوخة)','عدس (مطبوخ)','لوبيا بيضاء (مطبوخة)','حمص (مطبوخ)','بطاطس (نيئة)','بطاطا حلوة (نيئة)','خضر (طماطم، خيار، بصل…)','موز','تفاح / برتقال','تمر','أفوكادو','زيت الطبخ (ملعقة كبيرة)','زيت الزيتون (ملعقة كبيرة)','لوز','فول سوداني','أملو (ملعقة 20 غ)','أرز (نيء)','معكرونة (نيئة)','عدس (نيء)','لوبيا بيضاء (نيئة)','حمص (نيء)','طماطم','بصل','جزر','كوسة','زيتون','دجاجة كاملة (بالعظم)','جبن طري (ملعقة 20 غ)','مربى (ملعقة 20 غ)','عسل (ملعقة 20 غ)','زبدة (ملعقة 14 غ)','سكر (ملعقة صغيرة 5 غ)','قهوة مطحونة (للكوب)','لحم بالعظم (غنم/بقر)','سمك كامل (بالعظم)','زبيب','فلفل حلو','كسكس (جاف)','تاكوس (وسط، لحم واحد)','برغر','بانيني','شاورما (ساندويتش)','ساندويتش كفتة','بيتزا (صغيرة)','رفيسة (صحن)','كسكس (صحن)','بيصارة (زلافة)','سفنج','بريوات (كفتة أو سمك)','معقودة','بسطيلة (حصة)','حريرة (زلافة)','سميد','دقيق أبيض','دقيق كامل','دقيق الحمص','سميد الذرة','بلبولة الشعير','قمح مقشور','بركوكش','شعرية','فول يابس','لفت','قرع أحمر','ملفوف','باذنجان','بازلاء','ثوم','قزبر ومعدنوس','ليمون حامض','ليمون مصبر','برقوق مجفف','سفرجل','قرنون','بامية','خيار','شمندر','فاصوليا خضراء','خبيزة','فطر','ذرة (علبة)','نعناع','بلح البحر','قمرون','حبار','كرشة ومصارين','كوارع','كبد الخروف','مخ','لحم الرأس','طحال','قديد','كاشير','جبن أحمر','لبن رائب','سمسم','جوز الهند','شحم','سمن','زيت الأركان (ملعقة)','توابل','ملح','زعفران','خميرة','نشا الذرة','حلبة','ماء الزهر','خل','صلصة الصويا','مايونيز','حليب مكثف محلى','صلصة الشوكولاتة','شاي أخضر','أوراق البسطيلة','خس','سلق','سبانخ','كرفس','شمر','فجل','قرنبيط','بروكلي','كراث','فلفل حار','فول أخضر','خرشوف بري','بصل أخضر','زنجبيل طازج','قرع','قلقاس','تفاح','برتقال','يوسفي','عنب','بطيخ أحمر','شمام','خوخ','مشمش','برقوق','تين','تين شوكي','رمان','فراولة','إجاص','كرز','أناناس','كيوي','مانجو','عناب','زعرور','ليمون أخضر','تين مجفف','مشمش مجفف','جوز','فستق','كاجو','بندق','بذور الكتان','بذور اليقطين','بذور الشيا','بازلاء مجففة','عدس أحمر','فاصوليا حمراء','حمص معلب','كينوا','برغل','شعير','ذرة','أرز بني','تونة بالماء (علبة، ~80 غ مصفاة)']
@@ -909,13 +855,11 @@ ar:{
 en:{
  place_khddar:'Greengrocer · fruit & veg',place_gezzar:'Butcher · meat & poultry',place_7awwat:'Fishmonger',place_ferran:'Bakery',place_7anout:'Grocery shop',money_t:'Costs, budget and spending',st_ok:'Balanced',st_prot:'Low protein',st_fat:'Too much fat',st_carb:'Low carbs',st_kcal_lo:'Low calories',st_kcal_hi:'Too many calories',today_lbl:'today',
  tab_ana:'Me',settings_t:'Settings',ob_welcome:'Welcome to Makla Mizan',ob_intro:'Answer 4 questions and the app plans the week\'s meals and a shopping list in DH.',ob_start:'Let\'s start',ob_skip:'Skip',next:'Next',back:'Back',ob_people:'How many people eat at home?',ob_people_hint:'Cooking amounts and the list are worked out for this number.',ob_excl:'What don\'t you eat?',ob_budget:'How much do you want to spend a week?',ob_budget_hint:'Optional. Leave empty if you have no budget.',ob_macros:'Work out your calories and protein?',ob_macros_yes:'Yes, I have a goal (cut, muscle…)',ob_macros_yes_hint:'Weight, height and age are used to size your portion.',ob_macros_no:'No, just the menu and the list',ob_macros_no_hint:'You can add it later under "Me".',ob_done:'Your menu is ready!',me_default:'Me',notargets_note:'To work out your calories and protein, enter weight, height and age in Me → Profile.',go_profile:'Go to profile',
- sync_pause:'⏸ Pause sync',sync_pause_q:'Tap again to confirm',sync_pause_hint:'Nothing will be sent or received. Data on this phone and on the server is left as it is. Resuming will come later, with a comparison before anything is written.',sync_st_paused:'Sync paused',sync_paused:'Sync paused since {d}. Your changes stay on this phone ({n} item(s) changed).',sync_paused_hint:'The other person does not see your changes and you do not see theirs. The list and the split use their last portions received.',sync_paused_toast:'Sync paused',sync_paused_block:'Sync is paused: not possible right now.',
  budget_snacks:'This includes {s} of snacks.',budget_snacks_only:'The meals alone fit the budget ({m}); the snacks ({s}) are what goes over.',
  fit_other:'{f} portion(s) · protein {p}/{t} g',fit_miss:'Targets not met this day: {n}',
  budget_low:'This budget is too low for your recipes: the cheapest week without repeats, with your portions, meals and automatically added snacks included, starts at ≈ {x}.',
  prog_q:'Program "{n}": {d} days and {c} new foods will be added to {p}. Days with the same name are replaced; the week and training days are set. Nothing else changes.',toast_prog:'Program added: see Days and Week',
- split_t:'Who pays what',split_others:'Others ({x})',split_hint:'Everyone pays for what they eat: their own lunch and dinner portion, one breakfast each, and snacks for whoever they were added for. Apply these percentages to the real receipt.',src_days:'{n}\'s days',src_hint:'🏠 = the home menu (shared). 👤 = meals you planned for yourself in Me → Days (personal). Do not tick both for the same meals.',src_warn_home:'This list also includes {n}\'s days on top of the home menu. The other person does not see them, so your lists will differ.',
- sync_got:'{n} changed {x} item(s)',sync_st_ok:'Connected, all up to date',sync_st_wait:'Sending…',sync_st_off:'Offline: your changes will be sent when the connection is back',sync_st_err:'Sync problem',ago_now:'just now',ago_m:'{n} min ago',ago_h:'{n} h ago',ago_d:'{n} d ago',dar_title:'Shared home',dar_intro:'Share the menu, list and recipes with the person you live with: every change shows up on both phones by itself, nothing to send.',dar_name:'Your name',dar_color:'Your colour',dar_create:'Create a home',dar_code_lbl:'Got a code or link? Paste it here',dar_join:'Join',dar_badcode:'This code is not valid.',dar_notfound:'No home with this code.',dar_rules:'The server refuses: the Firestore rules are not set.',dar_offline:'No connection. Try again later.',dar_joined:'You joined the home!',dar_privacy:'Home data is stored on a server (Firebase, in Europe). Anyone with the code can see it, so give it only to your household. Profiles are not shared unless you choose.',dar_sync_now:'Sync now',dar_big:'Data too large to send.',dar_me:'you',dar_seen:'opened the app {x}',dar_invite:'Invite someone',dar_copy:'Copy link',dar_wa:'Join our home on Makla Mizan:',dar_shared_what:'Shared: menu, recipes, ❤, list (✓ and "at home"), prices, spending and budget. Per phone: language, theme and profiles not shared.',dar_leave:'Leave the home',dar_profiles:'Shared profiles',dar_profiles_hint:'Shared profile: the other person sees its weight and goal and can edit them.',
+ split_t:'Who pays what',split_others:'Others ({x})',split_hint:'Everyone pays for what they eat: their own lunch and dinner portion, one breakfast each, and snacks for whoever they were added for. Apply these percentages to the real receipt.',src_days:'{n}\'s days',src_hint:'🏠 = the home menu (shared). 👤 = meals you planned for yourself in Me → Days (personal). Do not tick both for the same meals.',
  one_portion:'1 portion',share_lbl:'{n} ({x} portions)',
  gw_title:'Weight goal',gw_range:'Healthy range for your height (BMI 18.5–24.9): {a}–{b} kg.',gw_muscle:'If you train a lot, BMI counts muscle as fat; waist size tells you more.',gw_lbl:'Goal weight (kg)',gw_set:'Save goal',gw_clear:'Clear goal',gw_bad:'Enter a weight between 35 and 250 kg.',gw_low:'This weight is below the healthy range for your height ({a} kg). The app does not accept a goal below it.',gw_belowrange:'This goal is now below the healthy range for your height ({a} kg). Please change it.',gw_left:'{x} kg to go',gw_progress:'{d} of {t} kg done ({p}%)',gw_rate:'{r} kg a week',gw_eta:'At this pace you reach it in about {w} weeks ({date}).',gw_noeta:'Pace and date need at least 14 days and 6 weigh-ins.',gw_away:'Over the last weeks your weight has moved away from your goal.',gw_stall:'The average has not moved for about 3 weeks. Try 100–150 kcal less a day (or more walking) and check again in 2 weeks.',gw_stall_gain:'The average has not moved for about 3 weeks. Try 100–150 kcal more a day and check again in 2 weeks.',gw_gain_fast:'Gaining fast ({r}% a week). For muscle, 0.25–0.5% a week is enough; more is mostly fat.',gw_done:'Goal reached! Switch the profile goal to "Maintain" to stay there.',gw_conflict_lose:'Your goal weight is lower, but the profile goal adds calories. Check it.',gw_conflict_gain:'Your goal weight is higher, but the profile goal cuts calories. Check it.',wa_title:'Waist (optional)',wa_lbl:'Waist (cm)',wa_hint:'Measure halfway between the lowest rib and the top of the hip bone, after a normal breath out, once a week at the same time.',wa_ratio:'Waist / height',wa_ok:'Good (under 0.5)',wa_mid:'Watch it (0.5–0.6)',wa_hi:'High (0.6 or more)',wa_change:'{x} cm since the first measure',wa_recomp:'Waist going down while weight holds: you are most likely losing fat and gaining muscle. Keep going.',
  cook_btn:'Cook',cook_ing:'Ingredients',cook_portions:'portions',cook_ing_hint:'Amounts for the number of portions chosen. Water is not counted; spices are grouped on one line.',cook_start:'Start',cook_step:'Step {i} of {n}',cook_finish:'Done',cook_done:'Enjoy your meal!',cook_done_hint:'If you change the method, write it in the recipe so it is kept.',cook_awake:'Screen stays on',cook_nosteps:'No steps for this recipe yet. Add them in the recipe (one line = one step).',cook_n_steps:'{n} steps',cook_no_steps_short:'No steps yet',steps_lbl:'Method (one line = one step)',steps_dj_note:'Steps are written in Moroccan Darija.',fav:'Favourites',
@@ -947,7 +891,6 @@ en:{
  floor_note:'Target raised to {k} kcal: the minimum without medical supervision. To go lower, see a doctor or dietitian.',
  minor_note:'Under 18: the app only calculates weight maintenance. Cutting at this age needs medical advice.',
  avg_n:' ({n}/7 days filled)',
- 
  export_file:'Download file',import_file:'Import from file',last_backup:'Last backup: {d}',never_backup:'No backup yet.',
  backup_old:'More than 30 days since the last backup. Make a new one.',go_backup:'Back up now',
  edit:'Edit',save:'Save',cancel:'Cancel',toast_saved:'Saved',toast_deleted:'Deleted',custom_list:'Your foods',
@@ -964,7 +907,6 @@ en:{
  target_hint:'BMR (Mifflin-St Jeor): {bmr} kcal · Maintenance (TDEE): {tdee} kcal · Target = TDEE × {x}. These are estimates (±10%). Track your weight for 2–3 weeks and adjust.',
  toast_profile_new:'Profile added',toast_profile_del:'Profile deleted',new_profile_name:'Profile {n}',
  no_day:'No days yet.',new_day:'+ New day',day_prefix:'Day',
- 
  hint_days:'Build 2–3 template days (training day, rest day), then assign them to weekdays in the "Week" tab.',
  dup:'Duplicate',del:'Delete',none:'— none',cost_day:'Cost of this day',
  add_food:'+ Add food',empty_meal:'Empty. Tap "Add food".',
@@ -973,11 +915,6 @@ en:{
  no_result:'No match. Add your own food in the "Prices" tab.',toast_added:'{n} added',
  week_of:"{n}'s week",pick_template:'Pick the template for each day',avg_day:'Daily average',
  cost_week:'Cost of the week',
- 
- 
- 
- 
- 
  who_in:'Who is included in the shopping?',pick_someone:'Pick at least one.',week_list:'Weekly list',restart:'Uncheck all',
  list_hint:'Amounts as bought: legumes and rice by dry weight, fish and chicken with bones. Round up a little for waste.',
  list_empty:'Nothing yet. Fill in your days and the household meals.',week:'Week',month:'Month (~30 days)',
@@ -995,7 +932,6 @@ en:{
  week_days:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
  goals:['Cut (lose fat)','Recomp (muscle + fat loss)','Maintain weight','Lean bulk','Bulk'],
  acts:['Sedentary (desk job)','Light (1–3 sessions/week)','Moderate (3–5/week)','High (6–7/week)','Physical job + daily training'],
- 
  notes:{bone:'Enter the weight you eat, without bones. The app adds the bones (~25%) to the shopping list.',sardine:'Enter the weight you eat, without head and bones. The app adds the rest (~40%) to the shopping list.',merla:'Enter the fillet weight. The app counts the whole fish (~2×) on the shopping list.',dry:'Price per kg, dry (uncooked)',oil:'Count your cooking oil: it is the biggest hidden source of calories',whole:'Enter the weight as bought (with bones). Macros assume ~65% is edible.',asbought:'Enter the weight as bought (with bones). Macros count only the edible part.'},
  sugar:'Sugar (for tea)',
  foods:['Eggs','Free-range eggs (beldi)','Whole-wheat bread (~200 g loaf)','White bread (~200 g loaf)','Msemen','Harcha','Rolled oats','Milk (200 ml glass)','Yogurt / Perly (cup)','Cheese wedge','Whey (30 g scoop)','Sweet mint tea (glass)','Chicken breast (raw)','Skinless chicken thigh (raw)','Sardine (raw, edible part)','Whiting / white fish (raw fillet)','Lean beef (raw)','Beef kefta (raw)','Turkey kefta (raw)','Chicken liver (raw)','Tuna (can, ~80 g drained)','Rice (cooked)','Pasta (cooked)','Lentils (cooked)','White beans (cooked)','Chickpeas (cooked)','Potato (raw)','Sweet potato (raw)','Vegetables (tomato, cucumber, onion…)','Banana','Apple / orange','Dates','Avocado','Cooking oil (tbsp)','Olive oil (tbsp)','Almonds','Peanuts','Amlou (20 g tbsp)','Rice (raw)','Pasta (raw)','Lentils (raw)','White beans (raw)','Chickpeas (raw)','Tomato','Onion','Carrot','Zucchini','Olives','Whole chicken (with bones)','Fresh cheese, jben (20 g tbsp)','Jam (20 g tbsp)','Honey (20 g tbsp)','Butter (14 g tbsp)','Sugar (5 g tsp)','Ground coffee (per cup)','Meat on the bone (lamb/beef)','Whole fish (with bones)','Raisins','Bell pepper','Couscous (dry)','Tacos (M, one meat)','Burger','Panini','Shawarma (sandwich)','Kefta sandwich','Pizza (small)','Rfissa (plate)','Couscous (plate)','Bissara (bowl)','Sfenj (doughnut)','Briouats (kefta or fish)','Maakouda (potato fritter)','Pastilla (slice)','Harira (bowl)','Semolina','White flour','Wholemeal flour','Chickpea flour','Cornmeal','Barley grits','Hulled wheat','Berkoukech (pasta pearls)','Vermicelli','Dried fava beans','Turnip','Pumpkin','Cabbage','Aubergine','Peas','Garlic','Coriander & parsley','Lemon','Preserved lemon','Prunes','Quince','Artichoke','Okra','Cucumber','Beetroot','Green beans','Mallow (bakoula)','Mushrooms','Sweetcorn (can)','Fresh mint','Mussels','Shrimp','Squid','Tripe & offal','Cow trotters','Lamb liver','Brains','Head meat','Spleen','Dried meat (gueddid)','Cachir (mortadella)','Red cheese (Edam)','Buttermilk (lben)','Sesame','Desiccated coconut','Suet (fat)','Smen (aged butter)','Argan oil (tbsp)','Spices (mix)','Salt','Saffron','Yeast','Cornflour','Fenugreek','Orange blossom water','Vinegar','Soy sauce','Mayonnaise','Condensed milk','Chocolate sauce','Green tea leaves','Warqa pastry sheets','Lettuce','Chard','Spinach','Celery','Fennel','Radish','Cauliflower','Broccoli','Leek','Chilli pepper','Fresh fava beans','Cardoon','Spring onion','Fresh ginger','Squash','Taro','Apple','Orange','Mandarin','Grapes','Watermelon','Melon','Peach','Apricot','Plum','Fig','Prickly pear','Pomegranate','Strawberries','Pear','Cherries','Pineapple','Kiwi','Mango','Jujube','Loquat','Lime','Dried figs','Dried apricots','Walnuts','Pistachios','Cashews','Hazelnuts','Flaxseed','Pumpkin seeds','Chia seeds','Split peas','Red lentils','Kidney beans','Canned chickpeas','Quinoa','Bulgur','Barley (grains)','Corn (dry kernels)','Brown rice','Tuna in water (can, ~80 g drained)']
@@ -1339,7 +1275,7 @@ function sanitize(){
     p.fatPct=numIn(p.fatPct,27,20,40);
     if(p.protKg!=null&&p.protKg!==''){const v=+p.protKg;p.protKg=Number.isFinite(v)?Math.min(3.3,Math.max(1,v)):(fx(),null)}else p.protKg=null;
     if(p.tdeeAdj!=null&&!(+p.tdeeAdj>900&&+p.tdeeAdj<6000)){delete p.tdeeAdj;fx()}
-    if(p.shared!=null){if(p.shared)p.shared=true;else delete p.shared}
+    if('shared' in p)delete p.shared;
     if(p.train!=null)p.train=!!p.train;if(p.noTargets!=null){if(p.noTargets)p.noTargets=true;else delete p.noTargets}if(p.tdays!=null)p.tdays=Array.isArray(p.tdays)?[...new Set(p.tdays.map(Number).filter(x=>Number.isInteger(x)&&x>=0&&x<7))]:[];
     if(p.goalW!=null){const g=+p.goalW;if(!(g>=35&&g<=250)){delete p.goalW;delete p.goalStart;fx()}else p.goalW=g}
     if(p.goalStart!=null){const g=+p.goalStart;if(!(g>=35&&g<=250)){delete p.goalStart;fx()}else p.goalStart=g}
@@ -1358,9 +1294,8 @@ function sanitize(){
   if(S.budget!==''&&!(Number.isFinite(+S.budget)&&+S.budget>=0)){S.budget='';fx()}
   if(S.lastBackup!=null&&!Number.isFinite(+S.lastBackup))delete S.lastBackup;
   S.onboarded=!!S.onboarded;
-  if(S.portions!=null){if(!isObj(S.portions)){S.portions={};fx()}else Object.keys(S.portions).forEach(k=>{const e=S.portions[k];if(!OKID.test(k)||!isObj(e)||!Array.isArray(e.f)||e.f.length!==7||e.f.some(x=>!(+x>=.5&&+x<=3))){delete S.portions[k];fx()}else{e.f=e.f.map(Number);e.n=String(e.n||'').slice(0,60);
-    if(e.tg!=null&&!(Array.isArray(e.tg)&&e.tg.length===7&&e.tg.every(g=>isObj(g)&&['kcal','prot','fat','carbs'].every(k=>+g[k]>0&&+g[k]<2e4)))){delete e.tg;fx()}
-    else if(e.tg)e.tg=e.tg.map(g=>({kcal:+g.kcal,prot:+g.prot,fat:+g.fat,carbs:+g.carbs,trainDay:!!g.trainDay,restDay:!!g.restDay}))}})}
+  /* portions and targets received from a shared home (removed): derived data, dropped */
+  if('portions' in S){delete S.portions}
   if(S.tips!=null){if(!isObj(S.tips)){S.tips={};fx()}else Object.keys(S.tips).forEach(k=>{if(!OKID.test(k)||!S.tips[k])delete S.tips[k];else S.tips[k]=1})}
   sanitizeIds();
   if(S.fav!=null){if(!Array.isArray(S.fav)){S.fav=[];fx()}const ids=new Set(S.recipes.map(r=>r.id));const a=[...new Set(S.fav.filter(id=>typeof id==='string'&&ids.has(id)))];if(a.length!==S.fav.length)fx();S.fav=a}
@@ -1408,7 +1343,7 @@ function load(){
 }
 let _rawBad=null;
 function save(){_foods=null;
-  try{localStorage.setItem(KEY,JSON.stringify(S));if(_saveErr){_saveErr=false;sysBars()}if(typeof syncSoon==='function')syncSoon()}
+  try{localStorage.setItem(KEY,JSON.stringify(S));if(_saveErr){_saveErr=false;sysBars()}}
   catch(e){_saveErr=true;sysBars()}}
 function sysBars(){
   const se=document.getElementById('saveErr'),lw=document.getElementById('loadWarn');if(!se||!lw)return;
@@ -1680,7 +1615,6 @@ function vReglages(p){
     </div>
     ${oilChips()}
   </section>
-  ${vDar()}
   ${vPrix(p)}</div>`}
 const noTargetsNote=p=>p.noTargets?`<div class="note row" style="justify-content:space-between"><span>${t('notargets_note')}</span>${tab==='ana'&&anaSub==='profil'?'':`<button class="btn sm" onclick="go('profil')">${t('go_profile')}</button>`}</div>`:'';
 function vProfil(p){
@@ -1901,7 +1835,7 @@ const BUDGET_W=100;
 function portionEst(set){const mc={},fc={},Z={k:0,cost:0};
   const M=id=>id?(mc[id]||(mc[id]=sum([[id,1]]))):Z,FT=it=>{if(!it||!it.length)return Z;const k=JSON.stringify(it);return fc[k]||(fc[k]=sum(it))};
   const NE=nutEaters(),ntg=NE.map(e=>[0,1,2,3,4,5,6].map(i=>e.tgs?e.tgs[i]:targets(e,i))),known=new Set(NE.map(e=>e.id));
-  const blind=isObj(S.portions)?Object.keys(S.portions).filter(id=>!known.has(id)&&!S.profiles.some(p=>p.id===id)).map(id=>S.portions[id]):[];
+  const blind=[];
   const n=set.people,pr=P(),ptg=[0,1,2,3,4,5,6].map(i=>targets(pr,i));
   const fOf=(d,i,id,tg,mk)=>{const own=isObj(d.pfBy)?d.pfBy[id]:null;return own!=null?own:sugPortion(tg.kcal,FT((d.ftour||[]).concat(xItems(d,id))).k,mk)};
   const por=(d,i)=>{const mk=M(d.ghda).k+M(d['3cha']).k;
@@ -1986,12 +1920,9 @@ function genWeek(set){
       days[i][k]=bestV;if(bestV!==keep){cur=bestS;changed=true}}
     if(!changed)break}
   return days}
-/* Lunch and dinner portions cooked for the whole household on menu day i.
- Every profile with targets on this phone eats its own sized portion (dayFit), and so does every member of a shared
- home: their phones publish only the 7 portion sizes (S.portions, no weight or body data). Everyone else eats one
- portion. So two phones in the same home get the same list whichever profile is open. */
+/* Lunch and dinner portions on menu day i: a profile with targets eats its own sized portion (dayFit). */
 function portionEaters(){const out={};S.profiles.forEach(p=>{if(!p.example&&!p.noTargets)out[p.id]={n:p.name,f:S.menu?S.menu.days.map(d=>(d.ghda||d['3cha'])?dayFit(d,p).f:1):[]}});
-  if(isObj(S.portions))Object.keys(S.portions).forEach(id=>{if(!out[id])out[id]=S.portions[id]});return out}
+  return out}
 function menuTotal(i){if(!S.menu)return 0;const n=S.menu.set.people,ev=Object.values(portionEaters());
   /* nobody sized: everyone eats one portion, except the open profile when it has calorie targets (its own size) */
   const d=S.menu.days[i];if(!ev.length){const p=P(),f=!p.noTargets&&d&&(d.ghda||d['3cha'])?dayFit(d,p).f:1;return n+f-1}
@@ -2087,7 +2018,6 @@ function setX(d,id,k,l){if(l&&l.length){if(!isObj(d.xtra))d.xtra={};if(!isObj(d.
 /* Everyone whose targets this phone knows: its own profiles with targets, and the other phones' eaters that published
    their daily targets (numbers only) with their portions. Remote eaters are profile-like objects with fixed targets. */
 function nutEaters(){const own=S.profiles.filter(p=>!p.example&&!p.noTargets);const out=own.slice();
-  if(isObj(S.portions))Object.keys(S.portions).forEach(id=>{const e=S.portions[id];if(!own.some(p=>p.id===id)&&e&&Array.isArray(e.tg))out.push({id,name:e.n||'?',tgs:e.tg,remote:true})});
   return out}
 const eaterTrain=e=>e.remote?e.tgs.some(g=>g.trainDay):!!e.train;
 function dayFit(d,p,extra,wd){const wi=wd!=null?wd:S.menu?S.menu.days.indexOf(d):null;const tg=p.tgs?Object.assign({},p.tgs[wi>=0?wi:0]):targets(p,wi);const ft=sum((d.ftour||[]).concat(extra||xItems(d,p.id)));const main=sum([d.ghda,d['3cha']].filter(Boolean).map(id=>[id,1]));
@@ -2128,7 +2058,7 @@ function rmSide(i){setX(S.menu.days[i],P().id,'side');save();render()}
    They move to that person in d.xtra; without a name, to the open profile when this phone wrote the day, else to '_'
    (still bought and shared in the split, but counted in nobody's nutrition). */
 function migrateXtra(){if(!S.menu)return;let ch=false;S.menu.days.forEach((d,i)=>{if(!isObj(d))return;
-  const a=SY&&SY.attr&&SY.attr['mday.'+i],other=a&&SY.me&&a.by!==SY.me.id,fb=other?'_':P().id;
+  const fb=P().id;
   [['snack','snackFor'],['snack2','snackFor'],['side','sideFor']].forEach(([k,w])=>{if(!Array.isArray(d[k]))return;
     if(d[k].length){const id=typeof d[w]==='string'&&OKID.test(d[w])?d[w]:fb;setX(d,id,k,(xOf(d,id)[k]||[]).concat(d[k]))}delete d[k];ch=true});
   ['snackFor','sideFor'].forEach(w=>{if(w in d){delete d[w];ch=true}})});if(ch)save()}
@@ -2137,12 +2067,9 @@ function leanSwap(i,k){swapAt=i+':'+k;swapMode='lean';render()}
 function setPf(i,dir){const d=S.menu.days[i],id=P().id;
   if(!dir){if(isObj(d.pfBy)){delete d.pfBy[id];if(!Object.keys(d.pfBy).length)delete d.pfBy}}
   else{const x=dayFit(d,P());if(!isObj(d.pfBy))d.pfBy={};d.pfBy[id]=Math.max(.5,Math.min(3,x.f+dir*.25))}save();render()}
-/* Before v36 one value d.pf was shared by everyone who ate the menu. It goes to the open profile of the phone that set it.
-   A day last written by another phone of the shared home carries that phone's value: its owner's portion already
-   arrives through S.portions, so it is dropped here instead of being given to the wrong person. */
+/* Before v36 one value d.pf was shared by everyone who ate the menu: it becomes the open profile's own portion. */
 function migratePf(){if(!S.menu)return;let ch=false;S.menu.days.forEach((d,i)=>{if(!isObj(d)||d.pf==null)return;
-  const a=SY&&SY.attr&&SY.attr['mday.'+i],other=a&&SY.me&&a.by!==SY.me.id;
-  if(!other){if(!isObj(d.pfBy))d.pfBy={};if(d.pfBy[P().id]==null)d.pfBy[P().id]=d.pf}
+  if(!isObj(d.pfBy))d.pfBy={};if(d.pfBy[P().id]==null)d.pfBy[P().id]=d.pf;
   delete d.pf;ch=true});if(ch)save()}
 function dayFitHTML(d,i){const p=P();if(p.noTargets)return '';const x=dayFit(d,p);const gap=x.tg.prot-x.sc.p;
   const good=gap<=8&&Math.abs(x.sc.k-x.tg.kcal)<=x.tg.kcal*.1&&x.sc.f<=x.tg.fat*1.15&&x.sc.c>=x.tg.carbs*.85;
@@ -2196,7 +2123,7 @@ function vMenu(){
   const days=m.days.map((d,i)=>{const open=openDay===i;
     const names=[d.ftour&&d.ftour.length?['ftour',ftourName(d.ftour)]:null,d.ghda&&recipe(d.ghda)?['ghda',recName(recipe(d.ghda))]:null,d['3cha']&&recipe(d['3cha'])?['3cha',recName(recipe(d['3cha']))]:null].filter(Boolean);
     return `<section class="mday ${open?'open':''}">
-      <button class="mday-h" aria-expanded="${open}" onclick="openDay=${open?'null':i};swapAt=null;render()"><span class="dn">${syncMark('mday.'+i)}${tl('week_days',i)}${i===todayIdx()?` <small>· ${t('today_lbl')}</small>`:''}</span>${dayPill(d)}<span class="chev" aria-hidden="true">▾</span></button>
+      <button class="mday-h" aria-expanded="${open}" onclick="openDay=${open?'null':i};swapAt=null;render()"><span class="dn">${tl('week_days',i)}${i===todayIdx()?` <small>· ${t('today_lbl')}</small>`:''}</span>${dayPill(d)}<span class="chev" aria-hidden="true">▾</span></button>
       ${open?`<div class="mday-b">${d.ftour?ftourCard(i):''}${mealCard(i,'ghda')}${mealCard(i,'3cha')}${dayFitHTML(d,i)}</div>`
         :`<button class="mlist" onclick="openDay=${i};swapAt=null;render()">${names.map(([k,n])=>`<span><small>${mealBase(k)}</small><span>${esc(n)}</span></span>`).join('')}</button>`}</section>`}).join('');
   return `<div class="stack">
@@ -2236,7 +2163,7 @@ function vRecipes(){
   const catChips=[['all',t('all'),rs.length]].concat(nFav||recCat==='fav'?[['fav',HEART+' '+t('fav'),nFav]]:[],RCATS.filter(c=>counts[c]).map(c=>[c,rIcon(c)+' '+t('rcat_'+c),counts[c]]))
     .map(([c,l,n])=>`<button class="chip" aria-pressed="${recCat===c}" onclick="recCat='${c}';render()">${l} <span class="cnt">${n}</span></button>`).join('');
   const list=shown.map(x=>{const f=recipeFood(x),on=editRec===x.id,fv=isFav(x.id);return `<div class="rcard${on?' on':''}"><button class="rmain" aria-pressed="${on}" onclick="editRec=editRec==='${x.id}'?null:'${x.id}';delArm=null;render();if(editRec)setTimeout(()=>{const e=document.getElementById('recEd');e&&e.scrollIntoView({behavior:'smooth',block:'start'})},30)">
-      <span class="ric" aria-hidden="true">${rIcon(x.cat)}</span><span class="rtx"><b>${syncMark('recipe.'+x.id)}${esc(recName(x))}</b><span>${kc(r0(f.m[0]))} · ${bdi(t('mP')+' '+r0(f.m[1]))} · ${dh(f.p)}</span><span>⏱ ${t('time_lbl',{n:recMeta(x).time})} · ${t('diff_'+recMeta(x).diff)}</span></span></button>
+      <span class="ric" aria-hidden="true">${rIcon(x.cat)}</span><span class="rtx"><b>${esc(recName(x))}</b><span>${kc(r0(f.m[0]))} · ${bdi(t('mP')+' '+r0(f.m[1]))} · ${dh(f.p)}</span><span>⏱ ${t('time_lbl',{n:recMeta(x).time})} · ${t('diff_'+recMeta(x).diff)}</span></span></button>
       <button class="fav" aria-pressed="${fv}" aria-label="${esc(t('fav')+' · '+recName(x))}" title="${t('fav')}" onclick="toggleFav('${x.id}')">${HEART}</button></div>`}).join('');
   const chips=`<input id="rQ" class="in" placeholder="${t('rec_search')}" value="${esc(recQ)}" oninput="recQ=this.value;clearTimeout(window._rq);window._rq=setTimeout(()=>{render();const e=document.getElementById('rQ');if(e){e.focus();e.setSelectionRange(e.value.length,e.value.length)}},250)">
     <div class="chips">${catChips}</div>
@@ -2378,7 +2305,7 @@ function menuSplit(){if(!S.menu)return null;const n=S.menu.set.people,E=portionE
     if(d.ftour&&d.ftour.length){const c=sum(d.ftour).cost;ids.forEach(id=>acc[id]+=c);oth+=c*others}
     if(isObj(d.xtra))Object.keys(d.xtra).forEach(who=>{const l=xItems(d,who);if(!l.length)return;const c=sum(l).cost;if(acc[who]!=null)acc[who]+=c;else shareEq(c)})});
   const rows=ids.map(id=>({id,n:E[id].n,c:acc[id]})).sort((x,y)=>String(x.n).localeCompare(String(y.n)));if(others)rows.push({id:'',n:t('split_others',{x:others}),c:oth});return rows}
-function splitHTML(parts){const m=S.menu&&S.shop.menu?menuSplit():null;if(!m||m.length<2&&!SY)return '';
+function splitHTML(parts){const m=S.menu&&S.shop.menu?menuSplit():null;if(!m||m.length<2)return '';
   /* personal "Ayyam" lists on the list belong to their owner */
   S.profiles.forEach(p=>{if(!S.shop[p.id])return;const own=parts.find(x=>x[2]===p.id);if(!own)return;const row=m.find(x=>x.id===p.id);if(row)row.c+=own[1];else m.push({id:p.id,n:p.name,c:own[1]})});
   const tot=m.reduce((s,x)=>s+x.c,0)||1;
@@ -2389,7 +2316,7 @@ function vT9edya(){
   const trip=visible.filter(x=>!x.done).reduce((s,x)=>s+x.cost,0);
   const row=x=>{const differs=Math.abs(x.buy-x.need)>1e-6&&x.f.b!=='u';const hasQ=typeof x.have==='number'&&x.have>0;
     return `<div class="li ${x.done?'done':''}" data-id="${x.id}" data-place="${x.monthly?'month':shopPlace(x.f)}"><input type="checkbox" id="ck_${x.id}" ${x.done?'checked':''} onchange="chk('${x.id}',this.checked)">
-      <label class="nm" for="ck_${x.id}">${syncMark('checked.'+x.id)||syncMark('pantry.'+x.id)}${esc(shopName(x.f))}${hasQ?`<small class="need have">${t('pan_have',{x:fmtHave(x.f,x.have)})}</small>`:''}${differs&&!x.home?`<small class="need">${t('need',{x:fmtAmt(x.f,x.need)})}</small>`:''}</label>
+      <label class="nm" for="ck_${x.id}">${esc(shopName(x.f))}${hasQ?`<small class="need have">${t('pan_have',{x:fmtHave(x.f,x.have)})}</small>`:''}${differs&&!x.home?`<small class="need">${t('need',{x:fmtAmt(x.f,x.need)})}</small>`:''}</label>
       <span class="amt">${fmtAmt(x.f,x.buy)}</span><span class="pr">${dh0(x.cost)}</span>
       <button class="home-btn" aria-pressed="${x.home||hasQ}" aria-expanded="${pEdit===x.id}" title="${t('have_home')}" aria-label="${t('have_home')}: ${esc(shopName(x.f))}" onclick="pantry('${x.id}')">⌂</button></div>${pEdit===x.id?pantryEditor(x):''}`};
   const group=(title,r,hint)=>r.length?`<div class="grp">${title}</div>${hint?`<div class="grp-hint">${hint}</div>`:''}`+r.slice().sort(byName).map(row).join(''):'';
@@ -2402,7 +2329,6 @@ function vT9edya(){
       ${S.profiles.map(p=>`<button class="chip" aria-pressed="${!!S.shop[p.id]}" onclick="S.shop['${p.id}']=!S.shop['${p.id}'];save();render()">👤 ${t('src_days',{n:esc(p.name)})}</button>`).join('')}
     </div>
     <p class="hint">${t('src_hint')}</p>
-    ${SY&&S.profiles.some(p=>S.shop[p.id])?`<div class="warn">${t('src_warn_home',{n:S.profiles.filter(p=>S.shop[p.id]).map(p=>esc(p.name)).join(', ')})}</div>`:''}
     ${S.menu&&S.shop.menu?tip('listmenu',t('menu_hint_list',{n:bdi(S.menu.set.people)})):''}
     ${rows.length?`<div class="row"><a class="btn pri" href="https://wa.me/?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">${t('share_wa')}</a><button class="btn" onclick="copyList()">${t('copy_list')}</button></div>`:''}
     ${tip('list',t('list_hint')+' '+t('pan_hint'))}
@@ -2740,201 +2666,6 @@ function renderCook(){const root=document.getElementById('cookRoot');if(!root)re
     <div class="cook-foot">${st>0?`<button class="btn" onclick="cookGo(-1)">${t('back')}</button>`:'<span></span>'}${n&&st<=n?`<button class="btn pri" onclick="cookGo(1)">${nextLbl}</button>`:`<button class="btn pri" onclick="cookClose()">${t('close')}</button>`}</div>
   </div></div>`}
 
-/* ---------- Shared household ("dar") sync over the Firestore REST API, no accounts ----------
- One document per household: households/<code>. The code (28 random characters) is the only key: the security rules
- allow get/create/update on a document whose id is ≥24 characters and forbid listing, so only people holding the code
- can read or write it.
- The shared part of the data is cut into small keys (one menu day, one recipe, one ticked item, one price…). Each key
- is stored as e.<key> = {v: JSON text, t: server time, by: member}. A device sends only the keys that changed since the
- last sync (updateMask), so two people editing different things never overwrite each other; on the same key the last
- write wins. What is shared: menu, recipes, favourites, shopping ticks, "at home", prices, own foods, spending, budget,
- oil, meal names, and only the profiles marked as shared. Language, theme and the active profile stay per phone.
- Changes are kept locally while offline and sent when the connection returns. Data received is passed through
- normalize() like an import. */
-const FB={key:'AIzaSyC6tJDVO5qzuo27JXYmS1HAaGpKLtxorGw',project:'makla-mizan'};
-const SYNC_DOC_BASE=`projects/${FB.project}/databases/(default)/documents`;
-const syncApi=()=>{try{const o=localStorage.getItem('makla_sync_api');if(o)return o}catch(e){}return 'https://firestore.googleapis.com/v1/'+SYNC_DOC_BASE};
-const SYNC_KNOWN=new Set(['meals','budget','oil','menuSet','menu','mday','recipe','fav','checked','pantry','price','ov','custom','spend','profile','portion']);
-const SYNC_VER=2;
-const SYNC_KEY=KEY+'_sync', SYNC_COLORS=['#2f8f5b','#2f6fbf','#c2572b','#8a4fbf','#b8860b','#c23b6a'];
-let SY=null,_syncBusy=false,_syncAgain=false,_syncState='',_syncErr='',_syncTimer=null,_syncLast=0;
-/* Pause (Réglages): no request leaves the phone and nothing received changes it. Local data, SY.base and the server
-   stay as they are; the keys changed here are recorded in SY.pause.dirty so a later, explicit resume step can compare
-   local, server and base before writing anything. The pause is saved with SY and never ends by itself. */
-let _syncEpoch=0;const _syncCtls=new Set();
-const syncPaused=()=>!!(SY&&SY.pause);
-const syncLive=ep=>ep===_syncEpoch&&!syncPaused();
-const pausedErr=()=>Object.assign(new Error('PAUSED'),{paused:true,status:0});
-function syncLoad(){try{const o=JSON.parse(localStorage.getItem(SYNC_KEY)||'null');if(isObj(o)&&typeof o.hid==='string'&&/^[A-Za-z0-9]{24,40}$/.test(o.hid)&&isObj(o.me)){SY=Object.assign({base:{},attr:{},members:{},upd:''},o)}}catch(e){SY=null}
-  if(SY&&(SY.ver||1)<SYNC_VER){const mine=new Set(S.profiles.map(p=>p.id));Object.keys(SY.base).forEach(k=>{if(k.startsWith('portion.')&&!mine.has(k.slice(8)))delete SY.base[k]});SY.upd='';SY.ver=SYNC_VER;syncSave()}}
-function syncSave(){try{if(SY)localStorage.setItem(SYNC_KEY,JSON.stringify(SY));else localStorage.removeItem(SYNC_KEY)}catch(e){}}
-const syncEnc=k=>'k'+k.replace(/_/g,'_u').replace(/\./g,'_d').replace(/-/g,'_h');
-const syncDec=f=>f.slice(1).replace(/_d/g,'.').replace(/_h/g,'-').replace(/_u/g,'_');
-/* the shared data as {key: value} */
-function syncSnap(){const o={};
-  o.meals=S.meals;o.budget=S.budget;o.oil=S.oil;if(S.menuSet)o.menuSet=S.menuSet;
-  if(S.menu){o['menu.set']={set:S.menu.set,at:S.menu.at||0};S.menu.days.forEach((d,i)=>o['mday.'+i]=d)}
-  (S.recipes||[]).forEach(r=>o['recipe.'+r.id]=r);(S.fav||[]).forEach(id=>o['fav.'+id]=1);
-  Object.keys(S.checked||{}).forEach(id=>{if(S.checked[id])o['checked.'+id]=true});
-  Object.keys(S.pantry||{}).forEach(id=>o['pantry.'+id]=S.pantry[id]);
-  Object.keys(S.prices||{}).forEach(id=>o['price.'+id]=S.prices[id]);
-  Object.keys(S.ov||{}).forEach(id=>o['ov.'+id]=S.ov[id]);
-  (S.custom||[]).forEach(f=>o['custom.'+f.id]=f);(S.spend||[]).forEach(x=>o['spend.'+x.id]=x);
-  S.profiles.forEach(p=>{if(p.shared&&!p.example)o['profile.'+p.id]=p});
-  if(isObj(S.portions))Object.keys(S.portions).forEach(id=>{o['portion.'+id]=S.portions[id]});
-  if(S.menu)S.profiles.forEach(p=>{if(!p.example&&!p.noTargets)o['portion.'+p.id]={n:p.name,f:S.menu.days.map(d=>(d.ghda||d['3cha'])?dayFit(d,p).f:1),
-    tg:[0,1,2,3,4,5,6].map(i=>{const g=targets(p,i);return {kcal:Math.round(g.kcal),prot:Math.round(g.prot),fat:Math.round(g.fat),carbs:Math.round(g.carbs),trainDay:!!g.trainDay,restDay:!!g.restDay}})}});
-  return o}
-/* puts one received key into S (v === undefined: deleted) */
-function syncApply(k,v){const dot=k.indexOf('.'),pre=dot<0?k:k.slice(0,dot),id=dot<0?'':k.slice(dot+1);
-  const upsert=(arr,x)=>{const i=arr.findIndex(y=>y.id===id);if(v===undefined){if(i>=0)arr.splice(i,1)}else if(isObj(x)){x.id=id;if(i>=0)arr[i]=x;else arr.push(x)}};
-  const setIn=(obj,val)=>{if(v===undefined)delete obj[id];else obj[id]=val};
-  switch(pre){
-    case 'meals':if(Array.isArray(v))S.meals=v;break;
-    case 'budget':S.budget=v===undefined?'':v;break;
-    case 'oil':S.oil=v===undefined?1:v;break;
-    case 'menuSet':if(v===undefined)delete S.menuSet;else S.menuSet=v;break;
-    case 'menu':if(v===undefined){S.menu=null}else if(isObj(v)){if(!isObj(S.shop))S.shop={};if(S.shop.menu==null||!S.menu)S.shop.menu=true;if(!S.menu)S.menu={set:v.set,days:[{},{},{},{},{},{},{}],at:v.at};else{S.menu.set=v.set;S.menu.at=v.at}}break;
-    case 'mday':{const i=+id;if(!(i>=0&&i<7))break;if(!S.menu){if(v===undefined)break;S.menu={set:S.menuSet||defaultSet(),days:[{},{},{},{},{},{},{}],at:0}}S.menu.days[i]=v===undefined?{}:v;break}
-    case 'recipe':upsert(S.recipes,v);break;
-    case 'fav':{if(!Array.isArray(S.fav))S.fav=[];const i=S.fav.indexOf(id);if(v===undefined){if(i>=0)S.fav.splice(i,1)}else if(i<0)S.fav.push(id);break}
-    case 'portion':if(!isObj(S.portions))S.portions={};if(S.profiles.some(p=>p.id===id))break;setIn(S.portions,v);break;
-    case 'checked':setIn(S.checked,true);break;
-    case 'pantry':setIn(S.pantry,v);break;
-    case 'price':setIn(S.prices,v);break;
-    case 'ov':setIn(S.ov,v);break;
-    case 'custom':upsert(S.custom,v);break;
-    case 'spend':upsert(S.spend,v);break;
-    case 'profile':{const i=S.profiles.findIndex(p=>p.id===id);if(v===undefined){if(i>=0)delete S.profiles[i].shared}
-      else if(isObj(v)){v.id=id;v.shared=true;if(i>=0)S.profiles[i]=v;else S.profiles.push(v)}break}
-  }}
-/* Firestore values */
-const fsStr=s=>({stringValue:String(s)});
-const fsVal=x=>x==null?null:x.stringValue!=null?x.stringValue:x.integerValue!=null?+x.integerValue:x.doubleValue!=null?x.doubleValue:x.timestampValue!=null?Date.parse(x.timestampValue):x.mapValue?Object.fromEntries(Object.entries(x.mapValue.fields||{}).map(([k,y])=>[k,fsVal(y)])):null;
-/* every Firestore request: its own abort controller (the pause aborts them all), set last so no caller can replace it;
-   an answer that arrives after a pause is refused here, whoever called */
-async function syncFetch(url,opt){if(syncPaused())throw pausedErr();const ep=_syncEpoch,c=new AbortController();_syncCtls.add(c);
-  try{const sep=url.includes('?')?'&':'?';
-    const r=await fetch(url+sep+'key='+FB.key,Object.assign({cache:'no-store'},opt||{},{signal:c.signal}));if(ep!==_syncEpoch)throw pausedErr();
-    if(r.status===404)return null;const j=await r.json().catch(()=>({}));if(ep!==_syncEpoch)throw pausedErr();
-    if(!r.ok){const e=new Error((j.error&&j.error.status)||('HTTP '+r.status));e.status=r.status;throw e}return j}
-  finally{_syncCtls.delete(c)}}
-function syncMemberFields(){return {n:fsStr(SY.me.n),c:fsStr(SY.me.c)}}
-async function syncPush(ep=_syncEpoch){if(!syncLive(ep))throw pausedErr();const snap=syncSnap(),changed=[];
-  const json={};Object.keys(snap).forEach(k=>{json[k]=JSON.stringify(snap[k]===undefined?null:snap[k]);if(SY.base[k]!==json[k])changed.push(k)});
-  Object.keys(SY.base).forEach(k=>{if(!(k in snap)&&SY.base[k]!=='null'){json[k]='null';changed.push(k)}});
-  const beat=Date.now()-(SY.beat||0)>5*60e3;
-  if(!changed.length&&!beat)return 0;
-  const fields={},paths=[],tr=[];
-  changed.slice(0,400).forEach(k=>{const f=syncEnc(k);fields[f]={mapValue:{fields:{v:fsStr(json[k]),by:fsStr(SY.me.id)}}};paths.push('e.'+f+'.v','e.'+f+'.by');tr.push({fieldPath:'e.'+f+'.t',setToServerValue:'REQUEST_TIME'})});
-  const doc={e:{mapValue:{fields}},members:{mapValue:{fields:{[SY.me.id]:{mapValue:{fields:syncMemberFields()}}}}}};
-  paths.push('members.'+SY.me.id+'.n','members.'+SY.me.id+'.c');tr.push({fieldPath:'members.'+SY.me.id+'.t',setToServerValue:'REQUEST_TIME'});
-  const body=JSON.stringify({writes:[{update:{name:SYNC_DOC_BASE+'/households/'+SY.hid,fields:doc},updateMask:{fieldPaths:paths},updateTransforms:tr}]});
-  if(body.length>900000)throw Object.assign(new Error('TOO_BIG'),{status:413});
-  const res=await syncFetch(syncApi()+':commit',{method:'POST',headers:{'Content-Type':'application/json'},body});
-  if(!syncLive(ep))throw pausedErr();
-  const t=res&&res.commitTime?Date.parse(res.commitTime):Date.now();
-  changed.slice(0,400).forEach(k=>{SY.base[k]=json[k];SY.attr[k]={by:SY.me.id,t}});SY.beat=Date.now();syncSave();
-  return changed.length>400?_syncAgain=true:changed.length}
-async function syncPull(force,ep=_syncEpoch){if(!syncLive(ep))throw pausedErr();const doc=await syncFetch(syncApi()+'/households/'+SY.hid);if(!syncLive(ep))throw pausedErr();if(!doc)return [];
-  if(!force&&doc.updateTime&&doc.updateTime===SY.upd)return [];
-  const F=doc.fields||{},E=(F.e&&F.e.mapValue&&F.e.mapValue.fields)||{};
-  SY.members=fsVal(F.members)||{};
-  const snapJson={};Object.entries(syncSnap()).forEach(([k,v])=>snapJson[k]=JSON.stringify(v));
-  const got=[];
-  Object.entries(E).forEach(([f,x])=>{const k=syncDec(f),e=fsVal(x)||{};if(typeof e.v!=='string'||!SYNC_KNOWN.has(k.split('.')[0]))return;
-    if(e.by)SY.attr[k]={by:e.by,t:e.t||0};
-    if(SY.base[k]===e.v)return;
-    const local=k in snapJson?snapJson[k]:'null',pending=SY.base[k]!==undefined?local!==SY.base[k]:false;
-    if(pending&&!force)return;
-    let val;try{val=JSON.parse(e.v)}catch(_){return}
-    if(local!==e.v){syncApply(k,val===null?undefined:val);if(e.by!==SY.me.id)got.push(k)}
-    SY.base[k]=e.v});
-  if(got.length){const prev=S;try{S=JSON.parse(JSON.stringify(S));_fixes=0;normalize();_foods=null}catch(e){S=prev;console.error(e)}migratePf();migrateXtra();
-    /* keep what normalize produced as the synced value, so it is not sent back as a change */
-    const after=syncSnap();got.forEach(k=>{if(k in after)SY.base[k]=JSON.stringify(after[k])})}
-  SY.upd=doc.updateTime||'';syncSave();return got}
-async function syncNow(force){if(!SY||syncPaused())return;if(_syncBusy){_syncAgain=true;return}_syncBusy=true;const ep=_syncEpoch;
-  try{if(force)await syncPull(true,ep);await syncPush(ep);const got=await syncPull(false,ep);if(!syncLive(ep))return;_syncState='ok';_syncErr='';_syncLast=Date.now();
-    if(got.length){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}_foods=null;render();
-      const by={};got.forEach(k=>{const a=SY.attr[k];if(a&&a.by!==SY.me.id)by[a.by]=(by[a.by]||0)+1});
-      const who=Object.keys(by).map(id=>(SY.members[id]&&SY.members[id].n)||'?');if(who.length)toast(t('sync_got',{n:who.join(', '),x:got.length}))}}
-  catch(e){if(e.paused||!syncLive(ep))return;_syncState=navigator.onLine===false||e instanceof TypeError?'off':'err';_syncErr=e.status===403?'rules':e.status===413?'big':'';console.warn('sync',e)}
-  finally{_syncBusy=false;syncBadge();if(tab==='reglages'&&!document.activeElement.closest('#darBox'))renderDarBox();if(_syncAgain){_syncAgain=false;if(!syncPaused())setTimeout(()=>syncNow(),300)}}}
-function syncSoon(){if(!SY)return;if(syncPaused()){SY.pause.lastSave=Date.now();syncSave()}clearTimeout(_syncTimer);_syncTimer=setTimeout(()=>syncPaused()?syncMarkDirty():syncNow(),1200)}
-/* leaving the page: record now instead of waiting for the timer (best effort; start-up recomputes anyway) */
-function syncFlushDirty(){if(syncPaused()){clearTimeout(_syncTimer);syncMarkDirty()}}
-window.addEventListener('pagehide',syncFlushDirty);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')syncFlushDirty()});
-/* during the pause: which keys differ from what was last synced, since when, and their latest value's fingerprint.
-   Always recomputed from S and SY.base (on each save, on leaving the page and at start-up), so a missed timer only
-   costs a less precise date. It is information for the user: the resume step must compare S, SY.base and the server
-   itself and never decide a conflict from this list. */
-const fp=s=>{let h=5381;for(let i=0;i<s.length;i++)h=(h*33^s.charCodeAt(i))>>>0;return h.toString(36)+':'+s.length};
-function syncMarkDirty(at){if(!syncPaused())return;const snap=syncSnap(),d=SY.pause.dirty||(SY.pause.dirty={}),now=at||Date.now(),seen=new Set();
-  const mark=(k,j)=>{seen.add(k);if(SY.base[k]===j){delete d[k];return}const h=fp(j);if(!d[k])d[k]={first:now,last:now,h};else if(d[k].h!==h){d[k].last=now;d[k].h=h}};
-  Object.keys(snap).forEach(k=>mark(k,JSON.stringify(snap[k]===undefined?null:snap[k])));
-  Object.keys(SY.base).forEach(k=>{if(!seen.has(k)){if(SY.base[k]==='null')delete d[k];else mark(k,'null')}});
-  Object.keys(d).forEach(k=>{if(!seen.has(k))delete d[k]});syncSave()}
-function pauseSync(){if(!SY||syncPaused())return;if(delArm!=='pause'){delArm='pause';renderDarBox();return}delArm=null;
-  _syncEpoch++;_syncCtls.forEach(c=>{try{c.abort()}catch(e){}});_syncCtls.clear();clearTimeout(_syncTimer);_syncAgain=false;
-  SY.pause={since:Date.now(),dirty:{}};syncMarkDirty();syncBadge();renderDarBox();toast(t('sync_paused_toast'))}
-function syncPending(){if(!SY)return 0;const s=syncSnap();let n=0;Object.keys(s).forEach(k=>{if(SY.base[k]!==JSON.stringify(s[k]))n++});Object.keys(SY.base).forEach(k=>{if(!(k in s)&&SY.base[k]!=='null')n++});return n}
-setInterval(()=>{if(SY&&document.visibilityState==='visible')syncNow()},8000);
-document.addEventListener('visibilitychange',()=>{if(SY&&document.visibilityState==='visible')syncNow()});
-window.addEventListener('online',()=>syncNow());
-function syncBadge(){const el=document.getElementById('syncDot');if(!el)return;if(!SY){el.hidden=true;return}el.hidden=false;
-  const st=syncPaused()?'paused':_syncState==='ok'&&syncPending()?'wait':(_syncState||'wait');el.className='syncdot '+st;const l=t('sync_st_'+st);el.title=l;el.setAttribute('aria-label',l)}
-const agoTxt=ms=>{const m=Math.round((Date.now()-ms)/60000);return m<1?t('ago_now'):m<60?t('ago_m',{n:m}):m<1440?t('ago_h',{n:Math.round(m/60)}):t('ago_d',{n:Math.round(m/1440)})};
-/* a coloured dot on things another member changed in the last two days */
-function syncMark(k){if(!SY)return '';const a=SY.attr[k];if(!a||a.by===SY.me.id||Date.now()-a.t>48*3600e3)return '';
-  const m=SY.members[a.by]||{};const c=/^#[0-9a-f]{6}$/i.test(m.c)?m.c:'#888';const lab=esc((m.n||'?')+' · '+agoTxt(a.t));
-  return `<i class="sdot" style="background:${c}" title="${lab}" aria-label="${lab}" role="img"></i>`}
-const genCode=()=>{const a='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';const b=new Uint8Array(28);crypto.getRandomValues(b);return [...b].map(x=>a[x%a.length]).join('')};
-let darForm={n:'',c:SYNC_COLORS[0],code:''};
-function darMe(){const n=(document.getElementById('darName')||{}).value;const name=String(n||darForm.n||'').trim().slice(0,30);if(!name){const e=document.getElementById('darName');e&&e.focus();return null}
-  return {id:'m'+uid()+uid(),n:name,c:darForm.c}}
-async function darCreate(){if(syncPaused()){toast(t('sync_paused_block'));return}const me=darMe();if(!me)return;darListHome();SY={hid:genCode(),me,base:{},attr:{},members:{},upd:'',ver:SYNC_VER};syncSave();renderDarBox();await syncNow();renderDarBox()}
-async function darJoin(){if(syncPaused()){toast(t('sync_paused_block'));return}const me=darMe();if(!me)return;const code=String((document.getElementById('darCode')||{}).value||darForm.code).trim().replace(/^.*#dar=/,'');
-  const msg=document.getElementById('darMsg');if(!/^[A-Za-z0-9]{24,40}$/.test(code)){if(msg)msg.textContent=t('dar_badcode');return}
-  try{localStorage.setItem(KEY_PREV,JSON.stringify(S))}catch(e){}
-  /* the home being joined; while waiting for the server anything else may have replaced SY: only this one is undone */
-  const mine={hid:code,me,base:{},attr:{},members:{},upd:'',ver:SYNC_VER};SY=mine;const drop=()=>{if(SY===mine)SY=null};
-  const ep=_syncEpoch;
-  try{const doc=await syncFetch(syncApi()+'/households/'+code);if(ep!==_syncEpoch||SY!==mine){drop();return}if(!doc){drop();if(msg)msg.textContent=t('dar_notfound');return}}
-  catch(e){drop();if(e.paused||ep!==_syncEpoch||SY)return;if(msg)msg.textContent=t(e.status===403?'dar_rules':'dar_offline');return}
-  syncSave();darListHome();await syncNow(true);render();toast(t('dar_joined'))}
-function darListHome(){if(!isObj(S.shop))S.shop={};S.shop.menu=true;S.profiles.forEach(p=>S.shop[p.id]=false);save()}
-function darLeave(){if(syncPaused()){toast(t('sync_paused_block'));return}if(delArm!=='dar'){delArm='dar';renderDarBox();return}delArm=null;SY=null;delete S.portions;syncSave();save();syncBadge();render()}
-function darShareLink(){return location.origin+location.pathname+'#dar='+SY.hid}
-function darCopy(){const s=darShareLink();try{navigator.clipboard.writeText(s).then(()=>toast(t('toast_copied')),()=>prompt('',s))}catch(e){prompt('',s)}}
-function darBoxHTML(){
-  if(!SY){return `<p class="hint">${t('dar_intro')}</p>
-    <div class="grid"><div><label class="lbl" for="darName">${t('dar_name')}</label><input id="darName" class="in" maxlength="30" value="${esc(darForm.n)}" oninput="darForm.n=this.value"></div>
-    <div><span class="lbl">${t('dar_color')}</span><div class="chips">${SYNC_COLORS.map(c=>`<button class="swatch" style="background:${c}" aria-pressed="${darForm.c===c}" aria-label="${c}" onclick="darForm.c='${c}';renderDarBox()"></button>`).join('')}</div></div></div>
-    <div class="row"><button class="btn pri" onclick="darCreate()">${t('dar_create')}</button></div>
-    <div class="row" style="align-items:flex-end"><div style="flex:1;min-width:180px"><label class="lbl" for="darCode">${t('dar_code_lbl')}</label><input id="darCode" class="in" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(darForm.code)}" oninput="darForm.code=this.value"></div><button class="btn" onclick="darJoin()">${t('dar_join')}</button></div>
-    <p id="darMsg" class="hint" role="alert" style="color:var(--danger)"></p>
-    <p class="hint">${t('dar_privacy')}</p>`}
-  const mem=Object.entries(SY.members||{});if(!mem.some(([id])=>id===SY.me.id))mem.unshift([SY.me.id,{n:SY.me.n,c:SY.me.c}]);
-  const pend=syncPending();
-  if(syncPaused()){const n=Object.keys(SY.pause.dirty||{}).length,d=new Date(SY.pause.since).toLocaleString(lang()==='en'?'en-GB':'fr-FR',{dateStyle:'short',timeStyle:'short'});
-    return `<div class="row"><span><i class="syncdot paused" style="position:static;display:inline-block"></i> ${t('sync_st_paused')}</span></div>
-    <div class="warn">${t('sync_paused',{d:bdi(esc(d)),n:bdi(n)})}</div><p class="hint">${t('sync_paused_hint')}</p>
-    <div class="mems">${Object.entries(SY.members||{}).map(([id,m])=>`<div class="mem"><span class="swatch" style="background:${/^#[0-9a-f]{6}$/i.test(m.c)?m.c:'#888'}"></span><div class="mem-n"><b>${esc(m.n||'?')}${id===SY.me.id?' · '+t('dar_me'):''}</b></div></div>`).join('')}</div>`}
-  return `<div class="row" style="justify-content:space-between"><span><i class="syncdot ${_syncState==='ok'&&pend?'wait':_syncState||'wait'}" style="position:static;display:inline-block"></i> ${t('sync_st_'+(_syncState==='ok'&&pend?'wait':_syncState||'wait'))}${_syncLast?' · '+agoTxt(_syncLast):''}</span><button class="btn sm" onclick="syncNow()">${t('dar_sync_now')}</button></div>
-    ${_syncErr==='rules'?`<div class="warn">${t('dar_rules')}</div>`:_syncErr==='big'?`<div class="warn">${t('dar_big')}</div>`:''}
-    <div class="mems">${mem.map(([id,m])=>`<div class="mem" style="align-items:center"><span class="swatch" style="background:${/^#[0-9a-f]{6}$/i.test(m.c)?m.c:'#888'}"></span><div class="mem-n"><b>${esc(m.n||'?')}${id===SY.me.id?' · '+t('dar_me'):''}</b>${m.t?`<small>${t('dar_seen',{x:agoTxt(m.t)})}</small>`:''}</div></div>`).join('')}</div>
-    <div><span class="lbl">${t('dar_invite')}</span><div class="row"><code class="darcode">${esc(SY.hid)}</code><button class="btn sm" onclick="darCopy()">${t('dar_copy')}</button><a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(t('dar_wa')+' '+darShareLink())}">WhatsApp</a></div></div>
-    <p class="hint">${t('dar_shared_what')}</p>
-    <div><span class="lbl">${t('dar_profiles')}</span><div class="chips">${S.profiles.filter(p=>!p.example).map(p=>`<button class="chip" aria-pressed="${!!p.shared}" onclick="toggleShareProf('${p.id}')">${esc(p.name)}</button>`).join('')||`<span class="hint">—</span>`}</div><p class="hint">${t('dar_profiles_hint')}</p></div>
-    <div class="row"><button class="btn sm" onclick="pauseSync()">${delArm==='pause'?t('sync_pause_q'):t('sync_pause')}</button><button class="btn sm danger" onclick="darLeave()">${delArm==='dar'?t('confirm_del'):t('dar_leave')}</button></div>
-    ${delArm==='pause'?`<p class="hint">${t('sync_pause_hint')}</p>`:''}`}
-function toggleShareProf(id){const p=S.profiles.find(x=>x.id===id);if(!p)return;if(p.shared)delete p.shared;else p.shared=true;save();renderDarBox()}
-function renderDarBox(){const el=document.getElementById('darBox');if(el)el.innerHTML=darBoxHTML()}
-function vDar(){return `<section class="panel stack"><h2 style="font-size:19px">👥 ${t('dar_title')}</h2><div id="darBox" class="stack">${darBoxHTML()}</div></section>`}
-/* invitation link: …#dar=CODE opens the settings with the code filled in */
-function darFromHash(){const m=/#dar=([A-Za-z0-9]{24,40})/.exec(location.hash);if(!m)return;darForm.code=m[1];try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}if(!SY||SY.hid!==m[1]){go('reglages');setTimeout(()=>{const e=document.getElementById('darName');e&&e.focus()},50)}}
-
 /* ---------- Toast ---------- */
 let tt;function toast(m){const r=document.getElementById('toastRoot');r.innerHTML=`<div class="toast">${esc(m)}</div>`;clearTimeout(tt);tt=setTimeout(()=>r.innerHTML='',1800)}
 document.addEventListener('keydown',e=>{if(cook){if(e.key==='Escape'){cookClose();return}if(e.key==='ArrowRight'||e.key==='ArrowLeft'){cookGo((e.key==='ArrowRight')!==(document.documentElement.dir==='rtl')?1:-1);return}}if(e.key==='Escape')closeSheet()});
@@ -2950,7 +2681,7 @@ function applyTheme(){
 function setTheme(th){S.theme=th;save();applyTheme()}
 try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applyTheme)}catch(e){}
 
-load();syncLoad();migratePf();migrateXtra();if(syncPaused())syncMarkDirty(SY.pause.lastSave);render();applyTheme();if(!S.onboarded)obStart();syncBadge();darFromHash();if(SY)syncNow();
+load();migratePf();migrateXtra();render();applyTheme();if(!S.onboarded)obStart();
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persisted().then(ok=>{if(!ok)navigator.storage.persist()})}catch(e){}
 
 /* ---------- PWA ---------- */
