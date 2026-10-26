@@ -841,6 +841,24 @@ test('Menu', 'B2 snacks: a reachable budget is met with the snacks included; whe
   ok(r.met <= r.B * 1.02, 'budget 20 % above the menu+snacks floor is met (' + Math.round(r.met) + ' for ' + r.B + ')');
   ok(r.snacks > 0, 'the menu has snacks'); ok(r.warn.includes(r.over) && r.warn.includes(r.exp), 'meals fit, snacks do not: said with both amounts'); ok(r.kept, 'snacks not removed');
 });
+test('Menu', 'people who do not count calories eat one portion each: list, cost, split and generator agree; the Menu tab shows each one’s share, never an average', async ({ page }) => {
+  const r = await page.evaluate(() => { const base = JSON.parse(JSON.stringify(S.profiles[0])), mk = o => Object.assign(JSON.parse(JSON.stringify(base)), o);
+    const out = {};
+    for (const n of [1, 2, 3]) { S.profiles = [mk({ id: 'pN', name: 'Sara', example: false, noTargets: true })]; S.active = 'pN'; S.shop = { menu: true, pN: false }; S.portions = {};
+      S.menuSet = { people: n, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; makeMenu();
+      const por = S.menu.days.map((d, i) => menuTotal(i)), split = menuSplit().reduce((a, x) => a + x.c, 0);
+      openDayInit = true; openDay = null; go('menu'); const box = document.querySelectorAll('#view .mstat > div')[1].textContent;
+      out[n] = { por, week: menuWeekCost(), list: shopData().cost, split, gen: menuCostEst(S.menu.set, S.menu.days), box, perPers: t('per_pers') }; }
+    // two people with targets: the second box lists each one's share
+    S.profiles = [mk({ id: 'pM', name: 'Mohammed', example: false, w: 80, h: 180, goal: 'leanbulk' }), mk({ id: 'pR', name: 'Rayan', example: false, w: 62, h: 172, goal: 'cut' })]; S.active = 'pM';
+    S.menuSet.people = 2; makeMenu(); go('menu'); const sp = menuSplit(); out.two = { box: document.querySelectorAll('#view .mstat > div')[1].textContent, sp: sp.map(x => [x.n, Math.round(x.c)]) };
+    return out; });
+  for (const n of [1, 2, 3]) { const x = r[n];
+    ok(x.por.every(v => v === n), n + ' people: ' + n + ' portion(s) a day, not more (' + x.por.join(',') + ')');
+    near(x.list, x.week, 1e-6, n + ': list = Menu'); near(x.split, x.week, 0.05, n + ': split adds up'); near(x.gen, x.week, 1e-6, n + ': generator = Menu');
+    ok(x.box.includes(x.perPers), n + ': same portions for all → per person shown'); }
+  ok(!r.two.box.includes(r[1].perPers) && r.two.sp.every(([nm, c]) => r.two.box.includes(nm) && r.two.box.includes(String(c))), 'different portions → each one’s share shown: ' + r.two.box);
+});
 test('Menu', 'a menu saved before v36 (one shared d.pf) loads: the value goes to the open profile, the other keeps the suggestion; bad values cleaned', async () => {
   const { ctx, page } = await openApp();
   try {
