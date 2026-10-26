@@ -205,14 +205,14 @@ test('Shopping', 'trip cost uses whole packs; week cost uses what is eaten', asy
   near(r.eaten, 60 * 0.001 * r.price, 1e-9, 'week (eaten) cost'); near(r.buy, 0.5, 1e-9, 'oats bought as one 500 g pack');
   near(r.trip, 0.5 * r.price, 1e-9, 'trip cost of the pack');
 });
-test('Shopping', 'weekly menu: people × portions plus the profile’s extra portion', async ({ page }) => {
+test('Shopping', 'weekly menu: your own portion (±) is what goes on the list', async ({ page }) => {
   const r = await page.evaluate(() => {
     S.oil = 1; S.pantry = {}; const rc = recipe('r_3des'); const lent = rc.items.find(x => x[0] === '3des_n')[1];
-    S.menu = { set: { people: 4, budget: '', time: 60, excl: [], meals: { ftour: false, ghda: true, '3cha': false } }, days: [{ ghda: 'r_3des', pfBy: { [P().id]: 1.5 } }, {}, {}, {}, {}, {}, {}], at: 1 };
-    S.shop = { menu: true }; S.profiles.forEach(p => S.shop[p.id] = false); save();
-    const row = shopData().rows.find(x => x.id === '3des_n'); return { got: row.week, exp: (4 + 0.5) * lent / rc.servings * 0.001 };
+    S.menu = { set: { people: 1, budget: '', time: 60, excl: [], meals: { ftour: false, ghda: true, '3cha': false } }, days: [{ ghda: 'r_3des', pfBy: { [P().id]: 1.5 } }, {}, {}, {}, {}, {}, {}], at: 1 };
+    S.shop = { menu: true, [P().id]: false }; save();
+    const row = shopData().rows.find(x => x.id === '3des_n'); return { got: row.week, exp: 1.5 * lent / rc.servings * 0.001, tot: menuTotal(0) };
   });
-  near(r.got, r.exp, 1e-9, 'kg lentils');
+  near(r.got, r.exp, 1e-9, 'kg lentils = 1.5 portions'); near(r.tot, 1.5, 1e-9, 'day portions = your portion');
 });
 test('Shopping', 'amount at home is taken off the list', async ({ page }) => {
   const r = await page.evaluate(() => {
@@ -234,10 +234,30 @@ test('Budget', 'month = week × 30/7; spending summed for the current month', as
 /* ======================================================================================
    6. Profiles
    ====================================================================================== */
-test('Profiles', 'add, switch and delete profiles keeps a valid active profile', async ({ page }) => {
-  const r = await page.evaluate(() => { const n0 = S.profiles.length; newProfile(); const id = S.active; delArm = 'p'; delProfile();
-    return { n0, n1: S.profiles.length, activeOk: !!S.profiles.find(p => p.id === S.active), shopGone: !(id in S.shop) }; });
-  eq(r.n1, r.n0, 'profile count back'); ok(r.activeOk, 'active profile exists'); ok(r.shopGone, 'shopping flag removed');
+test('Profiles', 'one person: data with several profiles keeps the open one, archives the others (plus a full copy) and removes their list and menu entries', async () => {
+  const { ctx, page, errors } = await openApp();
+  try {
+    await page.evaluate(() => { const base = JSON.parse(JSON.stringify(P())), mk = o => Object.assign(JSON.parse(JSON.stringify(base)), o);
+      S.profiles = [mk({ id: 'pM', name: 'Mohammed', example: false }), mk({ id: 'pR', name: 'Rayan', example: false })]; S.active = 'pM'; S.shop = { menu: true, pM: true, pR: true };
+      S.menu = { set: { people: 3, budget: '', time: 60, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }, at: 1,
+        days: [{ ghda: 'r_3des', pfBy: { pM: 1.5, pR: 0.75 }, xtra: { pM: { snack: [['bid', 2]] }, pR: { snack: [['ton_ma', 1]] } } }, { ghda: 'r_3des', pfBy: { pR: 2 }, xtra: { pR: { side: [['khobz', 0.5]] } } }, {}, {}, {}, {}, {}] };
+      S.menuSet = JSON.parse(JSON.stringify(S.menu.set)); save(); });
+    const read = () => page.evaluate(() => ({ s: JSON.parse(localStorage.getItem('makla_mizan_v2')), multi: localStorage.getItem('makla_mizan_v2_multi'),
+      sel: !!document.getElementById('profSel'), fns: [typeof newProfile, typeof delProfile, typeof setActive], tuna: (shopData().rows.find(x => x.id === 'ton_ma') || {}).week }));
+    await page.reload(); await page.waitForTimeout(300); const r = await read(), s = r.s;
+    eq(s.profiles.map(p => p.id).join(), 'pM', 'only the open profile is kept'); eq(s.active, 'pM', 'active profile');
+    eq(s.oldProfiles.map(p => p.id + ':' + p.name).join(), 'pR:Rayan', 'the other one is archived, not lost'); ok(/^\d{4}-\d\d-\d\d$/.test(s.oldProfiles[0].archived), 'archive date');
+    ok(r.multi && JSON.parse(r.multi).profiles.length === 2, 'full copy of the old data kept aside');
+    eq(JSON.stringify(s.shop), JSON.stringify({ menu: true, pM: true }), 'archived profile off the shopping list');
+    eq(JSON.stringify(s.menu.days[0].pfBy), JSON.stringify({ pM: 1.5 }), 'own portion kept, the other removed');
+    eq(JSON.stringify(s.menu.days[0].xtra), JSON.stringify({ pM: { snack: [['bid', 2]] } }), 'own top-ups kept, the other removed');
+    ok(!('pfBy' in s.menu.days[1]) && !('xtra' in s.menu.days[1]), 'emptied entries removed'); ok(!r.tuna, 'the archived person’s tuna is not bought');
+    eq(s.menu.set.people, 1, 'menu for one'); eq(s.menuSet.people, 1, 'menu settings for one');
+    ok(!r.sel, 'no profile switch in the header'); eq(r.fns.join(), 'undefined,undefined,undefined', 'no add/delete/switch profile');
+    await page.reload(); await page.waitForTimeout(300); const r2 = await read();
+    for (const k of ['profiles', 'oldProfiles', 'shop', 'menu']) eq(JSON.stringify(r2.s[k]), JSON.stringify(s[k]), 'second load changes nothing: ' + k);
+    eq(r2.multi, r.multi, 'the copy is not overwritten'); eq(errors.length, 0, 'page errors');
+  } finally { await ctx.close(); }
 });
 
 /* ======================================================================================
@@ -249,7 +269,7 @@ async function richState(page) {
     S.prices.sder = 72; S.ov.bid = { cat: 'ftour', m: [70, 6, 0.5, 5] }; S.oil = .67; S.pantry = { louz: 0.2 }; S.spend = [{ id: 'sp1', d: '2026-10-01', a: 420, e: 400 }];
     const r = { id: 'r_mine1', n: 'Ma recette', cat: 'mine', servings: 3, items: [['sder', 450], ['c_test1', 300]] }; S.recipes.push(r);
     P().days[0].meals.ghda.push(['r_mine1', 1], ['c_test1', 150]);
-    S.menu = { set: { people: 3, budget: '', time: 60, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }, days: [0, 1, 2, 3, 4, 5, 6].map(() => ({ ftour: [['bid', 2]], ghda: 'r_mine1', '3cha': 'r_3des' })), at: 1 };
+    S.menu = { set: { people: 1, budget: '', time: 60, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }, days: [0, 1, 2, 3, 4, 5, 6].map(() => ({ ftour: [['bid', 2]], ghda: 'r_mine1', '3cha': 'r_3des' })), at: 1 };
     save(); return JSON.stringify(S);
   });
 }
@@ -348,7 +368,11 @@ test('Backup', 'data saved by the previous version (v24) loads unchanged, with n
   ok(A.pantry.rouz === 0.3 && B.pantry.rouz_n === 0.3 && B.pantry.rouz === undefined, 'pantry rice migrated to the purchase row');
   delete A.pantry.rouz; A.pantry.rouz_n = 0.3;
   A.profiles.forEach(p => { if (!p.weights) p.weights = []; });   // the previous version also added this default when loading
-  A.onboarded = true;   // existing users are marked as onboarded so they never see the first-run questions
+  A.onboarded = true;
+  // v39: one person — the open profile stays, the other is archived (dated), its shopping flag goes, the menu is for one
+  ok(Array.isArray(B.oldProfiles) && B.oldProfiles.length === 1 && /^\d{4}-\d\d-\d\d$/.test(B.oldProfiles[0].archived), 'other profile archived');
+  const keep = A.profiles.find(p => p.id === A.active); A.oldProfiles = A.profiles.filter(p => p !== keep).map(p => Object.assign({}, p, { archived: B.oldProfiles[0].archived }));
+  A.profiles = [keep]; A.oldProfiles.forEach(p => delete A.shop[p.id]); A.menu.set.people = 1; A.menuSet.people = 1;   // existing users are marked as onboarded so they never see the first-run questions
   // v36: the one shared extra portion (d.pf) becomes the open profile's own portion (d.pfBy), same value
   const legacy = A.menu.days.filter(d => d.pf != null); ok(legacy.length > 0, 'fixture has a legacy portion');
   A.menu.days.forEach(d => { if (d.pf != null) { d.pfBy = { [A.active]: d.pf }; delete d.pf; } });
@@ -467,22 +491,22 @@ test('Interface', 'four bottom sections; settings, profile, days and week still 
   eq(r.nav.length, NAV_TABS, 'bottom sections'); ok(r.backup && r.lang, 'settings: backup + language'); ok(r.ayyam, 'days'); ok(r.simana, 'week'); ok(r.profil, 'profile');
   ok(r.settingsBtn, 'header settings button'); eq(errors.length, 0, 'page errors: ' + errors.join(' | '));
 });
-test('Interface', 'first run: 4 questions produce a profile, a weekly menu and a list', async () => {
+test('Interface', 'first run: 3 questions produce a profile, a weekly menu and a list', async () => {
   const { page, ctx, errors } = await openApp({ keepOnboarding: true });
   const r = await page.evaluate(() => { const shown = !!document.querySelector('#obRoot .ob');
-    obGo(1); ob.people = 3; obGo(1); obToggle('fish'); ob.time = 30; obGo(1); ob.budget = '500'; obGo(1);
+    obGo(1); obToggle('fish'); ob.time = 30; obGo(1); ob.budget = '500'; obGo(1);
     ob.macros = true; ob.name = 'Sara'; ob.sex = 'f'; ob.age = '31'; ob.w = '64'; ob.h = '166'; ob.goal = 'cut'; obFinish();
     const p = P(); return { shown, closed: !document.querySelector('#obRoot .ob'), onboarded: S.onboarded, people: S.menu.set.people, excl: S.menu.set.excl, time: S.menu.set.time,
       days: S.menu.days.length, name: p.name, age: p.age, example: p.example, rows: shopData().rows.length, budget: S.budget, noFish: S.menu.days.every(d => [d.ghda, d['3cha']].filter(Boolean).every(id => protOf(recipe(id)) !== 'fish')) }; });
   await ctx.close();
   ok(r.shown, 'questions shown on first run'); ok(r.closed, 'closed at the end'); eq(r.onboarded, true, 'remembered');
-  eq(r.people, 3, 'people'); ok(r.excl.includes('fish') && r.noFish, 'no fish in the menu'); eq(r.time, 30, 'time limit');
+  eq(r.people, 1, 'menu for one person'); ok(r.excl.includes('fish') && r.noFish, 'no fish in the menu'); eq(r.time, 30, 'time limit');
   eq(r.days, 7, 'menu days'); eq(r.name, 'Sara', 'profile name'); eq(r.age, 31, 'age'); eq(r.example, false, 'real profile'); ok(r.rows > 5, 'shopping list filled');
   eq(r.budget, String(Math.round(500 * 30 / 7)), 'monthly budget from the weekly answer'); eq(errors.length, 0, 'page errors');
 });
 test('Interface', 'first run without macros: no calorie analysis, menu and list still work', async () => {
   const { page, ctx, errors } = await openApp({ keepOnboarding: true });
-  const r = await page.evaluate(() => { obGo(1); obGo(1); obGo(1); obGo(1); ob.macros = false; obFinish(); go('menu'); const v = document.getElementById('view');
+  const r = await page.evaluate(() => { obGo(1); obGo(1); obGo(1); ob.macros = false; obFinish(); go('menu'); const v = document.getElementById('view');
     return { noTargets: P().noTargets === true, fit: !!v.querySelector('.dfit'), rows: shopData().rows.length }; });
   await ctx.close();
   ok(r.noTargets, 'profile marked'); ok(!r.fit, 'no day analysis shown'); ok(r.rows > 5, 'list filled'); eq(errors.length, 0, 'page errors');
@@ -544,15 +568,15 @@ test('Cooking', 'cooking mode: amounts follow the portions, one step per screen,
   ok(r.awake, 'screen-on badge'); eq(r.wl.req, 1, 'screen lock asked once'); eq(r.wl.rel, 1, 'screen lock released on close');
   ok(r.closed && !r.noscroll, 'closed and page scrolls again'); eq(errors.length, 0, 'page errors: ' + errors.join(' | '));
 });
-test('Cooking', 'from the menu: household plus the extra portion; phone back button closes cooking mode', async ({ page }) => {
+test('Cooking', 'from the menu: your own portion; phone back button closes cooking mode', async ({ page }) => {
   const r = await page.evaluate(async () => { const wait = ms => new Promise(res => setTimeout(res, ms));
-    S.menuSet = { people: 3, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; makeMenu();
+    S.menuSet = { people: 1, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; makeMenu();
     S.menu.days[0].pfBy = { [P().id]: 1.5 }; save(); openDay = 0; go('menu');
     const btn = [...document.querySelectorAll('#view .mday.open .mcard .mbtns .btn')].find(b => b.textContent.includes('👨‍🍳'));
     btn.click(); const n = cook && cook.n, rid = cook && cook.rid;
     history.back(); await wait(150);
     return { n, rid, ghda: S.menu.days[0].ghda, closedByBack: !cook && !document.querySelector('#cookRoot .cook') }; });
-  eq(r.rid, r.ghda, 'lunch recipe opened'); near(r.n, 3.5, 1e-9, 'portions = 3 people + 0.5 extra'); ok(r.closedByBack, 'back button closes it');
+  eq(r.rid, r.ghda, 'lunch recipe opened'); near(r.n, 1.5, 1e-9, 'portions = your 1.5'); ok(r.closedByBack, 'back button closes it');
 });
 test('Cooking', 'steps can be edited; equal to the built-in = not stored; renaming keeps them; user text stays text', async ({ page }) => {
   const r = await page.evaluate(async () => { const wait = ms => new Promise(res => setTimeout(res, ms));
@@ -637,58 +661,49 @@ test('Menu', 'meal cards show one portion and the profile’s own share, which a
   eq(ft.mine, null, 'breakfast is not scaled'); near(r.shown, ft.one + l.mine + dn.mine, 1, 'day protein = breakfast + own lunch + own dinner');
 });
 
-/* E1: each profile's ± portion is its own (d.pfBy), never shared with the other eaters */
-const TWO = () => { const base = JSON.parse(JSON.stringify(S.profiles[0]));
-  const M = Object.assign(JSON.parse(JSON.stringify(base)), { id: 'pM', name: 'Mohammed', example: false, sex: 'm', age: 27, w: 80, h: 180, act: 1.55, goal: 'leanbulk', train: false });
-  const R = Object.assign(JSON.parse(JSON.stringify(base)), { id: 'pR', name: 'Rayan', example: false, sex: 'm', age: 27, w: 62, h: 172, act: 1.2, goal: 'cut', train: false });
-  S.profiles = [M, R]; S.active = 'pM'; S.shop = { menu: true, pM: false, pR: false }; S.pantry = {}; S.oil = 1;
-  S.menu = { set: { people: 2, budget: '', time: 60, excl: [], meals: { ftour: false, ghda: true, '3cha': false } }, days: [{ ghda: 'r_3des' }, {}, {}, {}, {}, {}, {}], at: 1 }; save(); };
-test('Menu', 'portions per profile: Mohammed’s ± does not move Rayan’s and back; kept after reload; list and split use each one’s own portion', async ({ page }) => {
-  const r = await page.evaluate(TWO => { eval('(' + TWO + ')')();
-    const f = id => dayFit(S.menu.days[0], S.profiles.find(p => p.id === id)).f;
-    const sug = { M: f('pM'), R: f('pR') };
-    S.active = 'pM'; setPf(0, 1); setPf(0, 1); const afterM = { M: f('pM'), R: f('pR') };
-    S.active = 'pR'; setPf(0, -1); const afterR = { M: f('pM'), R: f('pR') };
-    return { sug, afterM, afterR, stored: JSON.stringify(S.menu.days[0].pfBy), legacy: 'pf' in S.menu.days[0] }; }, TWO.toString());
-  near(r.afterM.M, r.sug.M + 0.5, 1e-9, 'Mohammed +2 steps'); near(r.afterM.R, r.sug.R, 1e-9, 'Rayan unchanged by Mohammed');
-  near(r.afterR.R, Math.max(.5, r.sug.R - 0.25), 1e-9, 'Rayan −1 step'); near(r.afterR.M, r.sug.M + 0.5, 1e-9, 'Mohammed unchanged by Rayan');
-  ok(!r.legacy, 'no shared value written');
+/* the app is for one person: Mohammed, with calorie targets */
+const ONE = () => { const base = JSON.parse(JSON.stringify(S.profiles[0]));
+  S.profiles = [Object.assign(base, { id: 'pM', name: 'Mohammed', example: false, sex: 'm', age: 27, w: 80, h: 180, act: 1.55, goal: 'leanbulk', train: false })]; S.active = 'pM';
+  S.shop = { menu: true, pM: false }; S.pantry = {}; S.oil = 1;
+  S.menu = { set: { people: 1, budget: '', time: 60, excl: [], meals: { ftour: false, ghda: true, '3cha': false } }, days: [{ ghda: 'r_3des' }, {}, {}, {}, {}, {}, {}], at: 1 }; save(); };
+test('Menu', 'your ± portion: quarter steps, back to the suggestion, kept after reload; the day total and the list follow it', async ({ page }) => {
+  const r = await page.evaluate(ONE => { eval('(' + ONE + ')')(); const f = () => dayFit(S.menu.days[0], P()).f;
+    const sug = f(); setPf(0, 1); setPf(0, 1); const up = f(); setPf(0, -1); const down = f(), stored = S.menu.days[0].pfBy.pM;
+    setPf(0, 0); const back = f(), gone = !('pfBy' in S.menu.days[0]); setPf(0, 1); setPf(0, 1); const last = f();
+    return { sug, up, down, stored, back, gone, last, legacy: 'pf' in S.menu.days[0] }; }, ONE.toString());
+  const up = Math.min(3, r.sug + 0.5);
+  near(r.up, up, 1e-9, '+2 steps'); near(r.down, Math.max(.5, up - 0.25), 1e-9, '−1 step'); near(r.stored, r.down, 1e-9, 'stored as your portion');
+  near(r.back, r.sug, 1e-9, 'back to the suggestion'); ok(r.gone, 'nothing stored once back on the suggestion'); ok(!r.legacy, 'no old shared value written');
   await page.reload(); await page.waitForTimeout(300);
-  const q = await page.evaluate(() => { const f = id => dayFit(S.menu.days[0], S.profiles.find(p => p.id === id)).f;
-    const rc = recipe('r_3des'), lent = rc.items.find(x => x[0] === '3des_n')[1], E = portionEaters();
-    const sp = Object.fromEntries(menuSplit().map(x => [x.n, x.c]));
-    return { M: f('pM'), R: f('pR'), tot: menuTotal(0), eat: [E.pM.f[0], E.pR.f[0]], kg: shopData().rows.find(x => x.id === '3des_n').week, lentKg: lent / rc.servings * 0.001, cost: recCost(rc), sp }; });
-  near(q.M, r.afterR.M, 1e-9, 'Mohammed kept after reload'); near(q.R, r.afterR.R, 1e-9, 'Rayan kept after reload');
-  near(q.eat[0], q.M, 1e-9, 'household portions: Mohammed'); near(q.eat[1], q.R, 1e-9, 'household portions: Rayan');
-  near(q.tot, q.M + q.R, 0.011, 'day total = own portions'); near(q.kg, (q.M + q.R) * q.lentKg, 1e-6, 'lentils on the list = sum of own portions');
-  near(q.sp.Mohammed, q.cost * q.M, 0.01, 'Mohammed pays his portion'); near(q.sp.Rayan, q.cost * q.R, 0.01, 'Rayan pays his portion');
+  const q = await page.evaluate(() => { const rc = recipe('r_3des'), lent = rc.items.find(x => x[0] === '3des_n')[1];
+    return { f: dayFit(S.menu.days[0], P()).f, tot: menuTotal(0), kg: shopData().rows.find(x => x.id === '3des_n').week, lentKg: lent / rc.servings * 0.001 }; });
+  near(q.f, r.last, 1e-9, 'kept after reload'); near(q.tot, q.f, 0.011, 'day total = your portion'); near(q.kg, q.f * q.lentKg, 1e-6, 'lentils on the list = your portion');
 });
-test('Menu', 'B1: the Menu tab, the list (week) and the split show the same menu cost: real portions per person, breakfasts, top-ups; budget warning uses it', async ({ page }) => {
-  const r = await page.evaluate(TWO => { eval('(' + TWO + ')')();
-    S.menuSet = { people: 3, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; S.active = 'pM'; makeMenu();
-    const d = S.menu.days[0]; d.xtra = { pM: { snack: [['bid', 2]] }, pR: { side: [['khobz', 0.5]] } }; d.pfBy = { pM: 2.5, pR: 0.75 };
-    S.shop = { menu: true, pM: false, pR: false }; save();
+test('Menu', 'B1: the Menu tab, the list (week) and the generator show the same menu cost: your portions, breakfasts, top-ups; the second box is the day average; budget warning uses it', async ({ page }) => {
+  const r = await page.evaluate(ONE => { eval('(' + ONE + ')')();
+    S.menuSet = { people: 1, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; makeMenu();
+    const d = S.menu.days[0]; d.xtra = { pM: { snack: [['bid', 2]], side: [['khobz', 0.5]] } }; d.pfBy = { pM: 2.5 }; save();
     const num = s => parseFloat(String(s).replace(/[^\d.]/g, ''));
-    // expected by hand: each day lunch+dinner × (Mohammed + Rayan + 1 other), breakfast × 3, top-ups once
-    let exp = 0; S.menu.days.forEach((x, i) => { const E = portionEaters(), por = E.pM.f[i] + E.pR.f[i] + 1;
+    // expected by hand: each day lunch + dinner × your portion, breakfast once, top-ups once
+    let exp = 0; S.menu.days.forEach((x, i) => { const por = portionEaters().pM.f[i];
       ['ghda', '3cha'].forEach(k => { const rc = x[k] && recipe(x[k]); if (rc) exp += recCost(rc) * por; });
-      if (x.ftour) exp += sum(x.ftour).cost * 3; Object.values(x.xtra || {}).forEach(o => [].concat(o.snack || [], o.snack2 || [], o.side || []).forEach(it => exp += sum([it]).cost)); });
-    const old1 = S.menu.days.reduce((c, x) => c + ['ghda', '3cha'].reduce((s, k) => s + (x[k] && recipe(x[k]) ? recCost(recipe(x[k])) : 0), 0) + (x.ftour ? sum(x.ftour).cost : 0), 0) * 3;
-    openDay = null; go('menu'); const menuTxt = document.querySelector('#view .mstat b').textContent;
+      if (x.ftour) exp += sum(x.ftour).cost; Object.values(x.xtra || {}).forEach(o => [].concat(o.snack || [], o.snack2 || [], o.side || []).forEach(it => exp += sum([it]).cost)); });
+    const old1 = S.menu.days.reduce((c, x) => c + ['ghda', '3cha'].reduce((s, k) => s + (x[k] && recipe(x[k]) ? recCost(recipe(x[k])) : 0), 0) + (x.ftour ? sum(x.ftour).cost : 0), 0);
+    openDay = null; go('menu'); const boxes = document.querySelectorAll('#view .mstat > div'), menuTxt = boxes[0].querySelector('b').textContent, dayTxt = boxes[1].textContent;
     go('t9edya'); const weekTxt = document.querySelectorAll('#view .tot b')[1].textContent;
-    const split = menuSplit().reduce((s, x) => s + x.c, 0);
-    // a budget between the old one-portion estimate and the real cost must now be reported as exceeded
+    // a budget between the one-portion estimate and the real cost must be reported as exceeded
     S.menu.set.budget = Math.round((old1 + menuWeekCost()) / 2); save(); go('menu');
     const warn = !!document.querySelector('#view .mstat ~ .warn'), note = !!document.querySelector('#view .mstat ~ .note');
-    return { exp, fn: menuWeekCost(), list: shopData().cost, menuTab: num(menuTxt), listTab: num(weekTxt), split, old1, warn, note }; }, TWO.toString());
-  near(r.fn, r.exp, 0.01, 'menu cost = hand calculation'); near(r.list, r.fn, 1e-6, 'list week cost (menu only) = menu cost');
-  near(r.split, r.fn, 0.1, 'split adds up to the same cost'); near(r.menuTab, Math.round(r.fn), 0.5, 'Menu tab shows it'); near(r.listTab, Math.round(r.fn), 0.5, 'list tab shows it');
-  ok(r.fn > r.old1 * 1.05, 'real portions cost more than one portion each (the case B1 fixes)'); ok(r.warn && !r.note, 'over-budget warning shown');
+    return { exp, fn: menuWeekCost(), list: shopData().cost, gen: menuCostEst(S.menu.set, S.menu.days), menuTab: num(menuTxt), listTab: num(weekTxt), day: num(dayTxt), dayLbl: dayTxt.includes(t('day_avg')), old1, warn, note }; }, ONE.toString());
+  near(r.fn, r.exp, 0.01, 'menu cost = hand calculation'); near(r.list, r.fn, 1e-6, 'list week cost (menu only) = menu cost'); near(r.gen, r.fn, 1e-6, 'generator = menu cost');
+  near(r.menuTab, Math.round(r.fn), 0.5, 'Menu tab shows it'); near(r.listTab, Math.round(r.fn), 0.5, 'list tab shows it');
+  near(r.day, r.fn / 7, 0.51, 'second box = cost per day'); ok(r.dayLbl, 'labelled as a day average');
+  ok(r.fn > r.old1 * 1.05, 'your real portions cost more than one portion (the case B1 fixes)'); ok(r.warn && !r.note, 'over-budget warning shown');
 });
 test('Menu', 'B2: a lower budget never gives a dearer menu; a reachable budget is met; below the realistic floor the menu stays varied, generation stays fast and the floor is shown', async ({ page }) => {
-  const r = await page.evaluate(TWO => { eval('(' + TWO + ')')();
+  const r = await page.evaluate(ONE => { eval('(' + ONE + ')')();
     const seed = s => { let x = s; Math.random = () => { x = (x * 1664525 + 1013904223) % 4294967296; return x / 4294967296; }; };
-    const base = { people: 2, time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } };
+    const base = { people: 1, time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } };
     const F = menuMinCost(Object.assign({ budget: '' }, base));
     const run = (bud, s) => { seed(s); S.menuSet = Object.assign({ budget: bud }, JSON.parse(JSON.stringify(base))); const t0 = performance.now(); makeMenu();
       const ids = S.menu.days.flatMap(d => [d.ghda, d['3cha']]); return { c: menuWeekCost(), ms: performance.now() - t0, rep: ids.length - new Set(ids).size, days: JSON.stringify(S.menu.days) }; };
@@ -698,7 +713,7 @@ test('Menu', 'B2: a lower budget never gives a dearer menu; a reachable budget i
     const msMax = Math.max(...levels.flatMap(b => per[b].map(x => x.ms))), repLow = per[levels[4]].reduce((s, x) => s + x.rep, 0) / N;
     const msg = b => { S.menuSet.budget = b; makeMenu(); go('menu'); const w = document.querySelector('#view .mstat ~ .warn'); return w ? w.textContent : ''; };
     const lowTxt = msg(levels[4]), okTxt = msg(Math.round(F * 3));
-    return { F, levels, avg: levels.map(b => Math.round(avg[b])), sameBelow, msMax, repLow, lowTxt, okTxt, lowKey: t('budget_low', { x: '' }).slice(0, 25) }; }, TWO.toString());
+    return { F, levels, avg: levels.map(b => Math.round(avg[b])), sameBelow, msMax, repLow, lowTxt, okTxt, lowKey: t('budget_low', { x: '' }).slice(0, 25) }; }, ONE.toString());
   const [u, b15, b12, b06, b03] = r.avg;
   ok(b15 <= u * 1.01 && b12 <= b15 * 1.01 && b06 <= b12 * 1.01 && b03 <= b06 * 1.01, 'cost never rises as the budget falls: ' + r.avg.join(' ≥ '));
   ok(b12 <= r.levels[2] * 1.05, 'a budget 20 % above the floor is met (' + b12 + ' for ' + r.levels[2] + ')');
@@ -708,96 +723,75 @@ test('Menu', 'B2: a lower budget never gives a dearer menu; a reachable budget i
   ok(r.lowTxt.includes(r.lowKey) && r.lowTxt.includes(String(Math.ceil(r.F / 10) * 10)), 'too-low budget: message with the floor (' + Math.ceil(r.F / 10) * 10 + ' DH)');
   ok(!r.okTxt.includes(r.lowKey), 'no floor message when the budget is reachable');
 });
-test('Menu', 'A1: the menu is chosen for both profiles — the same week whichever profile is open — and each one gets their own protein snacks', async ({ page }) => {
-  const r = await page.evaluate(TWO => { eval('(' + TWO + ')')();
-    const seed = s => { let x = s; Math.random = () => { x = (x * 1664525 + 1013904223) % 4294967296; return x / 4294967296; }; };
-    const gen = (act, s) => { seed(s); S.active = act; S.menuSet = { people: 2, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true }, hp: true }; makeMenu(); return S.menu; };
-    let same = true; for (let s = 1; s <= 4; s++) { const a = JSON.stringify(gen('pM', s).days), b = JSON.stringify(gen('pR', s).days); if (a !== b) same = false; }
-    const m = gen('pR', 7), M = S.profiles[0], R = S.profiles[1];
-    const rows = m.days.map((d, i) => { const xm = dayFit(d, M, undefined, i), xr = dayFit(d, R, undefined, i), ownR = dayFit(d, R, xItems(d, 'pR'), i);
-      return { mSnack: xItems(d, 'pM').length, rSnack: xItems(d, 'pR').length, gapM: xm.tg.prot - xm.sc.p, gapR: xr.tg.prot - xr.sc.p, labM: fitLabel(xm)[1], labR: fitLabel(xr)[1], rOwnOnly: Math.abs(ownR.sc.p - xr.sc.p) < 1e-9, legacy: 'snack' in d || 'snackFor' in d }; });
-    // Mohammed's snack must not feed Rayan
-    const d0 = m.days[0], before = dayFit(d0, R, undefined, 0).sc.p; setX(d0, 'pM', 'snack', [['ton_ma', 3]]); const after = dayFit(d0, R, undefined, 0).sc.p;
-    return { same, rows, rUnmoved: Math.abs(after - before) < 1e-9 }; }, TWO.toString());
-  ok(r.same, 'same menu with Mohammed or Rayan open (same random seed)');
-  ok(r.rows.some(x => x.rSnack), 'Rayan gets protein snacks of his own');
-  r.rows.forEach((x, i) => ok(x.mSnack || x.gapM <= 8, 'day ' + i + ': Mohammed has a snack or does not need one'));
-  r.rows.forEach((x, i) => { ok(x.rOwnOnly && !x.legacy, 'day ' + i + ': Rayan’s numbers use only his own top-ups');
-    ok(x.gapM <= 8 || x.labM === 'st_prot', 'day ' + i + ': Mohammed fine or flagged'); ok(x.gapR <= 8 || x.labR === 'st_prot', 'day ' + i + ': Rayan fine or flagged'); });
-  ok(r.rUnmoved, 'a snack added for Mohammed does not change Rayan’s protein');
+test('Menu', 'A1: when you train, protein snacks are added on the days you are short; a day still short is flagged', async ({ page }) => {
+  const r = await page.evaluate(ONE => { eval('(' + ONE + ')')(); const seed = s => { let x = s; Math.random = () => { x = (x * 1664525 + 1013904223) % 4294967296; return x / 4294967296; }; };
+    Object.assign(P(), { w: 95, act: 1.2, train: true, tdays: [0, 2, 4] }); seed(7); S.menuSet = { people: 1, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true }, hp: true }; makeMenu();
+    return S.menu.days.map((d, i) => { const x = dayFit(d, P(), undefined, i), own = dayFit(d, P(), xItems(d, 'pM'), i);
+      return { snack: xItems(d, 'pM').length, gap: x.tg.prot - x.sc.p, lab: fitLabel(x)[1], same: Math.abs(own.sc.p - x.sc.p) < 1e-9, keys: Object.keys(d.xtra || {}).join(), legacy: 'snack' in d || 'snackFor' in d }; }); }, ONE.toString());
+  ok(r.some(x => x.snack), 'some days get protein snacks');
+  r.forEach((x, i) => { ok(x.snack || x.gap <= 8, 'day ' + i + ': a snack, or none needed'); ok(x.gap <= 8 || x.lab === 'st_prot', 'day ' + i + ': fine or flagged');
+    ok(x.same && !x.legacy && (!x.keys || x.keys === 'pM'), 'day ' + i + ': top-ups stored as yours only'); });
 });
-test('Menu', 'A2: a day that misses someone’s targets is flagged for them even when the open profile is fine; split and list follow each one’s top-ups', async ({ page }) => {
-  const r = await page.evaluate(TWO => { eval('(' + TWO + ')')();
-    S.menu.days[0] = { ghda: 'r_3des', '3cha': 'r_3des', xtra: { pM: { snack: [['ton_ma', 2]] }, pR: { snack: [['bid', 2]] } } }; S.active = 'pM'; save();
-    const R = S.profiles[1], xr = dayFit(S.menu.days[0], R, undefined, 0);
-    openDayInit = true; openDay = 0; go('menu'); const block = document.querySelector('#view .mday.open .ofit'), pills = [...document.querySelectorAll('#view .mday.open .mday-h .pill')].map(x => x.textContent);
-    const sp = Object.fromEntries(menuSplit().map(x => [x.n, x.c])), E = portionEaters(), rc = recCost(recipe('r_3des'));
-    return { rLab: fitLabel(xr)[1], rText: block ? block.textContent : '', pills, sp, expM: rc * 2 * E.pM.f[0] + sum([['ton_ma', 2]]).cost, expR: rc * 2 * E.pR.f[0] + sum([['bid', 2]]).cost,
-      list: shopData().cost, fn: menuWeekCost(), tuna: (shopData().rows.find(x => x.id === 'ton_ma') || {}).week, eggs: (shopData().rows.find(x => x.id === 'bid') || {}).week, lbl: t(fitLabel(xr)[1]) }; }, TWO.toString());
-  ok(r.rText.includes('Rayan') && r.rText.includes(r.lbl), 'Rayan’s line with his own status under the open profile (' + r.rLab + ')');
-  if (r.rLab !== 'st_ok') ok(r.pills.some(p => p.includes('Rayan')), 'folded day shows ⚠ Rayan');
-  near(r.sp.Mohammed, r.expM, 0.05, 'Mohammed pays his portions and his tuna'); near(r.sp.Rayan, r.expR, 0.05, 'Rayan pays his portions and his eggs');
-  near(r.list, r.fn, 1e-6, 'list = menu cost (B1 kept)'); near(r.tuna, 2, 1e-9, 'tuna for Mohammed on the list'); near(r.eggs, 2, 1e-9, 'eggs for Rayan on the list');
-});
-test('Menu', 'A1: top-ups saved before v38 (snack/side + snackFor) load into the right person; unnamed ones go to the open profile', async () => {
+test('Menu', 'A1: top-ups saved before v38 (snack/side + snackFor) go to their person first; an archived person’s top-ups then leave the list', async () => {
   const { ctx, page } = await openApp();
   try {
-    await page.evaluate(TWO => { eval('(' + TWO + ')')(); S.active = 'pM'; S.menu.days[0] = { ghda: 'r_3des', snack: [['ton_ma', 1]], snack2: [['perly', 1]], snackFor: 'pR', side: [['khobz', 0.5]] }; save(); }, TWO.toString());
+    await page.evaluate(() => { const base = JSON.parse(JSON.stringify(P())), mk = o => Object.assign(JSON.parse(JSON.stringify(base)), o);
+      S.profiles = [mk({ id: 'pM', name: 'Mohammed', example: false }), mk({ id: 'pR', name: 'Rayan', example: false })]; S.active = 'pM'; S.shop = { menu: true, pM: false, pR: false };
+      S.menu = { set: { people: 2, budget: '', time: 60, excl: [], meals: { ftour: false, ghda: true, '3cha': false } }, at: 1,
+        days: [{ ghda: 'r_3des', snack: [['ton_ma', 1]], snack2: [['perly', 1]], snackFor: 'pR', side: [['khobz', 0.5]] }, { ghda: 'r_3des', snack: [['bid', 2]] }, {}, {}, {}, {}, {}] }; save(); });
     await page.reload(); await page.waitForTimeout(300);
-    const r = await page.evaluate(() => ({ d: JSON.parse(localStorage.getItem('makla_mizan_v2')).menu.days[0], tuna: (shopData().rows.find(x => x.id === 'ton_ma') || {}).week }));
-    eq(JSON.stringify(r.d.xtra), JSON.stringify({ pR: { snack: [['ton_ma', 1]], snack2: [['perly', 1]] }, pM: { side: [['khobz', 0.5]] } }), 'moved to their person');
-    ok(!('snack' in r.d) && !('snackFor' in r.d) && !('side' in r.d), 'old fields removed'); near(r.tuna, 1, 1e-9, 'still on the list');
+    const r = await page.evaluate(() => { const row = id => (shopData().rows.find(x => x.id === id) || {}).week;
+      return { d: JSON.parse(localStorage.getItem('makla_mizan_v2')).menu.days, tuna: row('ton_ma'), bread: row('khobz'), eggs: row('bid') }; });
+    eq(JSON.stringify(r.d[0].xtra), JSON.stringify({ pM: { side: [['khobz', 0.5]] } }), 'Rayan’s snacks archived with him; the unnamed side is yours');
+    eq(JSON.stringify(r.d[1].xtra), JSON.stringify({ pM: { snack: [['bid', 2]] } }), 'unnamed snack is yours');
+    ok(!('snack' in r.d[0]) && !('snackFor' in r.d[0]) && !('side' in r.d[0]), 'old fields removed');
+    ok(!r.tuna, 'Rayan’s tuna not bought'); near(r.bread, 0.5, 1e-9, 'your bread on the list'); near(r.eggs, 2, 1e-9, 'your eggs on the list');
   } finally { await ctx.close(); }
 });
 
-test('Menu', 'B2: the generator costs a week exactly like the Menu tab and the list — two profiles with different portions (± and suggested), top-ups', async ({ page }) => {
-  const r = await page.evaluate(TWO => { eval('(' + TWO + ')')();
-    S.menuSet = { people: 3, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; S.active = 'pM'; makeMenu();
+test('Menu', 'B2: the generator costs a week exactly like the Menu tab and the list — suggested portions, your ± portions, top-ups', async ({ page }) => {
+  const r = await page.evaluate(ONE => { eval('(' + ONE + ')')();
+    S.menuSet = { people: 1, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; makeMenu();
     const set = S.menu.set, out = {}, cmp = tag => { out[tag] = { gen: menuCostEst(set, S.menu.days), tab: menuWeekCost(), list: shopData().cost, por: S.menu.days.map((d, i) => [portionEst(set).por(d, i), menuTotal(i)]) }; };
-    // 1) nobody has chosen a portion yet: suggested portions for both
     cmp('suggested');
-    // 2) Mohammed chose 2.5 on Monday, Rayan nothing (suggested); top-ups for each
-    const d = S.menu.days[0]; d.pfBy = { pM: dayFit(d, S.profiles[0], undefined, 0).sug === 2.5 ? 1.5 : 2.5 }; d.xtra = { pM: { snack: [['ton_ma', 1]] }, pR: { side: [['khobz', 0.5]] } }; save();
-    cmp('mixed');
-    // 3) both chose, different
-    S.menu.days[2].pfBy = { pM: 1.75, pR: 0.75 }; save(); cmp('both');
-    // the generator uses the same function: a generated week costs the same in the generator and in the Menu tab
-    S.menuSet.budget = 400; makeMenu(); cmp('generated');
-    return out; }, TWO.toString());
+    const d = S.menu.days[0]; d.pfBy = { pM: dayFit(d, P(), undefined, 0).sug === 2.5 ? 1.5 : 2.5 }; d.xtra = { pM: { snack: [['ton_ma', 1]], side: [['khobz', 0.5]] } }; save(); cmp('chosen');
+    S.menu.days[2].pfBy = { pM: 0.75 }; save(); cmp('two days');
+    S.menuSet.budget = 200; makeMenu(); cmp('generated');
+    return out; }, ONE.toString());
   for (const [k, v] of Object.entries(r)) {
     near(v.gen, v.tab, 1e-6, k + ': generator = Menu tab'); near(v.gen, v.list, 1e-6, k + ': generator = list');
     v.por.forEach(([a, b], i) => near(a, b, 1e-9, k + ': day ' + i + ' portions'));
   }
-  ok(r.mixed.por[0][0] !== r.suggested.por[0][0], 'Mohammed’s ± changes the costed portions');
+  ok(r.chosen.por[0][0] !== r.suggested.por[0][0], 'your ± changes the costed portions');
 });
 /* the two households where the final cost passed the budget after the automatic snacks (seeds 6 and 18 of the review: 500 → 664 and 500 → 656 DH) */
-const SNK_HOUSE = s => { const base = JSON.parse(JSON.stringify(S.profiles[0])), mk = o => Object.assign(JSON.parse(JSON.stringify(base)), o);
-  S.profiles = [mk({ id: 'pM', name: 'Mohammed', example: false, w: 70 + s % 25, h: 175, act: 1.2, goal: 'leanbulk', train: true, tdays: [0, 2, 4] }),
-    mk({ id: 'pR', name: 'Rayan', example: false, w: 55 + s % 20, h: 168, act: 1.375, goal: 'cut', train: true, tdays: [1, 3] })];
-  S.active = 'pR'; S.portions = {}; S.shop = { menu: true, pM: false, pR: false }; S.pantry = {}; };
-test('Menu', 'B2 snacks: in the two households where snacks pushed 500 DH to 664/656, the generator now counts them — its cost = Menu tab = list, snacks kept, and the overrun is stated with the snack share', async ({ page }) => {
+/* one person who trains, with a tight budget: the automatic snacks must be counted by the generator (review seeds 6 and 18) */
+const SNK_HOUSE = s => { const base = JSON.parse(JSON.stringify(S.profiles[0]));
+  S.profiles = [Object.assign(base, { id: 'pM', name: 'Mohammed', example: false, w: 70 + s % 25, h: 175, act: 1.2, goal: 'leanbulk', train: true, tdays: [0, 2, 4] })];
+  S.active = 'pM'; S.shop = { menu: true, pM: false }; S.pantry = {}; };
+test('Menu', 'B2 snacks: for one person who trains on a tight budget, the generator counts the snacks — its cost = Menu tab = list, snacks kept, and the overrun is stated with the snack share', async ({ page }) => {
   const r = await page.evaluate(SNK => { eval('(' + SNK + ')');
     const seed = s => { let x = s; Math.random = () => { x = (x * 1664525 + 1013904223) % 4294967296; return x / 4294967296; }; };
-    return [6, 18].map(s => { seed(s); eval('(' + SNK + ')')(s); seed(s);
-      S.menuSet = { people: 2, budget: 500, time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; makeMenu();
+    return [6, 18].map(s => { seed(s); eval('(' + SNK + ')')(s); const BUD = Math.round(menuMinCost({ people: 1, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }) * 0.8); seed(s);
+      S.menuSet = { people: 1, budget: BUD, time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; makeMenu();
       const set = S.menu.set, E = portionEst(set), strip = S.menu.days.map(d => { const c = Object.assign({}, d); delete c.xtra; return c; });
       const gen = strip.reduce((a, d, i) => a + E.costAuto(d, i), 0), tab = menuWeekCost(), list = shopData().cost, snacks = menuSnackCost(), floor = menuMinCost(set);
       // snacks were not dropped: every training/high-protein eater short by > 8 g on a day has their snacks
       const missing = S.menu.days.filter((d, i) => nutEaters().some(e => { const x = dayFit(strip[i], e, [], i); return x.hasMain && x.tg.prot - x.sc.p > 8 && !xItems(d, e.id).length; })).length;
       openDayInit = true; openDay = null; go('menu'); const w = document.querySelector('#view .mstat ~ .warn');
-      return { s, gen, tab, list, snacks, floor, missing, warn: w ? w.textContent : '', over: t('over_budget', { x: (tab - 500).toFixed(0) + ' ' + t('dh') }),
-        snk: tab - snacks <= 500 ? t('budget_snacks_only', { m: (tab - snacks).toFixed(0) + ' ' + t('dh'), s: snacks.toFixed(0) + ' ' + t('dh') }) : t('budget_snacks', { s: snacks.toFixed(0) + ' ' + t('dh') }), low: t('budget_low', { x: Math.ceil(floor / 10) * 10 + ' ' + t('dh') }) }; }); }, SNK_HOUSE.toString());
+      return { s, bud: BUD, gen, tab, list, snacks, floor, missing, warn: w ? w.textContent : '', over: t('over_budget', { x: (tab - BUD).toFixed(0) + ' ' + t('dh') }),
+        snk: tab - snacks <= BUD ? t('budget_snacks_only', { m: (tab - snacks).toFixed(0) + ' ' + t('dh'), s: snacks.toFixed(0) + ' ' + t('dh') }) : t('budget_snacks', { s: snacks.toFixed(0) + ' ' + t('dh') }), low: t('budget_low', { x: Math.ceil(floor / 10) * 10 + ' ' + t('dh') }) }; }); }, SNK_HOUSE.toString());
   r.forEach(x => {
     near(x.gen, x.tab, 1e-6, 'seed ' + x.s + ': generator cost = Menu tab (' + Math.round(x.tab) + ' DH)'); near(x.list, x.tab, 1e-6, 'seed ' + x.s + ': = list');
-    ok(x.snacks > 0 && x.missing === 0, 'seed ' + x.s + ': snacks kept for everyone who needs them');
-    if (x.tab > 500) { ok(x.warn.includes(x.over), 'seed ' + x.s + ': exact overrun shown'); ok(x.warn.includes(x.snk), 'seed ' + x.s + ': snack share shown (' + Math.round(x.snacks) + ' DH)');
-      ok(x.floor > 500 && x.warn.includes(x.low), 'seed ' + x.s + ': budget below the menu+snacks floor (' + Math.round(x.floor) + ' DH) is said'); }
+    ok(x.snacks > 0 && x.missing === 0, 'seed ' + x.s + ': snacks kept on every day that needs them');
+    if (x.tab > x.bud) { ok(x.warn.includes(x.over), 'seed ' + x.s + ': exact overrun shown'); ok(x.warn.includes(x.snk), 'seed ' + x.s + ': snack share shown (' + Math.round(x.snacks) + ' DH)');
+      ok(x.floor > x.bud && x.warn.includes(x.low), 'seed ' + x.s + ': budget below the menu+snacks floor (' + Math.round(x.floor) + ' DH) is said'); }
     else ok(!x.warn, 'seed ' + x.s + ': within budget, no warning');
   });
 });
 test('Menu', 'B2 snacks: a reachable budget is met with the snacks included; when the meals fit but the snacks do not, the warning says exactly that', async ({ page }) => {
   const r = await page.evaluate(SNK => { const seed = s => { let x = s; Math.random = () => { x = (x * 1664525 + 1013904223) % 4294967296; return x / 4294967296; }; };
-    eval('(' + SNK + ')')(6); const base = { people: 2, time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } };
+    eval('(' + SNK + ')')(6); const base = { people: 1, time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } };
     const F = menuMinCost(Object.assign({ budget: '' }, base)), B = Math.round(F * 1.2);
     seed(6); S.menuSet = Object.assign({ budget: B }, JSON.parse(JSON.stringify(base))); makeMenu(); const met = menuWeekCost();
     // same menu, budget between the meals alone and meals + snacks
@@ -807,33 +801,23 @@ test('Menu', 'B2 snacks: a reachable budget is met with the snacks included; whe
   ok(r.met <= r.B * 1.02, 'budget 20 % above the menu+snacks floor is met (' + Math.round(r.met) + ' for ' + r.B + ')');
   ok(r.snacks > 0, 'the menu has snacks'); ok(r.warn.includes(r.over) && r.warn.includes(r.exp), 'meals fit, snacks do not: said with both amounts'); ok(r.kept, 'snacks not removed');
 });
-test('Menu', 'people who do not count calories eat one portion each: list, cost, split and generator agree; the Menu tab shows each one’s share, never an average', async ({ page }) => {
-  const r = await page.evaluate(() => { const base = JSON.parse(JSON.stringify(S.profiles[0])), mk = o => Object.assign(JSON.parse(JSON.stringify(base)), o);
-    const out = {};
-    for (const n of [1, 2, 3]) { S.profiles = [mk({ id: 'pN', name: 'Sara', example: false, noTargets: true })]; S.active = 'pN'; S.shop = { menu: true, pN: false }; S.portions = {};
-      S.menuSet = { people: n, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; makeMenu();
-      const por = S.menu.days.map((d, i) => menuTotal(i)), split = menuSplit().reduce((a, x) => a + x.c, 0);
-      openDayInit = true; openDay = null; go('menu'); const box = document.querySelectorAll('#view .mstat > div')[1].textContent;
-      out[n] = { por, week: menuWeekCost(), list: shopData().cost, split, gen: menuCostEst(S.menu.set, S.menu.days), box, perPers: t('per_pers') }; }
-    // two people with targets: the second box lists each one's share
-    S.profiles = [mk({ id: 'pM', name: 'Mohammed', example: false, w: 80, h: 180, goal: 'leanbulk' }), mk({ id: 'pR', name: 'Rayan', example: false, w: 62, h: 172, goal: 'cut' })]; S.active = 'pM';
-    S.menuSet.people = 2; makeMenu(); go('menu'); const sp = menuSplit(); out.two = { box: document.querySelectorAll('#view .mstat > div')[1].textContent, sp: sp.map(x => [x.n, Math.round(x.c)]) };
-    return out; });
-  for (const n of [1, 2, 3]) { const x = r[n];
-    ok(x.por.every(v => v === n), n + ' people: ' + n + ' portion(s) a day, not more (' + x.por.join(',') + ')');
-    near(x.list, x.week, 1e-6, n + ': list = Menu'); near(x.split, x.week, 0.05, n + ': split adds up'); near(x.gen, x.week, 1e-6, n + ': generator = Menu');
-    ok(x.box.includes(x.perPers), n + ': same portions for all → per person shown'); }
-  ok(!r.two.box.includes(r[1].perPers) && r.two.sp.every(([nm, c]) => r.two.box.includes(nm) && r.two.box.includes(String(c))), 'different portions → each one’s share shown: ' + r.two.box);
+test('Menu', 'without calorie counting you eat one portion: list, cost and generator agree; the second box is the day average', async ({ page }) => {
+  const r = await page.evaluate(() => { const base = JSON.parse(JSON.stringify(S.profiles[0]));
+    S.profiles = [Object.assign(base, { id: 'pN', name: 'Sara', example: false, noTargets: true })]; S.active = 'pN'; S.shop = { menu: true, pN: false };
+    S.menuSet = { people: 1, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; makeMenu();
+    openDayInit = true; openDay = null; go('menu'); const box = document.querySelectorAll('#view .mstat > div')[1].textContent;
+    return { por: S.menu.days.map((d, i) => menuTotal(i)), week: menuWeekCost(), list: shopData().cost, gen: menuCostEst(S.menu.set, S.menu.days), box, lbl: t('day_avg') }; });
+  ok(r.por.every(v => v === 1), 'one portion a day (' + r.por.join(',') + ')');
+  near(r.list, r.week, 1e-6, 'list = Menu'); near(r.gen, r.week, 1e-6, 'generator = Menu');
+  ok(r.box.includes(r.lbl) && r.box.includes(String(Math.round(r.week / 7))), 'day average shown: ' + r.box);
 });
-test('Menu', 'a menu saved before v36 (one shared d.pf) loads: the value goes to the open profile, the other keeps the suggestion; bad values cleaned', async () => {
+test('Menu', 'a menu saved before v36 (one shared d.pf) loads as your own portion; bad values cleaned', async () => {
   const { ctx, page } = await openApp();
   try {
-    const sug = await page.evaluate(TWO => { eval('(' + TWO + ')')(); const d = S.menu.days[0]; const s = { M: dayFit(d, P()).sug, R: dayFit(d, S.profiles[1]).sug };
-      S.menu.days[0].pf = 1.75; S.menu.days[1] = { ghda: 'r_3des', pf: 9, pfBy: { 'bad id!': 2, pR: 7 } }; save(); return s; }, TWO.toString());
+    await page.evaluate(ONE => { eval('(' + ONE + ')')(); S.menu.days[0].pf = 1.75; S.menu.days[1] = { ghda: 'r_3des', pf: 9, pfBy: { 'bad id!': 2, pM: 7 } }; save(); }, ONE.toString());
     await page.reload(); await page.waitForTimeout(300);
-    const r = await page.evaluate(() => { const d = S.menu.days[0], saved = JSON.parse(localStorage.getItem('makla_mizan_v2')).menu.days;
-      return { M: dayFit(d, S.profiles[0]).f, R: dayFit(d, S.profiles[1]).f, d0: saved[0], d1: saved[1] }; });
-    near(r.M, 1.75, 1e-9, 'old portion kept for the open profile'); near(r.R, sug.R, 1e-9, 'other profile keeps the suggestion');
+    const r = await page.evaluate(() => { const saved = JSON.parse(localStorage.getItem('makla_mizan_v2')).menu.days; return { f: dayFit(S.menu.days[0], P()).f, d0: saved[0], d1: saved[1] }; });
+    near(r.f, 1.75, 1e-9, 'old portion kept as yours');
     ok(!('pf' in r.d0) && r.d0.pfBy && r.d0.pfBy.pM === 1.75, 'migrated and saved as pfBy'); ok(!('pf' in r.d1) && !r.d1.pfBy, 'out-of-range and bad entries dropped');
   } finally { await ctx.close(); }
 });
