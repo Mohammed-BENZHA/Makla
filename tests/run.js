@@ -376,7 +376,7 @@ test('Backup', 'data saved by the previous version (v24) loads unchanged, with n
   // v40: the 29 training recipes are added after the user's own list, nothing else in it changes
   const added = B.recipes.slice(A.recipes.length);
   ok(added.length === 29 && added.every(x => x.cat === 'gym' && x.key.startsWith('g_')), 'training recipes added (' + added.length + ')');
-  A.recipes = A.recipes.concat(added); A.recipeSeed = 4;   // existing users are marked as onboarded so they never see the first-run questions
+  A.recipes = A.recipes.concat(added); A.recipeSeed = 5;   // existing users are marked as onboarded so they never see the first-run questions
   // v36: the one shared extra portion (d.pf) becomes the open profile's own portion (d.pfBy), same value
   const legacy = A.menu.days.filter(d => d.pf != null); ok(legacy.length > 0, 'fixture has a legacy portion');
   A.menu.days.forEach(d => { if (d.pf != null) { d.pfBy = { [A.active]: d.pf }; delete d.pf; } });
@@ -653,16 +653,28 @@ test('Weight goal', 'stall and goal/profile mismatch flagged; waist ratio bands;
   eq(r.clean.goalW, undefined, 'bad goal dropped'); eq(r.clean.waists, 1, 'bad waist entries dropped'); ok(r.clean.fixes >= 3, 'repairs counted');
 });
 
-test('Menu', 'meal cards show one portion and the profile’s own share, which add up to the day total', async ({ page }) => {
-  const r = await page.evaluate(() => { makeMenu(); const d = S.menu.days[0]; delete d.snack; delete d.snack2; delete d.side; d.pfBy = { [P().id]: 2.5 }; save(); openDay = 0; go('menu');
-    const num = (el, re) => { const m = el.innerText.match(re); return m ? parseFloat(m[1]) : NaN; };
-    const cards = [...document.querySelectorAll('#view .mday.open .mcard')]; const P1 = /P\s*([\d.]+)/;
-    const lines = cards.map(c => ({ one: c.querySelector('.mm .pl') ? num(c.querySelector('.mm .pl').parentElement, P1) : num(c.querySelectorAll('.mm')[1], P1), mine: c.querySelector('.mm.mine') ? num(c.querySelector('.mm.mine'), P1) : null }));
-    const pb = [...document.querySelectorAll('#view .mday.open .dfit .bar')].find(b => b.innerText.includes(t('prot'))); const shown = num(pb, /([\d.]+)\s*\//);
-    return { lines, shown }; });
-  const [ft, l, dn] = r.lines;
-  near(l.mine, l.one * 2.5, 0.15, 'lunch: own share = 2.5 × one portion'); near(dn.mine, dn.one * 2.5, 0.15, 'dinner: own share = 2.5 × one portion');
-  eq(ft.mine, null, 'breakfast is not scaled'); near(r.shown, ft.one + l.mine + dn.mine, 1, 'day protein = breakfast + own lunch + own dinner');
+test('Menu', 'meal cards show your plate in grams: the same amounts the list buys, rounded for the kitchen, raw/cooked said, the dry rice on the list shown; pot dishes give your share of the pot', async ({ page }) => {
+  const r = await page.evaluate(ONE => { eval('(' + ONE + ')')(); S.oil = 1;
+    const G = 'r_g_djaj_rouz_brocoli', T = 'r_tajine';
+    S.menu = { set: { people: 1, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }, at: 1,
+      days: [{ ftour: [['bid', 2], ['khobz', 0.25]], ghda: G, '3cha': T, pfBy: { pM: 2.25 } }, {}, {}, {}, {}, {}, {}] }; save(); openDayInit = true; openDay = 0; go('menu');
+    const f = menuTotal(0), cards = [...document.querySelectorAll('#view .mday.open .mcard')];
+    const read = c => [...c.querySelectorAll('.plate li')].map(li => { const t = li.textContent; const m = t.match(/^\s*(\d*)([¼½¾]?)/); const v = (+m[1] || 0) + ({ '¼': .25, '½': .5, '¾': .75 }[m[2]] || 0);
+      const l = t.match(/=\s*([\d.]+)/) || t.match(/≈\s*([\d.]+)/); return { id: li.dataset.id, v, list: l ? +l[1] : null, raw: t.includes(' ' + window.t('w_raw')), cooked: t.includes(window.t('w_cooked')) }; });
+    const exp = id => Object.fromEntries(flatItems([[id, f]]));
+    const rows = shopData().rows, wk = id => (rows.find(x => x.id === id) || {}).week;
+    return { f, ft: read(cards[0]), g: read(cards[1]), tj: read(cards[2]), expG: exp(G), expT: exp(T), pot: [...cards].map(c => (c.querySelector('.pot') || {}).textContent || ''),
+      potTxt: window.t('pot_share', { n: 5, x: Math.round(f / 5 * 100) }), rice: wk('rouz_n'), sder: wk('sder'), head: (cards[1].querySelector('.plh') || {}).textContent || '', headExp: window.t('your_plate_x', { x: f }) }; }, ONE.toString());
+  const rnd = (u, q) => u ? (q < 20 ? Math.round(q) : Math.round(q / 5) * 5) : Math.max(.25, Math.round(q * 4) / 4);
+  near(r.f, 2.25, 1e-9, 'your portion'); ok(r.head.includes(r.headExp), 'header says your portion: ' + r.head);
+  eq(r.g.map(x => x.id).sort().join(), Object.keys(r.expG).sort().join(), 'every ingredient of the dish listed');
+  r.g.forEach(x => near(x.v, rnd(!['zit_z'].includes(x.id), r.expG[x.id]), 1e-9, x.id + ': ' + x.v + ' for ' + r.expG[x.id].toFixed(2)));
+  near(r.expG.sder, r.sder * 1000, 1e-6, 'chicken on the plate (before rounding) = chicken on the list');
+  const rice = r.g.find(x => x.id === 'rouz'); ok(rice.cooked, 'rice said cooked'); near(rice.list, Math.round(r.rice * 1000 / 5) * 5, 1e-9, 'dry rice shown = the list’s dry rice (' + rice.list + ' g)');
+  ok(r.g.find(x => x.id === 'sder').raw, 'chicken said raw');
+  eq(r.ft.map(x => x.id + ':' + x.v).join(), 'bid:2,khobz:0.25', 'breakfast amounts');
+  ok(!r.pot[1] && r.pot[2].includes(r.potTxt), 'pot dish gives your share of the pot (' + r.potTxt + '), a one-portion dish does not');
+  r.tj.forEach(x => near(x.v, rnd(!['zit_t', 'zit_z'].includes(x.id), r.expT[x.id]), 1e-9, 'tajine ' + x.id));
 });
 
 /* the app is for one person: Mohammed, with calorie targets */
@@ -859,11 +871,23 @@ test('Backup', 'update from recipe set v3: only the training recipes are added �
     await page.reload(); await page.waitForTimeout(300);
     const r = await page.evaluate(() => { const s = S; const c = s.recipes.find(x => x.id === 'r_couscous');
       return { gym: s.recipes.filter(x => x.cat === 'gym').length, harira: s.recipes.some(x => x.id === 'r_harira'), couscous: JSON.stringify([c.items, c.servings]), seed: s.recipeSeed }; });
-    eq(r.gym, 29, 'training recipes added'); ok(!r.harira, 'deleted harira not brought back'); eq(r.couscous, JSON.stringify([[['couscous_n', 500]], 2]), 'edited couscous kept'); eq(r.seed, 4, 'recipe set version');
+    eq(r.gym, 29, 'training recipes added'); ok(!r.harira, 'deleted harira not brought back'); eq(r.couscous, JSON.stringify([[['couscous_n', 500]], 2]), 'edited couscous kept'); eq(r.seed, 5, 'recipe set version');
     eq(errors.length, 0, 'page errors');
   } finally { await ctx.close(); }
 });
 
+test('Backup', 'update from recipe set v4: lemon replaces the orange the training recipes had by mistake; a deleted training recipe is not brought back', async () => {
+  const { ctx, page, errors } = await openApp();
+  try {
+    await page.evaluate(() => { S.recipes = S.recipes.filter(r => r.id !== 'r_g_sandwich_djaj'); const g = S.recipes.find(r => r.id === 'r_g_djaj_rouz_brocoli'); g.items.forEach(it => { if (it[0] === 'l7amed') it[0] = 'limouna'; });
+      S.recipeSeed = 4; save(); });
+    await page.reload(); await page.waitForTimeout(300);
+    const r = await page.evaluate(() => ({ orange: S.recipes.filter(x => x.cat === 'gym' && x.items.some(([id]) => id === 'limouna')).length, lemon: recipe('r_g_djaj_rouz_brocoli').items.some(([id]) => id === 'l7amed'),
+      back: !!recipe('r_g_sandwich_djaj'), seed: S.recipeSeed }));
+    eq(r.orange, 0, 'no orange left in training recipes'); ok(r.lemon, 'lemon instead'); ok(!r.back, 'deleted training recipe stays deleted'); eq(r.seed, 5, 'recipe set version');
+    eq(errors.length, 0, 'page errors');
+  } finally { await ctx.close(); }
+});
 /* ---------- runner ---------- */
 (async () => {
   overrides['/tests/blank.html'] = { type: 'text/html', body: '<!doctype html><title>blank</title>' };   // same-origin page used to seed localStorage

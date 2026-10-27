@@ -9,7 +9,7 @@ A Moroccan meal-planning / nutrition / shopping PWA for **one person** (one prof
 - **One file, no build step, no framework, no dependencies**: everything is in `index.html` (vanilla JS + CSS), plus `sw.js` (offline cache) and `manifest.webmanifest`. Hosted on GitHub Pages.
 - **Offline first**; data lives in `localStorage` key `makla_mizan_v2` (object `S`). Every load goes through `normalize()` → `sanitize()`, which repairs any bad data (old versions, imported backups, other phones).
 - Every UI string goes through `t('key')`; a new key must exist in the 5 languages (`node tools/check-i18n.js`).
-- Tests: `npm install && npm test` (Playwright, 69 tests). Any change should keep them green.
+- Tests: `npm install && npm test` (Playwright, 70 tests). Any change should keep them green.
 
 ## Map of `index.html` (line numbers approximate)
 | Lines | Content |
