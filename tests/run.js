@@ -372,7 +372,11 @@ test('Backup', 'data saved by the previous version (v24) loads unchanged, with n
   // v39: one person — the open profile stays, the other is archived (dated), its shopping flag goes, the menu is for one
   ok(Array.isArray(B.oldProfiles) && B.oldProfiles.length === 1 && /^\d{4}-\d\d-\d\d$/.test(B.oldProfiles[0].archived), 'other profile archived');
   const keep = A.profiles.find(p => p.id === A.active); A.oldProfiles = A.profiles.filter(p => p !== keep).map(p => Object.assign({}, p, { archived: B.oldProfiles[0].archived }));
-  A.profiles = [keep]; A.oldProfiles.forEach(p => delete A.shop[p.id]); A.menu.set.people = 1; A.menuSet.people = 1;   // existing users are marked as onboarded so they never see the first-run questions
+  A.profiles = [keep]; A.oldProfiles.forEach(p => delete A.shop[p.id]); A.menu.set.people = 1; A.menuSet.people = 1;
+  // v40: the 29 training recipes are added after the user's own list, nothing else in it changes
+  const added = B.recipes.slice(A.recipes.length);
+  ok(added.length === 29 && added.every(x => x.cat === 'gym' && x.key.startsWith('g_')), 'training recipes added (' + added.length + ')');
+  A.recipes = A.recipes.concat(added); A.recipeSeed = 4;   // existing users are marked as onboarded so they never see the first-run questions
   // v36: the one shared extra portion (d.pf) becomes the open profile's own portion (d.pfBy), same value
   const legacy = A.menu.days.filter(d => d.pf != null); ok(legacy.length > 0, 'fixture has a legacy portion');
   A.menu.days.forEach(d => { if (d.pf != null) { d.pfBy = { [A.active]: d.pf }; delete d.pf; } });
@@ -723,9 +727,9 @@ test('Menu', 'B2: a lower budget never gives a dearer menu; a reachable budget i
   ok(r.lowTxt.includes(r.lowKey) && r.lowTxt.includes(String(Math.ceil(r.F / 10) * 10)), 'too-low budget: message with the floor (' + Math.ceil(r.F / 10) * 10 + ' DH)');
   ok(!r.okTxt.includes(r.lowKey), 'no floor message when the budget is reachable');
 });
-test('Menu', 'A1: when you train, protein snacks are added on the days you are short; a day still short is flagged', async ({ page }) => {
+test('Menu', 'A1: when you train and the meals fall short (here without the training recipes), protein snacks are added; a day still short is flagged', async ({ page }) => {
   const r = await page.evaluate(ONE => { eval('(' + ONE + ')')(); const seed = s => { let x = s; Math.random = () => { x = (x * 1664525 + 1013904223) % 4294967296; return x / 4294967296; }; };
-    Object.assign(P(), { w: 95, act: 1.2, train: true, tdays: [0, 2, 4] }); seed(7); S.menuSet = { people: 1, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true }, hp: true }; makeMenu();
+    Object.assign(P(), { w: 95, act: 1.2, train: true, tdays: [0, 2, 4] }); S.recipes = S.recipes.filter(r => r.cat !== 'gym'); seed(7); S.menuSet = { people: 1, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true }, hp: true }; makeMenu();
     return S.menu.days.map((d, i) => { const x = dayFit(d, P(), undefined, i), own = dayFit(d, P(), xItems(d, 'pM'), i);
       return { snack: xItems(d, 'pM').length, gap: x.tg.prot - x.sc.p, lab: fitLabel(x)[1], same: Math.abs(own.sc.p - x.sc.p) < 1e-9, keys: Object.keys(d.xtra || {}).join(), legacy: 'snack' in d || 'snackFor' in d }; }); }, ONE.toString());
   ok(r.some(x => x.snack), 'some days get protein snacks');
@@ -768,7 +772,8 @@ test('Menu', 'B2: the generator costs a week exactly like the Menu tab and the l
 /* one person who trains, with a tight budget: the automatic snacks must be counted by the generator (review seeds 6 and 18) */
 const SNK_HOUSE = s => { const base = JSON.parse(JSON.stringify(S.profiles[0]));
   S.profiles = [Object.assign(base, { id: 'pM', name: 'Mohammed', example: false, w: 70 + s % 25, h: 175, act: 1.2, goal: 'leanbulk', train: true, tdays: [0, 2, 4] })];
-  S.active = 'pM'; S.shop = { menu: true, pM: false }; S.pantry = {}; };
+  S.active = 'pM'; S.shop = { menu: true, pM: false }; S.pantry = {};
+  S.recipes = S.recipes.filter(r => r.cat !== 'gym'); };   // the usual Moroccan dishes only, so the snacks have work to do
 test('Menu', 'B2 snacks: for one person who trains on a tight budget, the generator counts the snacks — its cost = Menu tab = list, snacks kept, and the overrun is stated with the snack share', async ({ page }) => {
   const r = await page.evaluate(SNK => { eval('(' + SNK + ')');
     const seed = s => { let x = s; Math.random = () => { x = (x * 1664525 + 1013904223) % 4294967296; return x / 4294967296; }; };
@@ -819,6 +824,43 @@ test('Menu', 'a menu saved before v36 (one shared d.pf) loads as your own portio
     const r = await page.evaluate(() => { const saved = JSON.parse(localStorage.getItem('makla_mizan_v2')).menu.days; return { f: dayFit(S.menu.days[0], P()).f, d0: saved[0], d1: saved[1] }; });
     near(r.f, 1.75, 1e-9, 'old portion kept as yours');
     ok(!('pf' in r.d0) && r.d0.pfBy && r.d0.pfBy.pM === 1.75, 'migrated and saved as pfBy'); ok(!('pf' in r.d1) && !r.d1.pfBy, 'out-of-range and bad entries dropped');
+  } finally { await ctx.close(); }
+});
+
+/* v40: training recipes (cat 'gym') — lean, high-protein plates adapted to Moroccan shops */
+test('Menu', 'training recipes: 29, each ≥ 25 g protein a portion, only foods from the app; offered only to someone who trains or asks for high protein', async ({ page }) => {
+  const r = await page.evaluate(ONE => { eval('(' + ONE + ')')(); const seed = s => { let x = s; Math.random = () => { x = (x * 1664525 + 1013904223) % 4294967296; return x / 4294967296; }; };
+    const G = S.recipes.filter(x => x.cat === 'gym'), info = G.map(x => { const m = sum([[x.id, 1]]); return { k: x.key, p: m.p, slots: recMeta(x).slots, foods: x.items.every(([id]) => !!food(id)), name: ['dj', 'da', 'fr', 'ar', 'en'].every(l => I18N[l].rec_names[x.key]) }; });
+    const ids = new Set(G.map(x => x.id)), gymIn = m => m.days.flatMap(d => [d.ghda, d['3cha']].concat((d.ftour || []).map(x => x[0]))).filter(id => ids.has(id)).length;
+    const run = (hp, train) => { Object.assign(P(), { train, tdays: train ? [0, 2, 4] : [] }); const set = { people: 1, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true }, hp };
+      const pl = menuPools(set), inPools = new Set([pl.L, pl.D, pl.B].flat().filter(x => x.cat === 'gym')).size; let used = 0;
+      for (let k = 1; k <= 3; k++) { seed(k); S.menuSet = JSON.parse(JSON.stringify(set)); makeMenu(); used += gymIn(S.menu); }
+      openDayInit = true; openDay = 0; swapAt = '0:ghda'; swapMode = null; const sw = swapOptions(0, 'ghda').filter(x => x.cat === 'gym').length, fo = (swapMode = 'protein', ftourOptions(0)).filter(o => o.items.some(([id]) => ids.has(id))).length;
+      swapMode = null; return { inPools, used, sw, fo }; };
+    return { n: G.length, info, normal: run(false, false), hp: run(true, false), train: run(false, true) }; }, ONE.toString());
+  eq(r.n, 29, 'training recipes');
+  r.info.forEach(x => { ok(x.p >= 25, x.k + ': ' + Math.round(x.p) + ' g protein a portion'); ok(x.foods, x.k + ': only foods the app knows'); ok(x.name, x.k + ': named in the 5 languages'); });
+  ok(r.info.filter(x => x.slots === 'B').length >= 6, 'at least 6 breakfasts');
+  eq(JSON.stringify(r.normal), JSON.stringify({ inPools: 0, used: 0, sw: 0, fo: 0 }), 'someone who does not train: never offered (menu, swaps, breakfasts)');
+  ok(r.hp.inPools === 29 && r.hp.used > 0, 'high-protein menu: offered and used (' + r.hp.used + ' meals in 3 weeks)');
+  ok(r.train.inPools === 29 && r.train.used > 0 && r.train.fo > 0, 'training days: offered and used (' + r.train.used + ' meals in 3 weeks), also among the higher-protein breakfasts');
+});
+test('Menu', 'training recipes cover protein from meals: a trainee needs fewer protein snacks with them than without', async ({ page }) => {
+  const r = await page.evaluate(ONE => { eval('(' + ONE + ')')(); const seed = s => { let x = s; Math.random = () => { x = (x * 1664525 + 1013904223) % 4294967296; return x / 4294967296; }; };
+    Object.assign(P(), { w: 95, act: 1.2, train: true, tdays: [0, 2, 4] }); const all = S.recipes.slice();
+    const snacks = () => { let n = 0; for (let k = 1; k <= 4; k++) { seed(k); S.menuSet = { people: 1, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; makeMenu(); n += S.menu.days.filter(d => xItems(d, 'pM').length).length; } return n; };
+    const withG = snacks(); S.recipes = all.filter(x => x.cat !== 'gym'); const without = snacks(); return { withG, without }; }, ONE.toString());
+  ok(r.withG < r.without, 'days with protein snacks over 4 weeks: ' + r.withG + ' with the training recipes, ' + r.without + ' without');
+});
+test('Backup', 'update from recipe set v3: only the training recipes are added — a built-in the user deleted or edited stays as it is', async () => {
+  const { ctx, page, errors } = await openApp();
+  try {
+    await page.evaluate(() => { S.recipes = S.recipes.filter(r => r.cat !== 'gym' && r.id !== 'r_harira'); const c = S.recipes.find(r => r.id === 'r_couscous'); c.items = [['couscous_n', 500]]; c.servings = 2; S.recipeSeed = 3; save(); });
+    await page.reload(); await page.waitForTimeout(300);
+    const r = await page.evaluate(() => { const s = S; const c = s.recipes.find(x => x.id === 'r_couscous');
+      return { gym: s.recipes.filter(x => x.cat === 'gym').length, harira: s.recipes.some(x => x.id === 'r_harira'), couscous: JSON.stringify([c.items, c.servings]), seed: s.recipeSeed }; });
+    eq(r.gym, 29, 'training recipes added'); ok(!r.harira, 'deleted harira not brought back'); eq(r.couscous, JSON.stringify([[['couscous_n', 500]], 2]), 'edited couscous kept'); eq(r.seed, 4, 'recipe set version');
+    eq(errors.length, 0, 'page errors');
   } finally { await ctx.close(); }
 });
 

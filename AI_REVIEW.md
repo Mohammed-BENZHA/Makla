@@ -3,13 +3,13 @@
 Read this first, then `index.html`. Live app: https://mohammed-benzha.github.io/Makla/ · Repo: https://github.com/Mohammed-BENZHA/Makla
 
 ## What the app is
-A Moroccan meal-planning / nutrition / shopping PWA for **one person** (one profile, one portion that follows their targets). Older data with several profiles is migrated at load: the open profile stays, the others are archived in `S.oldProfiles`, and a full copy is kept in `localStorage` key `makla_mizan_v2_multi`. Prices in DH, food names in Moroccan Darija (Latin script). Five UI languages: dj (Darija Latin), da (Darija Arabic script), fr, ar, en.
+A Moroccan meal-planning / nutrition / shopping PWA for **one person** (one profile, one portion that follows their targets). Training recipes (`cat:'gym'`, keys `g_*`) are offered by the menu only when the profile has training days or the menu asks for high protein (`gymOn`). Older data with several profiles is migrated at load: the open profile stays, the others are archived in `S.oldProfiles`, and a full copy is kept in `localStorage` key `makla_mizan_v2_multi`. Prices in DH, food names in Moroccan Darija (Latin script). Five UI languages: dj (Darija Latin), da (Darija Arabic script), fr, ar, en.
 
 ## Hard constraints (please respect them in any suggestion)
 - **One file, no build step, no framework, no dependencies**: everything is in `index.html` (vanilla JS + CSS), plus `sw.js` (offline cache) and `manifest.webmanifest`. Hosted on GitHub Pages.
 - **Offline first**; data lives in `localStorage` key `makla_mizan_v2` (object `S`). Every load goes through `normalize()` → `sanitize()`, which repairs any bad data (old versions, imported backups, other phones).
 - Every UI string goes through `t('key')`; a new key must exist in the 5 languages (`node tools/check-i18n.js`).
-- Tests: `npm install && npm test` (Playwright, 66 tests). Any change should keep them green.
+- Tests: `npm install && npm test` (Playwright, 69 tests). Any change should keep them green.
 
 ## Map of `index.html` (line numbers approximate)
 | Lines | Content |
