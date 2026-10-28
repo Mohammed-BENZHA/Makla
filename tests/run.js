@@ -888,6 +888,56 @@ test('Backup', 'update from recipe set v4: lemon replaces the orange the trainin
     eq(errors.length, 0, 'page errors');
   } finally { await ctx.close(); }
 });
+test('Menu', 'eating out: the meal leaves the list and the day’s numbers, the other meals keep their portion, it can be put back; bad saved values cleaned', async () => {
+  const { ctx, page, errors } = await openApp();
+  try {
+    const r = await page.evaluate(ONE => { eval('(' + ONE + ')')(); S.oil = 1;
+      S.menu = { set: { people: 1, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }, at: 1,
+        days: [{ ftour: [['bid', 2], ['khobz', 0.25]], ghda: 'r_g_djaj_rouz_brocoli', '3cha': 'r_3des' }, { ghda: 'r_tajine', '3cha': 'r_3des' }, {}, {}, {}, {}, {}] }; save();
+      const snap = () => ({ cost: menuWeekCost(), list: shopData().cost, sder: (shopData().rows.find(x => x.id === 'sder') || {}).week || 0, f: dayFit(S.menu.days[0], P()).f, sc: dayFit(S.menu.days[0], P()).sc.k });
+      const a = snap(), lunch = recCost(recipe('r_g_djaj_rouz_brocoli')) * a.f;
+      eatOut(0, 'ghda'); openDayInit = true; openDay = 0; go('menu');
+      const b = snap(), v = document.getElementById('view'), outCard = !!v.querySelector('.mday.open .mcard.out'), pill = v.querySelector('.mday.open .mday-h').textContent, note = v.querySelector('.mday.open .dfit').textContent;
+      openDay = null; render(); const folded = v.querySelector('.mday .mlist').textContent;
+      eatOut(0, 'ftour'); const c = snap();
+      return { a, b, c, lunch, outCard, pill, note, folded, pillOut: t('pill_out'), fitOut: t('fit_out'), outTitle: t('out_title'), d0: JSON.stringify(S.menu.days[0]) }; }, ONE.toString());
+    near(r.b.cost, r.a.cost - r.lunch, 0.01, 'menu cost drops by exactly your lunch'); near(r.b.list, r.b.cost, 1e-6, 'list = menu cost'); eq(r.b.sder, 0, 'no chicken breast on the list');
+    near(r.b.f, r.a.f, 1e-9, 'dinner portion unchanged (' + r.a.f + '), not scaled up to replace lunch'); ok(r.b.sc < r.a.sc, 'day calories shown without the lunch');
+    ok(r.outCard && r.pill.includes(r.pillOut) && r.note.includes(r.fitOut), 'day says the meal is eaten out'); ok(r.folded.includes(r.outTitle), 'folded day says it too');
+    ok(r.c.cost < r.b.cost && r.c.f === r.a.f, 'breakfast out too: cheaper, portion still unchanged');
+    await page.reload(); await page.waitForTimeout(300);
+    const q = await page.evaluate(() => { const kept = JSON.stringify(S.menu.days[0].out); eatIn(0, 'ghda'); eatIn(0, 'ftour');
+      const back = { cost: menuWeekCost(), out: 'out' in S.menu.days[0], ghda: S.menu.days[0].ghda, ftour: JSON.stringify(S.menu.days[0].ftour) };
+      S.menu.days[1].out = { ghda: 'r_harira', '3cha': 5, lunch: 'x' }; S.menu.days[2].out = 'bad'; save(); return { kept, back }; });
+    ok(q.kept.includes('r_g_djaj_rouz_brocoli') && q.kept.includes('bid'), 'kept after reload');
+    near(q.back.cost, r.a.cost, 1e-6, 'put back: same cost as before'); ok(!q.back.out && q.back.ghda === 'r_g_djaj_rouz_brocoli' && q.back.ftour.includes('bid'), 'meals back in place');
+    await page.reload(); await page.waitForTimeout(300);
+    const z = await page.evaluate(() => JSON.stringify([S.menu.days[1].out, S.menu.days[2].out]));
+    eq(z, JSON.stringify([undefined, undefined].map(x => x === undefined ? null : x)), 'out entries that clash, have the wrong type or an unknown meal are dropped');
+    eq(errors.length, 0, 'page errors');
+  } finally { await ctx.close(); }
+});
+test('Menu', 'a meal can be swapped with the same meal of another day; the move row lists only days that have that meal', async ({ page }) => {
+  const r = await page.evaluate(ONE => { eval('(' + ONE + ')')();
+    S.menu = { set: { people: 1, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }, at: 1,
+      days: [{ ftour: [['bid', 2]], ghda: 'r_tajine', '3cha': 'r_3des' }, { ftour: [['choufan', 60]], ghda: 'r_g_djaj_rouz_brocoli' }, { '3cha': 'r_3des' }, {}, {}, {}, {}] }; save();
+    openDayInit = true; openDay = 0; swapAt = '0:ghda'; go('menu'); const chips = [...document.querySelectorAll('#view .swap .mv .chip')].map(c => c.textContent);
+    swapDays(0, 1, 'ghda'); const g = [S.menu.days[0].ghda, S.menu.days[1].ghda]; swapDays(0, 1, 'ftour'); const f = JSON.stringify([S.menu.days[0].ftour, S.menu.days[1].ftour]);
+    return { chips, day1: tl('week_days', 1), g, f }; }, ONE.toString());
+  eq(r.chips.join(), r.day1, 'only the day that has a lunch is offered');
+  eq(r.g.join(), 'r_g_djaj_rouz_brocoli,r_tajine', 'lunches swapped'); eq(r.f, JSON.stringify([[['choufan', 60]], [['bid', 2]]]), 'breakfasts swapped');
+});
+test('Profiles', 'profile edits are saved at once, and the page says everything saves automatically (the backup notice no longer reads as unsaved)', async () => {
+  const { ctx, page, errors } = await openApp();
+  try {
+    await page.evaluate(() => { S.lastBackup = null; save(); go('profil'); });
+    await page.fill('#pName', 'Rania'); await page.keyboard.press('Tab'); await page.waitForTimeout(150);
+    const r = await page.evaluate(() => { const v = document.getElementById('view'); const n = [...v.querySelectorAll('.note')].find(x => x.textContent.includes(t('never_backup')));
+      return { saved: JSON.parse(localStorage.getItem('makla_mizan_v2')).profiles[0].name, note: !!n, warn: [...v.querySelectorAll('.warn')].some(x => x.textContent.includes(t('never_backup'))), txt: t('never_backup'), en: I18N.en.never_backup }; });
+    eq(r.saved, 'Rania', 'name saved'); ok(r.note && !r.warn, 'backup notice is a neutral note, not a warning'); ok(/saved automatically/.test(r.en), 'notice says data is saved automatically');
+    eq(errors.length, 0, 'page errors');
+  } finally { await ctx.close(); }
+});
 /* ---------- runner ---------- */
 (async () => {
   overrides['/tests/blank.html'] = { type: 'text/html', body: '<!doctype html><title>blank</title>' };   // same-origin page used to seed localStorage
