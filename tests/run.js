@@ -659,7 +659,7 @@ test('Menu', 'meal cards show your plate in grams: the same amounts the list buy
     S.menu = { set: { people: 1, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }, at: 1,
       days: [{ ftour: [['bid', 2], ['khobz', 0.25]], ghda: G, '3cha': T, pfBy: { pM: 2.25 } }, {}, {}, {}, {}, {}, {}] }; save(); openDayInit = true; openDay = 0; go('menu');
     const f = menuTotal(0), cards = [...document.querySelectorAll('#view .mday.open .mcard')];
-    const read = c => [...c.querySelectorAll('.plate li')].map(li => { const t = li.textContent; const m = t.match(/^\s*(\d*)([¼½¾]?)/); const v = (+m[1] || 0) + ({ '¼': .25, '½': .5, '¾': .75 }[m[2]] || 0);
+    const read = c => [...c.querySelectorAll('.plate li')].map(li => { const t = li.textContent, q = t.replace(/^[^\d¼½¾]*/, ''); const m = q.match(/^(\d*)([¼½¾]?)/); const v = (+m[1] || 0) + ({ '¼': .25, '½': .5, '¾': .75 }[m[2]] || 0);
       const l = t.match(/=\s*([\d.]+)/) || t.match(/≈\s*([\d.]+)/); return { id: li.dataset.id, v, list: l ? +l[1] : null, raw: t.includes(' ' + window.t('w_raw')), cooked: t.includes(window.t('w_cooked')) }; });
     const exp = id => Object.fromEntries(flatItems([[id, f]]));
     const rows = shopData().rows, wk = id => (rows.find(x => x.id === id) || {}).week;
@@ -937,6 +937,20 @@ test('Profiles', 'profile edits are saved at once, and the page says everything 
     eq(r.saved, 'Rania', 'name saved'); ok(r.note && !r.warn, 'backup notice is a neutral note, not a warning'); ok(/saved automatically/.test(r.en), 'notice says data is saved automatically');
     eq(errors.length, 0, 'page errors');
   } finally { await ctx.close(); }
+});
+test('Interface', 'pictures: every dish gets a drawing (built-in, own recipe, breakfast), every food an icon; drawings are small and shown on menu cards, recipes and the list', async ({ page }) => {
+  const r = await page.evaluate(() => { const bad = [], sizes = [];
+    S.recipes.forEach(x => { const s = dishArt(x); sizes.push(s.length); if (!/^<svg viewBox="0 0 64 64"[^>]*>.*<\/svg>$/s.test(s) || /NaN|undefined/.test(s)) bad.push(x.key || x.id); });
+    const own = { id: 'r_mine_t', cat: 'mine', servings: 2, items: [['sder', 300], ['rouz', 400], ['brocoli', 200]] }, ownArt = dishArt(own);
+    const ft = FTOUR.map(([, it]) => ftourArt(it)), noIcon = FOODS.filter(f => !fEmo(f)).map(f => f.id);
+    makeMenu(); openDayInit = true; openDay = 0; go('menu'); const menuArt = document.querySelectorAll('#view .mday.open .mcard .art svg').length, folded = document.querySelectorAll('#view .mlist .art svg').length;
+    go('recettes'); recCat = 'all'; render(); const recArt = document.querySelectorAll('#view .rcard .art svg').length, recN = document.querySelectorAll('#view .rcard').length;
+    go('t9edya'); const li = [...document.querySelectorAll('#view .li .nm')], liIco = li.filter(x => x.querySelector('.fico')).length;
+    return { bad, max: Math.max(...sizes), ownOk: ownArt.includes('<svg') && !/NaN/.test(ownArt), ftOk: ft.every(s => s.includes('<svg') && !/NaN|undefined/.test(s)), noIcon, menuArt, folded, recArt, recN, li: li.length, liIco, same: dishArt(S.recipes[0]) === dishArt(S.recipes[0]) }; });
+  eq(r.bad.length, 0, 'drawings without errors: ' + r.bad); ok(r.max < 6000, 'each drawing small (largest ' + r.max + ' bytes)');
+  ok(r.ownOk, 'own recipe drawn from its ingredients'); ok(r.ftOk, 'every breakfast combo drawn'); eq(r.noIcon.length, 0, 'foods without icon: ' + r.noIcon);
+  ok(r.menuArt >= 2 && r.folded > 0, 'menu cards and folded days show pictures'); eq(r.recArt, r.recN, 'every recipe card has its picture'); ok(r.li > 5 && r.liIco === r.li, 'every list row has its icon');
+  ok(r.same, 'same picture each time (cached)');
 });
 /* ---------- runner ---------- */
 (async () => {

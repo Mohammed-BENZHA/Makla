@@ -325,6 +325,13 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .mcard .plate small{color:var(--muted);font-size:11.5px}
 .wst{font-size:10.5px;padding:0 5px;border-radius:6px;border:1px solid var(--edge);color:var(--muted)}
 .mcard .pot{margin:4px 0 0;font-size:12px}
+.art{display:inline-block;flex:none;width:56px;height:56px;border-radius:14px;background:var(--surface);overflow:hidden}
+.art svg{width:100%;height:100%;display:block}
+.art.md{width:48px;height:48px;border-radius:12px}.art.sm{width:38px;height:38px;border-radius:10px}.art.xs{width:26px;height:26px;border-radius:7px}
+.art.lg{width:104px;height:104px;border-radius:18px}
+.mleft{display:flex;gap:10px;align-items:flex-start;min-width:0}.mcard .mleft>div>.mm{display:block}
+.fico{display:inline-block;min-width:1.35em;text-align:center;margin-inline-end:5px;font-style:normal}
+.mlist>span{align-items:center}.fopt .art{margin-inline-end:10px}
 .mcard.out{opacity:.85;border-style:dashed}
 .swap .mv{margin-top:8px}.swap .mv .lbl{display:block;margin-bottom:4px}
 .dfit{margin-top:8px;padding:10px 12px;border-radius:14px;background:var(--sunk);font-size:13px}
@@ -1401,6 +1408,166 @@ const builtinSteps=r=>{const k=r.key||(typeof r.id==='string'&&r.id.slice(0,2)==
 const recSteps=r=>Array.isArray(r.steps)?r.steps:(builtinSteps(r)||[]);
 const RCAT_ICON={main:'🍲',gym:'💪',fish:'🐟',soup:'🥣',eid:'🐑',bread:'🍞',salad:'🥗',street:'🥙',sweet:'🍪',drink:'🍵',mine:'📝'};
 const rIcon=c=>Object.prototype.hasOwnProperty.call(RCAT_ICON,c)?RCAT_ICON[c]:RCAT_ICON.mine;
+/* ---------- Pictures ----------
+ Dishes are drawn, not photographed: one flat SVG per dish, built from a vessel that fits it (tajine, couscous plate,
+ soup bowl, pan, bread, glass…) and the colours of its main ingredients, so a user's own recipe gets a picture too.
+ Each picture is a few hundred bytes, works offline and follows the recipe when its ingredients change.
+ Ingredients get an emoji (the phone's own food icons), or their category's one when no emoji fits. */
+const FOOD_EMO={bid:'🥚',bid_beldi:'🥚',khobz:'🍞',khobz_b:'🥖',msemen:'🫓',harcha:'🫓',choufan:'🥣',hlib:'🥛',perly:'🥣',fromage:'🧀',whey:'🥤',atay:'🍵',
+  sder:'🍗',fkhad:'🍗',sardine:'🐟',merla:'🐟',lhem:'🥩',kefta:'🥩',kefta_d:'🍗',kebda:'🍖',ton:'🥫',ton_ma:'🥫',rouz:'🍚',makarona:'🍝',
+  '3des':'🫘',loubia:'🫘','7mes':'🫘',batata:'🥔',batata7:'🍠',khodra:'🥗',banan:'🍌',tfa7:'🍎',tmer:'🌴',avoka:'🥑',zit_t:'🌻',zit_z:'🫒',
+  louz:'🌰',kawkaw:'🥜',amlou:'🥜',rouz_n:'🍚',makarona_n:'🍝','3des_n':'🫘',loubia_n:'🫘','7mes_n':'🫘',maticha:'🍅',bsla:'🧅',khizzou:'🥕',
+  '9ar3a':'🥒',zitoun:'🫒',djaj_kamel:'🐔',jben:'🧀',confiture:'🍓',l3sel:'🍯',zebda:'🧈',sokar:'🍬','9hwa':'☕',l7em_3dem:'🍖',
+  '7out_kamel':'🐟',zbib:'🍇',felfla:'🫑',couscous_n:'🌾',z_tacos:'🌮',z_burger:'🍔',z_panini:'🥪',z_chawarma:'🌯',z_sand_kefta:'🥙',
+  z_pizza:'🍕',z_rfissa:'🍲',z_t3am:'🍲',z_bissara:'🥣',z_sfenj:'🍩',z_briwat:'🥟',z_ma9ouda:'🥔',z_pastilla:'🥧',z_harira_z:'🥣',
+  smida:'🌾',d9i9:'🌾',d9i9_kamel:'🌾',d9i9_7mes:'🌾',smida_dra:'🌽',belboula:'🌾',herbel:'🌾',berkoukech:'🌾',cha3riya:'🍜',foul_yabs:'🫘',
+  '9ar3a_7emra':'🎃',mkouwer:'🥬',dnjal:'🍆',touma:'🧄','9zbour':'🌿',l7amed:'🍋',l7amed_msyer:'🍋',ber9ou9:'🫐',sferjel:'🍐',
+  meloukhia:'🌿',khyar:'🥒',bekkoula:'🌿',fetr:'🍄',mais:'🌽',nna3na3:'🌿',bbouzroug:'🦪','9imroun':'🦐',calamar:'🦑',douwara:'🍖',
+  kour3in:'🍖',kebda_ghanmi:'🍖',mkh:'🍖',l7em_ras:'🍖',ti7al:'🍖',gueddid:'🥩',kachir:'🌭',fromage_rouge:'🧀',lben:'🥛',koko:'🥥',
+  ch7ma:'🥓',smen:'🧈',zit_argan:'🌰',l3triya:'🧂',mel7a:'🧂',za3fran:'🌸',maizena:'🌽','7elba':'🌿',ma_zhar:'🌸',khal:'🍶',soja:'🍶',
+  mayo:'🥫',nestle:'🥫',sauce_choco:'🍫',atay7boub:'🍵',lwr9a:'🫓',khess:'🥬',selk:'🥬',sbanekh:'🥬',krafes:'🌿',besbas:'🌿',chouflour:'🥦',
+  brocoli:'🥦',poro:'🌿',felfla_7arra:'🌶️',khorchef:'🌿',bsla_khedra:'🧅','9ar3a_slawia':'🎃',l9el9as:'🥔',tfa7a:'🍎',limouna:'🍊',
+  mandarina:'🍊',l3neb:'🍇',ddla7:'🍉',lbetikh:'🍈',lkhoukh:'🍑',lmchmach:'🍑',lbr9ou9_tari:'🍑',lhendiya:'🌵',lfrawla:'🍓',lanjas:'🍐',
+  l7ebb_lmlouk:'🍒',ananas:'🍍',kiwi:'🥝',mangue:'🥭',lmzah:'🍑',l7amed_l7lou:'🍋',mchmach_yabes:'🍑',gergaa:'🌰',pistache:'🥜',kajou:'🥜',
+  bndo9:'🌰',kettan:'🌱',zri3a_9er3a:'🌱',chia:'🌱','3des_7mer':'🫘',loubia_7amra:'🫘','7mes_7ok':'🫘',quinoa:'🌾',boulgour:'🌾',ch3ir:'🌾',
+  dra:'🌽',rouz_kamel:'🍚'};
+const CAT_EMO={prot:'🍖',carb:'🌾',veg:'🥬',fat:'🥜',ftour:'🍽️',extra:'🧂',zan9a:'🥡'};
+const fEmo=f=>f?(FOOD_EMO[f.id]||(f.isRec?'🍲':CAT_EMO[f.cat])||'🍽️'):'';
+const fIco=f=>`<span class="fico" aria-hidden="true">${fEmo(f)}</span>`;
+
+/* colour of each ingredient in a drawing; unknown ones take their category's colour */
+const FOOD_COL={maticha:'#d9453b',bsla:'#eadbb8',khizzou:'#ee8a2b',batata:'#e8c66b',batata7:'#e0873a','9ar3a':'#7aa34a','9ar3a_7emra':'#e79a3a',
+  felfla:'#4f9a3a',felfla_7arra:'#c9302c',zitoun:'#6b7a2a',l7amed_msyer:'#e8c547',l7amed:'#f2d64b','9zbour':'#3f8a3a',djaj_kamel:'#d9a066',
+  sder:'#e2b27c',fkhad:'#c98a50',lhem:'#8a4b32',l7em_3dem:'#8f4f35',kefta:'#7a4330',kefta_d:'#b07a52',kebda:'#6d2e2a',sardine:'#9aa7b0',
+  merla:'#ece5d8','7out_kamel':'#a8b4bc','9imroun':'#f08c6a',calamar:'#efe3d0',bbouzroug:'#3b3340',rouz:'#f7f3ea',rouz_n:'#f7f3ea',
+  rouz_kamel:'#d9c49a',makarona_n:'#efcf7a',couscous_n:'#e8c66b',smida_dra:'#e3b84f',belboula:'#cfae78','3des_n':'#8b5a33',
+  '3des_7mer':'#e08a4a',loubia_n:'#efe6d2',loubia_7amra:'#8e2f2a','7mes_n':'#d9b77a',foul_yabs:'#a9895a',zbib:'#5a2e3a',louz:'#e9d6b4',
+  bid:'#f7d24a',bid_beldi:'#f2b93a',khobz:'#d8a35f',khobz_b:'#e7c08a',brocoli:'#3d7d32',chouflour:'#efe9d8',sbanekh:'#2f6b2a',khess:'#8cc152',
+  khyar:'#7fb35a',avoka:'#9cbd57',mais:'#f2c94c',jelbana:'#6fae3a',loubia_khedra:'#4e8f3a',dnjal:'#5b2a5e',left:'#efe4e8',mkouwer:'#a6c47a',
+  l9o9:'#7c9a5a',meloukhia:'#2f5a2a',ber9ou9:'#3a1f2a',sferjel:'#e6b84a',barba:'#8a1e3b',bekkoula:'#2e6b30',jben:'#fbf6ea',
+  fromage_rouge:'#f0b03a',fromage:'#f6efd8',perly:'#fbf8f0',hlib:'#fbf8f0',lben:'#f7f4ec',choufan:'#e2c690',banan:'#f2d74e',lfrawla:'#d8323c',
+  chia:'#4a4a4a',kawkaw:'#c08a4a',whey:'#efe4cc',quinoa:'#e7d6a8',cha3riya:'#efd59a',lwr9a:'#e8c27a',d9i9:'#f3ead6',smida:'#efd9a0',
+  herbel:'#e8dcbf',berkoukech:'#d8c08a',ton:'#cdb9a0',ton_ma:'#cdb9a0',douwara:'#b07a62',kour3in:'#b07a62',mkh:'#efe0d0',l7em_ras:'#8a5a45',
+  ti7al:'#5a2a2a',gueddid:'#7a3a2a',kachir:'#d98a8a',amlou:'#9a6a3a',tmer:'#6b3a1f',l3sel:'#e0a93a','9hwa':'#5a3a24',atay7boub:'#4d7a2f',
+  nna3na3:'#4d9a3f',znjlan:'#e9dcc0',koko:'#f7f3ea',kajou:'#ecd3a4',kebda_ghanmi:'#6d2e2a',ch7ma:'#f3ead8',khobz_d:'#c98f4f',confiture:'#b8283a',
+  fetr:'#c9b49a',d9i9_7mes:'#f0d27a',maizena:'#f4efe4',nestle:'#f1e3c4',sauce_choco:'#5a3020',l3triya:'#b5652a',zebda:'#f6e3a0'};
+const CAT_COL={prot:'#a8673f',carb:'#e8c77a',veg:'#6fa34b',fat:'#c9a25a',ftour:'#efe0bd',extra:'#c98a50',zan9a:'#c98a50',rec:'#c98a50'};
+/* seasonings, fats and liquids do not show in a drawing */
+const ART_SKIP=new Set(['mel7a','l3triya','za3fran','sokar','khmira','khal','ma_zhar','smen','zebda','zit_t','zit_z','zit_argan','touma','soja',
+  'mayo','nestle','maizena','7elba','sauce_choco','atay7boub','9hwa','khess_x']);
+const colOf=id=>{const f=food(id);return FOOD_COL[id]||(f?CAT_COL[f.cat]:null)||'#c98a50'};
+/* the dish's visible ingredients, heaviest first (pieces counted at ~60 g) */
+function artParts(items){const w={};(items||[]).forEach(([id,q])=>{const r=recipe(id);
+    if(r){const n=Math.max(1,+r.servings||1);r.items.forEach(([i,iq])=>{w[i]=(w[i]||0)+iq*q/n})}else w[id]=(w[id]||0)+q});
+  const g=id=>{const f=food(id);return f&&f.u!=='g'?w[id]*60:w[id]};
+  return Object.keys(w).filter(id=>!ART_SKIP.has(id)&&food(id)&&w[id]>0).sort((a,b)=>g(b)-g(a)).map(id=>({id,f:food(id),c:colOf(id)}))}
+const hashStr=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0};
+const rngOf=seed=>{let x=seed||1;return ()=>{x^=x<<13;x>>>=0;x^=x>>17;x^=x<<5;x>>>=0;return x/4294967296}};
+const ARTK={tajine:'tajine',tajine_7out:'tajine',tajine_bouzroug:'tajine',tajine_9o9:'tajine',tajine_ber9ou9:'tajine',tajine_djaj_msyer:'tajine',
+  tajine_kefta:'tajine',tajine_khodra:'tajine',tajine_meloukhia:'tajine',tajine_sferjel:'tajine',tajine_soussi:'tajine',tajine_zbib:'tajine',
+  mrouzia:'tajine',l7em_m7emmer:'tajine',mar9a:'tajine',khodra_djaj:'tajine',g_tajine_djaj_l7amed:'tajine',kwari:'tajine',t9lya:'tajine',
+  mkh:'tajine',kour3in:'tajine',couscous:'couscous',couscous_tfaya:'couscous',couscous_bidawi:'couscous',couscous_belboula:'couscous',
+  badaz:'couscous',seksu_fassi:'couscous',rfissa:'couscous',rfissa_3amya:'couscous',seffa:'couscous',g_kefta_seksu:'couscous',
+  harira:'bowl','3des':'bowl',loubia:'bowl',bissara:'bowl',berkoukech:'bowl',berkoukech_soussi:'bowl','7ssouwa':'bowl',herbel:'bowl',
+  tagoula:'bowl',g_3des_djaj:'bowl',g_3des_7mes_curry:'bowl',g_kefta_loubia:'bowl',sikouk:'bowl',
+  chlada:'salad',taktouka:'salad',za3louk:'salad',barba:'salad',bekkoula:'salad',foul_mchermel:'salad',khizou_mchermel:'salad',
+  '9ar3a_m3essla':'salad',chlada_jarda:'salad',g_chlada_nicoise:'salad',g_chlada_ton_7mes:'salad',
+  sardine_mla9i:'fish','7outa_m3emra':'fish',g_merla_batata7:'plate',paella:'pan',g_chakchouka:'pan',g_omlette_djaj:'omelette',
+  g_bid_jben_khodra:'pan',khobz_ddar:'bread',merdouma:'bread',medfouna:'bread',trid:'trid',rziza:'coil',harcha:'harcha',beghrir:'beghrir',
+  msmen:'msmen',sfenj:'ring',karane:'karane',bastilla_djaj:'pie',bastilla_7out:'pie',bastilla_7lib:'pie',atay:'tea','9hwa_7lib':'cup',
+  '9hwa_m3etra':'cup',za3za3:'tall',ghriba:'cookies',ghriba_koko:'cookies',fekkas:'cookies',kaab_ghzal:'cookies',chebakia:'cookies',
+  briwat_louz:'cookies',ma9rout:'cookies',blighat:'cookies',sellou:'mound',amlou_beldi:'jar',raib:'cup2',jben_beldi:'block',
+  g_perly_frawla:'cup2',g_choufan_lil:'jar',g_choufan_whey:'cup2',g_pancake:'pancake',bocadillo:'sandwich',g_sandwich_djaj:'sandwich',
+  g_tartine_ton:'toast',tayb_hari:'cup2','9etban':'skewer',boulfaf:'skewer',g_brochette_quinoa:'skewer',gueddid:'platter',
+  rras_mbekher:'platter',mechoui:'platter',ti7al:'platter',tanjia:'urn',g_9ar3a_m3emra:'stuffed'};
+const ARTC={main:'tajine',fish:'fish',soup:'bowl',bread:'bread',salad:'salad',street:'sandwich',sweet:'cookies',drink:'cup',eid:'platter',gym:'plate',mine:'plate'};
+const SH='<ellipse cx="32" cy="57" rx="23" ry="3.5" fill="#000" opacity=".13"/>';
+const pc=(x,y,r,c,o)=>`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="${c}"${o?` opacity="${o}"`:''}/>`;
+/* pieces of the dish's colours scattered over an ellipse */
+function scatter(P,rnd,cx,cy,rx,ry,n,rmin,rmax){let s='';const cols=P.length?P.slice(0,5):[{c:'#c98a50'}];
+  for(let k=0;k<n;k++){const a=rnd()*Math.PI*2,d=Math.sqrt(rnd());const c=cols[k%cols.length].c;s+=pc(cx+Math.cos(a)*rx*d,cy+Math.sin(a)*ry*d,rmin+rnd()*(rmax-rmin),c)}return s}
+const pick1=(P,cat,def)=>{const x=P.find(p=>p.f&&p.f.cat===cat);return x?x.c:def};
+const DRAW={
+  tajine:(P,r)=>`${SH}<ellipse cx="30" cy="48" rx="26" ry="8.5" fill="#b5532c"/><ellipse cx="30" cy="46" rx="22" ry="6.5" fill="#7f3519"/>
+    ${scatter(P,r,26,41,15,6,22,2.4,4.6)}<path d="M33 45 L60 44 L49 13 Z" fill="#c8693a"/><path d="M49 13 L60 44 L54 44.5 Z" fill="#a24e25"/><circle cx="49" cy="12" r="3" fill="#a24e25"/>`,
+  couscous:(P,r)=>{const g=P.find(p=>['couscous_n','smida_dra','belboula','cha3riya','d9i9','khobz_b'].includes(p.id));const gc=g?g.c:'#e8c66b';const top=P.filter(p=>p!==g);
+    let v='';for(let k=0;k<9;k++){const a=Math.PI*(1.08+k*0.095),c=(top[k%Math.max(1,top.length)]||{c:'#ee8a2b'}).c;v+=`<ellipse cx="${(32+Math.cos(a)*9).toFixed(1)}" cy="${(30+Math.sin(a)*5).toFixed(1)}" rx="5.5" ry="2.3" fill="${c}" transform="rotate(${(a*57.3+90).toFixed(0)} ${(32+Math.cos(a)*9).toFixed(1)} ${(30+Math.sin(a)*5).toFixed(1)})"/>`}
+    return `${SH}<ellipse cx="32" cy="47" rx="29" ry="9.5" fill="#f4efe6" stroke="#2f6f8f" stroke-width="2"/><path d="M8 46 Q32 6 56 46 Z" fill="${gc}"/>${scatter([{c:'#fff'}],r,32,38,16,6,14,.5,.9).replace(/fill="#fff"/g,'fill="#fff" opacity=".45"')}${v}${top.length?pc(32,23,4,top[0].c):''}`},
+  bowl:(P,r)=>{const c=P.length?P[0].c:'#c98a50';return `${SH}<path d="M8 32 Q32 66 56 32 Z" fill="#f2ede3" stroke="#d8cfbf"/><path d="M11 40 Q32 50 53 40" stroke="#2f6f8f" stroke-width="2" fill="none"/>
+    <ellipse cx="32" cy="32" rx="24" ry="7" fill="${c}"/>${scatter(P.slice(1).concat([{c:'#3f8a3a'}]),r,32,32,17,4.5,12,1,2)}`},
+  salad:(P,r)=>{let s='';const cols=P.length?P.slice(0,5):[{c:'#d9453b'}];for(let k=0;k<26;k++){const a=r()*Math.PI*2,d=Math.sqrt(r())*17,x=32+Math.cos(a)*d,y=33+Math.sin(a)*d*.62;
+      s+=`<rect x="${(x-2.3).toFixed(1)}" y="${(y-2.3).toFixed(1)}" width="4.6" height="4.6" rx="1" fill="${cols[k%cols.length].c}" transform="rotate(${(r()*90).toFixed(0)} ${x.toFixed(1)} ${y.toFixed(1)})"/>`}
+    return `${SH}<ellipse cx="32" cy="35" rx="27" ry="17" fill="#f7f4ee" stroke="#d9d2c4"/>${s}`},
+  plate:(P,r)=>{const pr=pick1(P,'prot','#c98a50'),cb=pick1(P,'carb','#f2ead8'),vs=P.filter(p=>p.f&&p.f.cat==='veg');
+    return `${SH}<ellipse cx="32" cy="35" rx="28" ry="18" fill="#f7f4ee" stroke="#d9d2c4"/><ellipse cx="32" cy="35" rx="22" ry="13.5" fill="#efe9de"/>
+    <rect x="14" y="27" width="17" height="10" rx="5" fill="${pr}"/><rect x="16" y="34" width="15" height="8" rx="4" fill="${pr}" opacity=".85"/>
+    <ellipse cx="42" cy="29" rx="9" ry="6" fill="${cb}"/>${scatter([{c:'#ffffff'}],r,42,29,6,3.5,8,.5,.8).replace(/fill="#ffffff"/g,'fill="#000" opacity=".08"')}
+    ${scatter(vs.length?vs:[{c:'#6fa34b'}],r,41,41,8,4,10,1.8,3)}`},
+  fish:(P,r)=>{const f=P.find(p=>['sardine','merla','7out_kamel'].includes(p.id)),c=f?f.c:'#a8b4bc';
+    return `${SH}<ellipse cx="32" cy="36" rx="28" ry="16" fill="#f7f4ee" stroke="#d9d2c4"/><ellipse cx="29" cy="34" rx="15" ry="6.5" fill="${c}"/><path d="M42 34 L52 27 L52 41 Z" fill="${c}"/>
+    <circle cx="19" cy="33" r="1.2" fill="#333"/><path d="M24 30 Q28 34 24 38" stroke="#000" stroke-opacity=".15" fill="none"/>${scatter(P.filter(p=>p!==f).concat([{c:'#3f8a3a'}]),r,32,44,16,3,10,1.4,2.4)}${pc(48,44,3.2,'#f2d64b')}`},
+  pan:(P,r)=>{const sauce=P.find(p=>['maticha','rouz_n'].includes(p.id));const sc=sauce?sauce.c:'#e0873a';const egg=P.some(p=>p.id==='bid');
+    return `${SH}<rect x="46" y="31" width="17" height="4" rx="2" fill="#3a3a3a" transform="rotate(-20 46 33)"/><circle cx="29" cy="34" r="22" fill="#3a3a3a"/><circle cx="29" cy="34" r="19" fill="${sc}"/>
+    ${scatter(P.filter(p=>p!==sauce&&p.id!=='bid'),r,29,34,14,14,16,1.5,3)}${egg?'<circle cx="23" cy="30" r="5.5" fill="#fff"/><circle cx="23" cy="30" r="2.4" fill="#f2b93a"/><circle cx="35" cy="39" r="5.5" fill="#fff"/><circle cx="35" cy="39" r="2.4" fill="#f2b93a"/>':''}`},
+  omelette:(P,r)=>`${SH}<ellipse cx="32" cy="36" rx="27" ry="16" fill="#f7f4ee" stroke="#d9d2c4"/><path d="M12 38 Q32 14 52 38 Z" fill="#f4cf52"/>${scatter(P.filter(p=>p.id!=='bid'),r,32,31,12,4,12,1.3,2.4)}`,
+  bread:(P,r)=>`${SH}<ellipse cx="32" cy="38" rx="24" ry="14" fill="${P.length?P[0].c==='#f3ead6'?'#d8a35f':P[0].c:'#d8a35f'}"/><ellipse cx="32" cy="36" rx="21" ry="11" fill="#e6b877"/>
+    <path d="M20 33 L44 39 M22 39 L40 31" stroke="#b07a3a" stroke-width="1.4" opacity=".55"/>`,
+  trid:()=>`${SH}<ellipse cx="32" cy="44" rx="25" ry="8" fill="#e7c896"/><ellipse cx="32" cy="40" rx="25" ry="8" fill="#efd6a8"/><ellipse cx="32" cy="36" rx="25" ry="8" fill="#f3dfb6" stroke="#d9b980"/>`,
+  coil:()=>`${SH}<ellipse cx="32" cy="38" rx="24" ry="14" fill="#e3b26a"/><path d="M32 38 m-3 0 a3 2 0 1 1 6 0 a6 4 0 1 1 -12 0 a9 6 0 1 1 18 0 a12 8 0 1 1 -24 0 a15 10 0 1 1 30 0" stroke="#b9823e" stroke-width="1.6" fill="none"/>`,
+  harcha:()=>`${SH}<ellipse cx="32" cy="40" rx="20" ry="12" fill="#d9a54d"/><ellipse cx="32" cy="37" rx="20" ry="11" fill="#ecc06a"/><g fill="#c9922f">${[0,1,2,3,4,5,6,7].map(k=>pc(22+k*2.8,33+(k%3)*2.5,.8,'#c9922f')).join('')}</g>`,
+  beghrir:(P,r)=>{let h='';for(let k=0;k<34;k++){const a=r()*Math.PI*2,d=Math.sqrt(r())*19;h+=pc(32+Math.cos(a)*d,36+Math.sin(a)*d*.58,.9,'#c9a24a')}return `${SH}<ellipse cx="32" cy="38" rx="25" ry="15" fill="#e5c26a"/><ellipse cx="32" cy="36" rx="23" ry="13" fill="#f4dc8a"/>${h}`},
+  msmen:()=>`${SH}<rect x="12" y="20" width="40" height="32" rx="5" fill="#d99a3e" transform="skewX(-6)"/><rect x="16" y="23" width="32" height="25" rx="4" fill="#ecba5c"/><path d="M16 35 H48 M32 23 V48" stroke="#c78a33" stroke-width="1.2"/>`,
+  ring:()=>`${SH}<circle cx="32" cy="36" r="19" fill="#d9a04a"/><circle cx="32" cy="36" r="16" fill="#e8b860"/><circle cx="32" cy="36" r="6.5" fill="#f7f4ee"/>`,
+  karane:()=>`${SH}<rect x="13" y="22" width="38" height="28" rx="3" fill="#f0c94a"/><rect x="13" y="22" width="38" height="5" rx="2" fill="#d9a92f"/>${[0,1,2,3,4,5].map(k=>pc(18+k*5.5,36+(k%2)*5,.9,'#8a5a20')).join('')}`,
+  pie:()=>`${SH}<ellipse cx="32" cy="40" rx="26" ry="13" fill="#c9893a"/><ellipse cx="32" cy="37" rx="26" ry="13" fill="#e9b765"/><ellipse cx="32" cy="36" rx="22" ry="10.5" fill="#f6efe0"/>
+    <path d="M14 33 L50 41 M18 28 L48 38 M14 39 L40 46 M22 26 L50 33 M27 26 L18 46 M37 26 L28 46 M46 28 L38 46" stroke="#8a4a20" stroke-width="1.6"/>`,
+  tea:()=>`${SH}<path d="M20 16 L44 16 L40 55 L24 55 Z" fill="#e9eef0" stroke="#c9d3d8"/><path d="M22 26 L42 26 L39.4 53 L24.6 53 Z" fill="#c0892f"/><path d="M33 10 q6 4 2 9 q-6 -3 -2 -9" fill="#4d9a3f"/>
+    <path d="M22 26 L42 26" stroke="#fff" stroke-opacity=".5"/><path d="M26 18 L23 50" stroke="#fff" stroke-width="1.5" stroke-opacity=".6"/>`,
+  cup:(P)=>{const milk=P.some(p=>['hlib','lben'].includes(p.id));return `${SH}<ellipse cx="32" cy="52" rx="24" ry="5" fill="#f2ede3" stroke="#d8cfbf"/><path d="M14 24 L50 24 L46 50 L18 50 Z" fill="#f7f4ee" stroke="#d8cfbf"/>
+    <path d="M50 30 q9 2 0 12" stroke="#d8cfbf" stroke-width="3" fill="none"/><ellipse cx="32" cy="25" rx="18" ry="4" fill="${milk?'#b07a4a':'#4a2e1c'}"/>${milk?'<ellipse cx="30" cy="25" rx="8" ry="1.6" fill="#f3e5cf"/>':''}`},
+  tall:(P,r)=>`${SH}<path d="M18 10 L46 10 L42 56 L22 56 Z" fill="#e9eef0" stroke="#c9d3d8"/><path d="M19.5 18 L44.5 18 L41.7 54 L22.3 54 Z" fill="${P.length?P[0].c:'#c9a25a'}"/>${scatter(P.slice(1,4),r,32,22,9,2,8,1,1.8)}`,
+  cookies:(P,r,key)=>{const shape={kaab_ghzal:'cres',briwat_louz:'tri',ma9rout:'dia',chebakia:'flow',fekkas:'stick'}[key]||'round';
+    const col={chebakia:'#9a4a1a',fekkas:'#e2b874',ma9rout:'#c9822f',briwat_louz:'#e0a23e',kaab_ghzal:'#ead7b0',ghriba_koko:'#eadfc6',blighat:'#d9a75a'}[key]||'#e8c58a';
+    const at=[[20,33],[34,30],[46,36],[26,42],[40,44]];const one=([x,y])=>shape==='cres'?`<path d="M${x-7} ${y+2} Q${x} ${y-9} ${x+7} ${y+2} Q${x} ${y-3} ${x-7} ${y+2} Z" fill="${col}" stroke="#b89a66" stroke-width="1.2"/>`
+      :shape==='tri'?`<path d="M${x-6} ${y+4} L${x+6} ${y+4} L${x} ${y-6} Z" fill="${col}"/>`:shape==='dia'?`<path d="M${x-7} ${y} L${x} ${y-5} L${x+7} ${y} L${x} ${y+5} Z" fill="${col}"/>`
+      :shape==='flow'?`<circle cx="${x}" cy="${y}" r="6" fill="${col}"/><circle cx="${x}" cy="${y}" r="2.5" fill="#e0a93a"/>`:shape==='stick'?`<rect x="${x-7}" y="${y-3}" width="14" height="6" rx="2" fill="${col}"/>`
+      :`<circle cx="${x}" cy="${y}" r="6.2" fill="${col}" stroke="#b89a66" stroke-opacity=".6"/><path d="M${x-3} ${y-1} l2 2 l3 -3" stroke="#fff" stroke-opacity=".7" fill="none"/>`;
+    return `${SH}<ellipse cx="32" cy="40" rx="28" ry="15" fill="#f7f4ee" stroke="#d9d2c4"/>${at.map(one).join('')}`},
+  mound:(P,r)=>`${SH}<path d="M8 36 Q32 64 56 36 Z" fill="#f2ede3" stroke="#d8cfbf"/><path d="M12 37 Q32 8 52 37 Z" fill="#8a5a30"/>${scatter([{c:'#efe0c0'}],r,32,28,12,5,9,1.2,2)}`,
+  jar:(P,r)=>{const cols=P.length?P:[{c:'#9a6a3a'}];return `${SH}<rect x="18" y="14" width="28" height="42" rx="6" fill="#e9eef0" stroke="#c9d3d8"/><rect x="16" y="9" width="32" height="7" rx="2" fill="#c98a50"/>
+    <rect x="20" y="22" width="24" height="32" rx="4" fill="${cols[0].c}"/>${cols[1]?`<rect x="20" y="22" width="24" height="9" rx="3" fill="${cols[1].c}"/>`:''}${scatter(cols.slice(2,5),r,32,25,9,2,6,1.2,2)}`},
+  cup2:(P,r)=>{const b=P.find(p=>['perly','hlib','lben','choufan','7mes_n','raib'].includes(p.id))||P[0]||{c:'#fbf8f0'};
+    return `${SH}<ellipse cx="32" cy="36" rx="25" ry="16" fill="#f2ede3" stroke="#d8cfbf"/><ellipse cx="32" cy="34" rx="20" ry="11.5" fill="${b.c==='#fbf8f0'?'#f4f0e6':b.c}"/>${scatter(P.filter(p=>p!==b),r,32,34,14,7,14,1.5,3)}`},
+  block:()=>`${SH}<ellipse cx="32" cy="44" rx="26" ry="10" fill="#e9e4da"/><path d="M18 26 L46 26 L50 44 L14 44 Z" fill="#fbf7ee" stroke="#e1d8c4"/><path d="M18 26 L46 26 L44 22 L20 22 Z" fill="#fffdf6" stroke="#e1d8c4"/>`,
+  pancake:(P,r)=>`${SH}<ellipse cx="32" cy="46" rx="24" ry="7" fill="#d79a4a"/><ellipse cx="32" cy="41" rx="24" ry="7" fill="#e4ad5e"/><ellipse cx="32" cy="36" rx="24" ry="7" fill="#efbf72"/>
+    ${pc(26,34,3,'#f2d74e')}${pc(33,33,3,'#f2d74e')}${pc(39,35,3,'#f2d74e')}`,
+  sandwich:(P,r)=>{const fill=P.filter(p=>!['khobz','khobz_b'].includes(p.id)).slice(0,3);
+    return `${SH}<path d="M8 40 Q32 22 56 40 Z" fill="#d9a35a"/>${fill.map((p,k)=>`<path d="M9 ${41+k*3} Q32 ${33+k*3} 55 ${41+k*3}" stroke="${p.c}" stroke-width="3.2" fill="none" stroke-linecap="round"/>`).join('')}
+    <path d="M9 ${43+fill.length*3} Q32 ${53+fill.length} 55 ${43+fill.length*3} Z" fill="#c98f4f"/>`},
+  toast:(P,r)=>`${SH}<rect x="10" y="22" width="44" height="28" rx="7" fill="#c98f4f"/><rect x="13" y="25" width="38" height="22" rx="5" fill="#e6b877"/>${scatter(P.filter(p=>p.id!=='khobz'),r,32,36,15,7,16,2,3.4)}`,
+  skewer:(P,r)=>{const cols=P.slice(0,3).map(p=>p.c);if(!cols.length)cols.push('#8a4b32');let s='';
+    [[0,0],[0,9]].forEach(([dx,dy],j)=>{s+=`<line x1="8" y1="${30+dy}" x2="58" y2="${22+dy}" stroke="#9a7a55" stroke-width="1.6"/>`;for(let k=0;k<5;k++){const x=15+k*8.5,y=29+dy-k*1.35;s+=`<rect x="${x-3.6}" y="${y-3.6}" width="7.2" height="7.2" rx="2" fill="${cols[(k+j)%cols.length]}"/>`}});
+    return `${SH}<ellipse cx="32" cy="38" rx="28" ry="15" fill="#f7f4ee" stroke="#d9d2c4"/>${s}`},
+  platter:(P,r)=>{const m=P.find(p=>p.f&&p.f.cat==='prot'),c=m?m.c:'#8a4b32';return `${SH}<ellipse cx="32" cy="38" rx="29" ry="15" fill="#e9dcc4" stroke="#c9b38a"/><path d="M14 38 Q20 24 34 26 Q50 27 50 38 Q46 47 30 47 Q16 46 14 38 Z" fill="${c}"/>
+    <path d="M20 34 Q30 30 42 34" stroke="#000" stroke-opacity=".18" fill="none"/>${scatter(P.filter(p=>p!==m).concat([{c:'#3f8a3a'}]),r,32,43,16,2.5,8,1.2,2)}`},
+  urn:()=>`${SH}<path d="M24 12 L40 12 L38 18 Q52 30 46 50 Q32 58 18 50 Q12 30 26 18 Z" fill="#b5602f"/><rect x="22" y="9" width="20" height="5" rx="2" fill="#f2ede3"/><path d="M20 34 Q32 38 44 34" stroke="#8a4520" stroke-width="2" fill="none"/>`,
+  stuffed:(P,r)=>{const f=pick1(P,'prot','#b07a52');return `${SH}<ellipse cx="32" cy="38" rx="28" ry="15" fill="#f7f4ee" stroke="#d9d2c4"/>${[[22,34],[40,41]].map(([x,y])=>`<ellipse cx="${x}" cy="${y}" rx="13" ry="6" fill="#5f8f3a"/><ellipse cx="${x}" cy="${y-.5}" rx="10.5" ry="4.2" fill="${f}"/>${pc(x-3,y-1,1.8,'#f0b03a')}${pc(x+3,y,1.8,'#d9453b')}`).join('')}`}};
+const _art={};
+/* a dish picture: recipe object or menu items (breakfast lists); cached by content */
+function dishArt(r){const key=r.key||'',items=r.items||[];const ck=(r.id||'')+'|'+JSON.stringify(items);if(_art[ck])return _art[ck];
+  const kind=ARTK[key]||ARTC[r.cat]||'plate',P=artParts(items),rnd=rngOf(hashStr(ck));
+  const svg=`<svg viewBox="0 0 64 64" aria-hidden="true" focusable="false">${(DRAW[kind]||DRAW.plate)(P,rnd,key)}</svg>`;return _art[ck]=svg}
+/* a breakfast: its recipe's picture, oats in a bowl, otherwise a small tray with the bread, what goes with it and the tea */
+function ftourArt(items){const it=items||[];const rec=it.map(([id])=>recipe(id)).find(Boolean);if(rec)return dishArt(rec);
+  if(it.some(([id])=>id==='choufan'))return dishArt({id:'ft',key:'g_choufan_whey',items:it,cat:'gym'});
+  const ck='ft|'+JSON.stringify(it);if(_art[ck])return _art[ck];const P=artParts(it).filter(p=>!['khobz','khobz_b','atay','sokar'].includes(p.id));
+  const bread=it.some(([id])=>['khobz','khobz_b','msemen','harcha'].includes(id)),tea=it.some(([id])=>['atay','r_9hwa_7lib'].includes(id)||id==='atay');
+  const svg=`<svg viewBox="0 0 64 64" aria-hidden="true" focusable="false">${SH}<ellipse cx="32" cy="40" rx="29" ry="15" fill="#c98f4f"/><ellipse cx="32" cy="38" rx="27" ry="13" fill="#e2ad6a"/>
+    ${bread?'<path d="M10 40 Q12 28 26 30 Q30 38 24 46 Q14 47 10 40 Z" fill="#d8a35f"/><path d="M13 39 Q15 31 24 33" stroke="#b07a3a" fill="none"/>':''}
+    ${P.length?`<ellipse cx="34" cy="42" rx="9" ry="5" fill="#f7f4ee"/>${scatter(P,rngOf(hashStr(ck)),34,41.5,6,3,7,1.6,2.6)}`:''}
+    ${tea?'<path d="M44 20 L54 20 L52.5 40 L45.5 40 Z" fill="#e9eef0" stroke="#c9d3d8"/><path d="M45 25 L53 25 L52 39 L46 39 Z" fill="#c0892f"/>':''}</svg>`;return _art[ck]=svg}
+const artBox=(svg,cls)=>`<span class="art ${cls||''}">${svg}</span>`;
+
 const HEART='<svg class="hrt" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.6-4.6-9.5-9.3C1.2 7.9 3.4 4.5 6.9 4.5c2 0 3.6 1.1 5.1 3 1.5-1.9 3.1-3 5.1-3 3.5 0 5.7 3.4 4.4 6.7-1.9 4.7-9.5 9.3-9.5 9.3z"/></svg>';
 const isFav=id=>Array.isArray(S.fav)&&S.fav.includes(id);
 function sampleRecipes(){return SEED_RECIPES.map(([k,c,sv,items])=>({id:'r_'+k,key:k,cat:c,n:I18N.dj.rec_names[k],servings:sv,items:items.map(x=>x.slice())}))}
@@ -1714,7 +1881,7 @@ function vMeal(d,k,mult){
   const rows=list.map(([id,q],i)=>{const f=food(id); if(!f) return ''; const m=itemM(id,q);
     const famQ=fam?`<div class="mm">${t('house_whole')} <b>${nu(f.u==='g'?r0(q*mult):r1(q*mult),esc(uLab(f)))}</b></div>`:'';
     return `<div class="item">
-      <div style="min-width:0"><div class="nm">${esc(fname(f))} ${wTag(f)}</div>
+      <div style="min-width:0"><div class="nm">${fIco(f)}${esc(fname(f))} ${wTag(f)}</div>
       <div class="mm">${macro(m)}</div>${famQ}${f.isRec&&!ingOpen[k+'_'+i]?recBreak(id,q,k+'_'+i):''}</div>
       <div class="qty"><button aria-label="${t('dec')}" onclick="step('${k}',${i},-1)">−</button>
         <input id="q_${fam?'h':'p'}_${k}_${i}" type="number" inputmode="decimal" min="0" step="${f.s}" value="${q}" aria-label="${t('qty')}" onchange="setQ('${k}',${i},this.value)">
@@ -2006,7 +2173,7 @@ const mealLbl=(k,v)=>k==='ftour'?ftourName(v||[]):(v&&recipe(v)?recName(recipe(v
 function eatOut(i,k){const d=S.menu.days[i],v=d[k];if(!v||(k==='ftour'&&!v.length))return;if(!isObj(d.out))d.out={};d.out[k]=v;d[k]=null;swapAt=null;save();render();toast(t('out_note',{x:mealLbl(k,v)}))}
 function eatIn(i,k){const d=S.menu.days[i];if(!hasOut(d)||!(k in d.out))return;d[k]=d.out[k];delete d.out[k];if(!Object.keys(d.out).length)delete d.out;save();render()}
 function outCard(i,k){const d=S.menu.days[i];if(!isObj(d.out)||!(k in d.out))return '';
-  return `<div class="mcard out"><div class="mrow"><div style="min-width:0"><span class="mk">${mealBase(k)}</span><b>🍽 ${t('out_title')}</b><span class="mm">${esc(mealLbl(k,d.out[k]))}</span></div>
+  return `<div class="mcard out"><div class="mrow"><div class="mleft">${artBox(k==='ftour'?ftourArt(d.out[k]):recipe(d.out[k])?dishArt(recipe(d.out[k])):'','sm')}<div style="min-width:0"><span class="mk">${mealBase(k)}</span><b>🍽 ${t('out_title')}</b><span class="mm">${esc(mealLbl(k,d.out[k]))}</span></div></div>
     <div class="mbtns"><button class="btn sm" onclick="eatIn(${i},'${k}')">↺ ${t('out_back')}</button></div></div></div>`}
 /* Swap one meal with the same meal of another day (the planner's "move to another day") */
 function swapDays(i,j,k){const a=S.menu.days[i],b=S.menu.days[j];const x=a[k];a[k]=b[k];b[k]=x;swapAt=null;save();render();toast(t('toast_moved',{d:tl('week_days',j)}))}
@@ -2015,14 +2182,14 @@ const moveRow=(i,k)=>{const ok=x=>k==='ftour'?Array.isArray(x.ftour)&&x.ftour.le
   return c?`<div class="mv"><span class="lbl">${t('move_to')}</span><div class="chips">${c}</div></div>`:''};
 function ftourCard(i){const d=S.menu.days[i];const open=swapAt===i+':ftour';const r=d.ftour.map(([id])=>recipe(id)).find(Boolean);
   const tm=r?recMeta(r).time:5;const opts=open?ftourOptions(i):[];
-  return `<div class="mcard"><div class="mrow"><div style="min-width:0"><span class="mk">${mealBase('ftour')}</span><b>${esc(ftourName(d.ftour))}</b>
-    <span class="mm">⏱ ${t('time_lbl',{n:tm})} · ${dh(sum(d.ftour).cost)} ${t('per_pers')}</span><span class="mm">${macro(sum(d.ftour))}</span></div>
+  return `<div class="mcard"><div class="mrow"><div class="mleft">${artBox(ftourArt(d.ftour))}<div style="min-width:0"><span class="mk">${mealBase('ftour')}</span><b>${esc(ftourName(d.ftour))}</b>
+    <span class="mm">⏱ ${t('time_lbl',{n:tm})} · ${dh(sum(d.ftour).cost)} ${t('per_pers')}</span><span class="mm">${macro(sum(d.ftour))}</span></div></div>
     <div class="mbtns">${r?`<button class="btn sm" onclick="cookFtour(${i})">👨‍🍳 ${t('cook_btn')}</button>`:''}<button class="btn sm" onclick="swapAt=${open?'null':`'${i}:ftour'`};render()">${t('swap')}</button><button class="btn sm ghost" onclick="eatOut(${i},'ftour')">🍽 ${t('eat_out')}</button></div></div>
     ${plateHTML(d.ftour)}
     ${menuBreak(d.ftour,'m'+i+'ftour')}
     ${open?`<div class="swap"><div class="chips">${['cheaper','faster','protein','lean','home'].map(md=>`<button class="chip" aria-pressed="${swapMode===md}" onclick="swapMode='${md}';render()">${t({home:'at_home_opt',protein:'more_prot',lean:'lf_opt'}[md]||md)}</button>`).join('')}
       <button class="chip" onclick="setFtour(${i},pick(ftourOptions(${i})).items)">🎲 ${t('random_one')}</button></div>${moveRow(i,'ftour')}
-      ${opts.map((o,j)=>`<button class="fopt" onclick="setFtour(${i},ftourOptions(${i})[${j}].items)"><span><span class="nm">${esc(o.name)}</span><br><span class="mm">⏱ ${t('time_lbl',{n:o.time})} · ${dh(o.cost)} ${t('per_pers')}${o.key?effTxt(o.key):''}</span></span><span class="add">↺</span></button>`).join('')||`<p class="hint">${t('no_option')}</p>`}</div>`:''}</div>`}
+      ${opts.map((o,j)=>`<button class="fopt" onclick="setFtour(${i},ftourOptions(${i})[${j}].items)">${artBox(ftourArt(o.items),'sm')}<span><span class="nm">${esc(o.name)}</span><br><span class="mm">⏱ ${t('time_lbl',{n:o.time})} · ${dh(o.cost)} ${t('per_pers')}${o.key?effTxt(o.key):''}</span></span><span class="add">↺</span></button>`).join('')||`<p class="hint">${t('no_option')}</p>`}</div>`:''}</div>`}
 /* Recipes flattened to their ingredients, scaled to what one person eats */
 function flatItems(items){const out={};const add=(id,q)=>{out[id]=(out[id]||0)+q};
   items.forEach(([id,q])=>{const r=recipe(id);if(r){const sv=Math.max(1,+r.servings||1);r.items.forEach(([i,iq])=>add(i,oilQ(i,iq)*q/sv))}else add(id,q)});return Object.entries(out)}
@@ -2036,7 +2203,7 @@ const qTxt=(g,q)=>{const v=qRound(g,q),w=Math.floor(v),fr=FR4[Math.round((v-w)*1
 const stTag=g=>g.u!=='g'?'':['whole','asbought'].includes(g.nt)?t('w_buy'):g.nt==='dry'?t('w_cooked'):['carb','prot'].includes(g.cat)?t('w_raw'):'';
 const onList=(g,q)=>g.u==='g'&&g.b==='kg'&&Math.abs(g.f-.001)>1e-9?t(g.nt==='dry'?'on_list_dry':'on_list',{x:nu(qRound(g,q*g.f*1000),t('u_g'))}):'';
 function plateHTML(items,head){const rows=flatItems(items).map(([id,a])=>{const g=food(id);if(!g||!(a>0))return '';const tg=stTag(g),ol=onList(g,a);
-    return `<li data-id="${esc(id)}">${qTxt(g,a)} ${esc(g.sn?fname(g):shopName(g))}${tg?` <span class="wst">${tg}</span>`:''}${ol?` <small>${ol}</small>`:''}</li>`}).join('');
+    return `<li data-id="${esc(id)}">${fIco(g)}${qTxt(g,a)} ${esc(g.sn?fname(g):shopName(g))}${tg?` <span class="wst">${tg}</span>`:''}${ol?` <small>${ol}</small>`:''}</li>`}).join('');
   return `<div class="plate">${head||''}<ul>${rows}</ul></div>`}
 function menuBreak(items,key,extra){const tot=Math.round((1+(extra||0))*100)/100,two=tot!==1;
   if(!ingOpen[key])return `<button class="ing-t" aria-expanded="false" onclick="ingOpen['${key}']=1;render()">▸ ${t('ing_macros')}</button>`;
@@ -2151,8 +2318,8 @@ function othersFitHTML(d,i,p){const oth=nutEaters().filter(e=>e.id!==p.id);if(!o
 function setMeal(i,k,id){S.menu.days[i][k]=id;swapAt=null;save();render()}
 function randomMeal(i,k){const o=swapOptions(i,k);if(o.length)setMeal(i,k,pick(o).id)}
 function mealCard(i,k){const id=S.menu.days[i][k];const r=id&&recipe(id);if(!r)return '';const m=recMeta(r);const open=swapAt===i+':'+k;
-  return `<div class="mcard"><div class="mrow"><div style="min-width:0"><span class="mk">${mealBase(k)}</span><b>${esc(recName(r))}</b>
-    <span class="mm">⏱ ${t('time_lbl',{n:m.time})} · ${t('diff_'+m.diff)} · ${dh(recCost(r))} ${t('per_pers')}</span></div>
+  return `<div class="mcard"><div class="mrow"><div class="mleft">${artBox(dishArt(r))}<div style="min-width:0"><span class="mk">${mealBase(k)}</span><b>${esc(recName(r))}</b>
+    <span class="mm">⏱ ${t('time_lbl',{n:m.time})} · ${t('diff_'+m.diff)} · ${dh(recCost(r))} ${t('per_pers')}</span></div></div>
     <div class="mbtns"><button class="btn sm" onclick="cookMenu(${i},'${k}')">👨‍🍳 ${t('cook_btn')}</button><button class="btn sm" onclick="swapAt=${open?'null':`'${i}:${k}'`};render()">${t('swap')}</button><button class="btn sm ghost" onclick="eatOut(${i},'${k}')">🍽 ${t('eat_out')}</button></div></div>
     ${(()=>{const f=menuTotal(i),sv=Math.max(1,+r.servings||1),m=sum([[id,f]]);
       return plateHTML([[id,f]],`<div class="plh"><b>${f===1?t('your_plate'):t('your_plate_x',{x:bdi(f)})}</b> <span class="mm">${macro(m)} · ${dh(m.cost)}</span></div>`)
@@ -2160,7 +2327,7 @@ function mealCard(i,k){const id=S.menu.days[i][k];const r=id&&recipe(id);if(!r)r
     ${menuBreak([[id,1]],'m'+i+k,menuTotal(i)-S.menu.set.people)}
     ${open?`<div class="swap"><div class="chips">${['cheaper','faster','protein','lean','home'].map(md=>`<button class="chip" aria-pressed="${swapMode===md}" onclick="swapMode='${md}';render()">${t({home:'at_home_opt',protein:'more_prot',lean:'lf_opt'}[md]||md)}</button>`).join('')}
       <button class="chip" onclick="randomMeal(${i},'${k}')">🎲 ${t('random_one')}</button></div>${moveRow(i,k)}
-      ${swapOptions(i,k).map(o=>{const om=recMeta(o);return `<button class="fopt" onclick="setMeal(${i},'${k}','${o.id}')"><span><span class="nm">${esc(recName(o))}</span><br><span class="mm">⏱ ${t('time_lbl',{n:om.time})} · ${dh(recCost(o))} ${t('per_pers')}${effTxt(o.id)}</span></span><span class="add">↺</span></button>`}).join('')||`<p class="hint">${t('no_option')}</p>`}</div>`:''}</div>`}
+      ${swapOptions(i,k).map(o=>{const om=recMeta(o);return `<button class="fopt" onclick="setMeal(${i},'${k}','${o.id}')">${artBox(dishArt(o),'sm')}<span><span class="nm">${esc(recName(o))}</span><br><span class="mm">⏱ ${t('time_lbl',{n:om.time})} · ${dh(recCost(o))} ${t('per_pers')}${effTxt(o.id)}</span></span><span class="add">↺</span></button>`}).join('')||`<p class="hint">${t('no_option')}</p>`}</div>`:''}</div>`}
 const ftourName=items=>{const f=FTOUR.find(([,it])=>JSON.stringify(it)===JSON.stringify(items));if(f)return t(f[0]);return items.map(([id,q])=>{const x=food(id);if(!x)return '';const r=recipe(id);return r?(q>1?r1(q)+' × ':'')+recName(r):fname(x)}).filter(Boolean).join(' + ')};
 /* Status of a menu day for the active profile, as one short label */
 function dayPill(d){const p=P();if(hasOut(d))return `<span class="pill">${t('pill_out')}</span>`;if(p.noTargets||!(d.ghda||d['3cha']))return '';const x=dayFit(d,p);
@@ -2176,11 +2343,11 @@ function vMenu(){
   if(!openDayInit){openDayInit=true;openDay=todayIdx()}
   const days=m.days.map((d,i)=>{const open=openDay===i;
     const nm=k=>isObj(d.out)&&k in d.out?'🍽 '+t('out_title'):k==='ftour'?(d.ftour&&d.ftour.length?ftourName(d.ftour):null):(d[k]&&recipe(d[k])?recName(recipe(d[k])):null);
-    const names=OUTK.map(k=>[k,nm(k)]).filter(x=>x[1]);
+    const names=OUTK.map(k=>[k,nm(k)]).filter(x=>x[1]),ico=k=>isObj(d.out)&&k in d.out?'':k==='ftour'?artBox(ftourArt(d.ftour),'xs'):artBox(dishArt(recipe(d[k])),'xs');
     return `<section class="mday ${open?'open':''}">
       <button class="mday-h" aria-expanded="${open}" onclick="openDay=${open?'null':i};swapAt=null;render()"><span class="dn">${tl('week_days',i)}${i===todayIdx()?` <small>· ${t('today_lbl')}</small>`:''}</span>${dayPill(d)}<span class="chev" aria-hidden="true">▾</span></button>
       ${open?`<div class="mday-b">${d.ftour?ftourCard(i):outCard(i,'ftour')}${d.ghda?mealCard(i,'ghda'):outCard(i,'ghda')}${d['3cha']?mealCard(i,'3cha'):outCard(i,'3cha')}${dayFitHTML(d,i)}</div>`
-        :`<button class="mlist" onclick="openDay=${i};swapAt=null;render()">${names.map(([k,n])=>`<span><small>${mealBase(k)}</small><span>${esc(n)}</span></span>`).join('')}</button>`}</section>`}).join('');
+        :`<button class="mlist" onclick="openDay=${i};swapAt=null;render()">${names.map(([k,n])=>`<span><small>${mealBase(k)}</small>${ico(k)}<span>${esc(n)}</span></span>`).join('')}</button>`}</section>`}).join('');
   return `<div class="stack">
     <section class="panel stack"><div class="sec-h"><h2>${t('menu_title')}</h2><div class="row" style="gap:8px">
         <button class="iconbtn" onclick="makeMenu()" aria-label="${t('remake')}" title="${t('remake')}">🎲</button>
@@ -2215,7 +2382,7 @@ function vRecipes(){
   const catChips=[['all',t('all'),rs.length]].concat(nFav||recCat==='fav'?[['fav',HEART+' '+t('fav'),nFav]]:[],RCATS.filter(c=>counts[c]).map(c=>[c,rIcon(c)+' '+t('rcat_'+c),counts[c]]))
     .map(([c,l,n])=>`<button class="chip" aria-pressed="${recCat===c}" onclick="recCat='${c}';render()">${l} <span class="cnt">${n}</span></button>`).join('');
   const list=shown.map(x=>{const f=recipeFood(x),on=editRec===x.id,fv=isFav(x.id);return `<div class="rcard${on?' on':''}"><button class="rmain" aria-pressed="${on}" onclick="editRec=editRec==='${x.id}'?null:'${x.id}';delArm=null;render();if(editRec)setTimeout(()=>{const e=document.getElementById('recEd');e&&e.scrollIntoView({behavior:'smooth',block:'start'})},30)">
-      <span class="ric" aria-hidden="true">${rIcon(x.cat)}</span><span class="rtx"><b>${esc(recName(x))}</b><span>${kc(r0(f.m[0]))} · ${bdi(t('mP')+' '+r0(f.m[1]))} · ${dh(f.p)}</span><span>⏱ ${t('time_lbl',{n:recMeta(x).time})} · ${t('diff_'+recMeta(x).diff)}</span></span></button>
+      ${artBox(dishArt(x),'md')}<span class="rtx"><b>${esc(recName(x))}</b><span>${kc(r0(f.m[0]))} · ${bdi(t('mP')+' '+r0(f.m[1]))} · ${dh(f.p)}</span><span>⏱ ${t('time_lbl',{n:recMeta(x).time})} · ${t('diff_'+recMeta(x).diff)}</span></span></button>
       <button class="fav" aria-pressed="${fv}" aria-label="${esc(t('fav')+' · '+recName(x))}" title="${t('fav')}" onclick="toggleFav('${x.id}')">${HEART}</button></div>`}).join('');
   const chips=`<input id="rQ" class="in" placeholder="${t('rec_search')}" value="${esc(recQ)}" oninput="recQ=this.value;clearTimeout(window._rq);window._rq=setTimeout(()=>{render();const e=document.getElementById('rQ');if(e){e.focus();e.setSelectionRange(e.value.length,e.value.length)}},250)">
     <div class="chips">${catChips}</div>
@@ -2224,7 +2391,7 @@ function vRecipes(){
   let ed='';
   if(r){const tot=sum(recItems(r));const n=Math.max(1,+r.servings||1);const stp=recSteps(r);
     const rows=r.items.map(([id,q],i)=>{const f=food(id);if(!f)return '';const m=itemM(id,q);
-      return `<div class="item"><div style="min-width:0"><div class="nm">${esc(fname(f))} ${wTag(f)}</div><div class="mm">${macro(m)}</div>${f.nt?`<div class="mm">${esc(noteOf(f))}</div>`:''}
+      return `<div class="item"><div style="min-width:0"><div class="nm">${fIco(f)}${esc(fname(f))} ${wTag(f)}</div><div class="mm">${macro(m)}</div>${f.nt?`<div class="mm">${esc(noteOf(f))}</div>`:''}
         <div class="mm pedit"><label for="rp_${i}">${t('dh')}/${esc(buyLab(f))}</label><input id="rp_${i}" class="pin num" type="number" inputmode="decimal" step="0.1" min="0" value="${r2(price(f))}" onchange="setP('${f.id}',this.value)"></div></div>
       <div class="qty"><button aria-label="${t('dec')}" onclick="rStep(${i},-1)">−</button>
         <input id="rq_${i}" type="number" inputmode="decimal" min="0" step="${f.u==='g'?50:f.s}" value="${q}" aria-label="${t('qty')}" onchange="rSetQ(${i},this.value)">
@@ -2232,6 +2399,7 @@ function vRecipes(){
       <div class="price">${dh(m.cost)}</div><button class="x" aria-label="${t('remove')}" onclick="rRm(${i})">✕</button></div>`}).join('');
     ed=`<div class="meal" id="recEd">
       <div class="meal-h" style="flex-wrap:wrap;align-items:flex-end">
+        ${artBox(dishArt(r),'lg')}
         <div style="flex:1;min-width:160px"><label class="lbl" for="rName">${t('recipe_name')}</label><input id="rName" class="in" value="${esc(recName(r))}" onchange="renameRecipe(this.value)"></div>
         <div style="width:110px"><label class="lbl" for="rTime">${t('rec_time')}</label><input id="rTime" class="in num" type="number" min="5" max="600" step="5" value="${recMeta(r).time}" onchange="R().time=Math.max(5,+this.value||60);save();render()"></div>
         <div style="width:120px"><label class="lbl" for="rDiff">${t('rec_diff')}</label><select id="rDiff" class="in" onchange="R().diff=+this.value;save();render()">${[1,2,3].map(v=>`<option value="${v}" ${recMeta(r).diff===v?'selected':''}>${t('diff_'+v)}</option>`).join('')}</select></div>
@@ -2352,7 +2520,7 @@ function vT9edya(){
   const trip=visible.filter(x=>!x.done).reduce((s,x)=>s+x.cost,0);
   const row=x=>{const differs=Math.abs(x.buy-x.need)>1e-6&&x.f.b!=='u';const hasQ=typeof x.have==='number'&&x.have>0;
     return `<div class="li ${x.done?'done':''}" data-id="${x.id}" data-place="${x.monthly?'month':shopPlace(x.f)}"><input type="checkbox" id="ck_${x.id}" ${x.done?'checked':''} onchange="chk('${x.id}',this.checked)">
-      <label class="nm" for="ck_${x.id}">${esc(shopName(x.f))}${hasQ?`<small class="need have">${t('pan_have',{x:fmtHave(x.f,x.have)})}</small>`:''}${differs&&!x.home?`<small class="need">${t('need',{x:fmtAmt(x.f,x.need)})}</small>`:''}</label>
+      <label class="nm" for="ck_${x.id}">${fIco(x.f)}${esc(shopName(x.f))}${hasQ?`<small class="need have">${t('pan_have',{x:fmtHave(x.f,x.have)})}</small>`:''}${differs&&!x.home?`<small class="need">${t('need',{x:fmtAmt(x.f,x.need)})}</small>`:''}</label>
       <span class="amt">${fmtAmt(x.f,x.buy)}</span><span class="pr">${dh0(x.cost)}</span>
       <button class="home-btn" aria-pressed="${x.home||hasQ}" aria-expanded="${pEdit===x.id}" title="${t('have_home')}" aria-label="${t('have_home')}: ${esc(shopName(x.f))}" onclick="pantry('${x.id}')">⌂</button></div>${pEdit===x.id?pantryEditor(x):''}`};
   const group=(title,r,hint)=>r.length?`<div class="grp">${title}</div>${hint?`<div class="grp-hint">${hint}</div>`:''}`+r.slice().sort(byName).map(row).join(''):'';
@@ -2447,7 +2615,7 @@ function vPrix(){
   <div class="warn">${t('price_warn')}</div>
   <section class="panel"><div class="sec-h"><h2>${t('prices')}</h2><button class="btn sm ghost" onclick="if(delArm!=='prices'){delArm='prices';render();return}delArm=null;S.prices={};save();render();toast(t('toast_reset'))">${delArm==='prices'?t('restore_confirm'):t('reset_prices')}</button></div>
   ${CAT_KEYS.map(c=>`<h3 style="font-size:14px;margin-top:14px;color:var(--muted)">${catName(c)}</h3><div class="ptable">${allFoods().filter(f=>f.cat===c).map(f=>`
-    <div class="prow"><div style="min-width:0"><div style="font-weight:600">${esc(fname(f))} ${estTag(f)}${f.isOv?` <span class="tagx">${t('edited')}</span>`:''}</div><small>${nu(f.u==='g'?100:1,esc(uLab(f)))}: ${macro({k:f.m[0],p:f.m[1],c:f.m[2],f:f.m[3]})}</small>${f.nt?`<small style="display:block">${esc(noteOf(f))}</small>`:''}</div>
+    <div class="prow"><div style="min-width:0"><div style="font-weight:600">${fIco(f)}${esc(fname(f))} ${estTag(f)}${f.isOv?` <span class="tagx">${t('edited')}</span>`:''}</div><small>${nu(f.u==='g'?100:1,esc(uLab(f)))}: ${macro({k:f.m[0],p:f.m[1],c:f.m[2],f:f.m[3]})}</small>${f.nt?`<small style="display:block">${esc(noteOf(f))}</small>`:''}</div>
     <div class="pi"><input id="pr_${f.id}" class="in" type="number" step="0.1" min="0" value="${price(f)}" onchange="setP('${f.id}',this.value)"><small>${esc(unitL(f))}</small><button class="x" aria-label="${t('edit')}" title="${t('edit')}" onclick="editCustom('${f.id}')">✎</button></div></div>`).join('')}</div>`).join('')}
   </section>
   ${S.custom.length?`<section class="panel stack"><h2 style="font-size:19px">${t('custom_list')}</h2>
