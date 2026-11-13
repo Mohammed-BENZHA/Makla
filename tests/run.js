@@ -1004,6 +1004,20 @@ test('Interface', 'recipes: categories on one scrollable row, no price field ins
   ok(r.oneRow && r.n >= 8, 'all ' + r.n + ' categories on one row'); ok(r.price === 0 && r.qty > 0, 'quantities stay, price fields gone (prices live in Réglages)');
   ok(r.hint && r.top, 'list: total on top and explained');
 });
+test('Days', 'a recipe in a day can be turned into its ingredients right there (this day only): same day totals, each amount editable, recipe untouched, one undo', async ({ page }) => {
+  const r = await page.evaluate(() => { S.oil = 1; const d = P().days[0]; mealKeys().forEach(k => d.meals[k] = []); curDay = d.id;
+    const rid = 'r_couscous_tfaya', rec0 = JSON.stringify(recipe(rid).items); d.meals.ghda = [['bid', 2], [rid, 1.5]]; save();
+    go('ana'); anaSub = 'ayyam'; ingOpen = { ghda_1: 1 }; render(); const before = sum(d.meals.ghda);
+    const btn = [...document.querySelectorAll('#view .ingbox .explode')]; btn[0].click();
+    const after = sum(D().meals.ghda), ids = D().meals.ghda.map(x => x[0]), note = document.getElementById('view').textContent.includes(t('undo_explode'));
+    const lamb = D().meals.ghda.findIndex(x => x[0] !== 'bid'); step('ghda', lamb, 1); const changed = sum(D().meals.ghda).k !== after.k;
+    const keptBid = JSON.stringify(D().meals.ghda[0]); undoExplode(); const back = JSON.stringify(D().meals.ghda);
+    return { btn: btn.length, dk: after.k - before.k, dp: after.p - before.p, n: ids.length, hasRec: ids.includes(rid), note, changed, keptBid, back, rec: JSON.stringify(recipe(rid).items) === rec0 }; });
+  eq(r.btn, 1, 'edit button in the open breakdown'); ok(!r.hasRec && r.n > 3, 'recipe replaced by its ' + (r.n - 1) + ' ingredients');
+  ok(Math.abs(r.dk) < 5 && Math.abs(r.dp) < 1, 'same totals (Δ ' + r.dk.toFixed(1) + ' kcal, ' + r.dp.toFixed(2) + ' g protein, rounding only)');
+  eq(r.keptBid, JSON.stringify(['bid', 2]), 'other items untouched'); ok(r.changed, 'an ingredient amount can be changed'); ok(r.note, 'undo offered');
+  eq(r.back, JSON.stringify([['bid', 2], ['r_couscous_tfaya', 1.5]]), 'undo brings the recipe back'); ok(r.rec, 'the recipe itself is unchanged');
+});
 /* ---------- runner ---------- */
 (async () => {
   overrides['/tests/blank.html'] = { type: 'text/html', body: '<!doctype html><title>blank</title>' };   // same-origin page used to seed localStorage
