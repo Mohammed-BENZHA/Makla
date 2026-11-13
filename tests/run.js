@@ -735,7 +735,7 @@ test('Menu', 'B2: a lower budget never gives a dearer menu; a reachable budget i
   ok(b12 <= r.levels[2] * 1.05, 'a budget 20 % above the floor is met (' + b12 + ' for ' + r.levels[2] + ')');
   ok(b06 < u, 'a low budget makes the menu cheaper than no budget');
   ok(r.sameBelow, 'below the floor every budget gives the same menu (no extra squeezing)');
-  ok(r.repLow <= 1.5, 'still varied below the floor (repeats/week: ' + r.repLow + ')');   // ≤ 1.5: at most about one dish twice a week (cheap lentils since the Nov 2026 prices) ok(r.msMax < 1500, 'generation stays fast (' + Math.round(r.msMax) + ' ms)');
+  ok(r.repLow <= 1.5, 'still varied below the floor (repeats/week: ' + r.repLow + ')');   // an impossible budget may serve the cheapest dish twice, sometimes a second one ok(r.msMax < 1500, 'generation stays fast (' + Math.round(r.msMax) + ' ms)');
   ok(r.lowTxt.includes(r.lowKey) && r.lowTxt.includes(String(Math.ceil(r.F / 10) * 10)), 'too-low budget: message with the floor (' + Math.ceil(r.F / 10) * 10 + ' DH)');
   ok(!r.okTxt.includes(r.lowKey), 'no floor message when the budget is reachable');
 });
@@ -847,7 +847,7 @@ test('Menu', 'training recipes: 29, each ≥ 25 g protein a portion, only foods 
     const run = (hp, train) => { Object.assign(P(), { train, tdays: train ? [0, 2, 4] : [] }); const set = { people: 1, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true }, hp };
       const pl = menuPools(set), inPools = new Set([pl.L, pl.D, pl.B].flat().filter(x => x.cat === 'gym')).size; let used = 0;
       for (let k = 1; k <= 3; k++) { seed(k); S.menuSet = JSON.parse(JSON.stringify(set)); makeMenu(); used += gymIn(S.menu); }
-      openDayInit = true; openDay = 0; swapAt = '0:ghda'; swapMode = null; const sw = swapOptions(0, 'ghda').filter(x => x.cat === 'gym').length, fo = (swapMode = 'protein', ftourOptions(0)).filter(o => o.items.some(([id]) => ids.has(id))).length;
+      openDayInit = true; openDay = 0; swapAt = '0:ghda'; swapMode = null; const sw = swapOptions(0, 'ghda').filter(x => x.cat === 'gym').length, fo = pl.B.filter(x => x.cat === 'gym').length;
       swapMode = null; return { inPools, used, sw, fo }; };
     return { n: G.length, info, normal: run(false, false), hp: run(true, false), train: run(false, true) }; }, ONE.toString());
   eq(r.n, 29, 'training recipes');
@@ -855,7 +855,7 @@ test('Menu', 'training recipes: 29, each ≥ 25 g protein a portion, only foods 
   ok(r.info.filter(x => x.slots === 'B').length >= 6, 'at least 6 breakfasts');
   eq(JSON.stringify(r.normal), JSON.stringify({ inPools: 0, used: 0, sw: 0, fo: 0 }), 'someone who does not train: never offered (menu, swaps, breakfasts)');
   ok(r.hp.inPools === 29 && r.hp.used > 0, 'high-protein menu: offered and used (' + r.hp.used + ' meals in 3 weeks)');
-  ok(r.train.inPools === 29 && r.train.used > 0 && r.train.fo > 0, 'training days: offered and used (' + r.train.used + ' meals in 3 weeks), also among the higher-protein breakfasts');
+  ok(r.train.inPools === 29 && r.train.used > 0 && r.train.fo > 0, 'training days: offered and used (' + r.train.used + ' meals in 3 weeks), also as breakfasts');
 });
 test('Menu', 'training recipes cover protein from meals: a trainee needs fewer protein snacks with them than without', async ({ page }) => {
   const r = await page.evaluate(ONE => { eval('(' + ONE + ')')(); const seed = s => { let x = s; Math.random = () => { x = (x * 1664525 + 1013904223) % 4294967296; return x / 4294967296; }; };
@@ -951,6 +951,58 @@ test('Interface', 'pictures: every dish gets a drawing (built-in, own recipe, br
   ok(r.ownOk, 'own recipe drawn from its ingredients'); ok(r.ftOk, 'every breakfast combo drawn'); eq(r.noIcon.length, 0, 'foods without icon: ' + r.noIcon);
   ok(r.menuArt >= 2 && r.folded > 0, 'menu cards and folded days show pictures'); eq(r.recArt, r.recN, 'every recipe card has its picture'); ok(r.li > 5 && r.liIco === r.li, 'every list row has its icon');
   ok(r.same, 'same picture each time (cached)');
+});
+test('Menu', 'an open day shows its numbers first; the pill, the message and "balanced" never contradict each other; swap options keep picture, name and arrow on one row', async ({ page }) => {
+  const r = await page.evaluate(ONE => { eval('(' + ONE + ')')(); const seed = s => { let x = s; Math.random = () => { x = (x * 1664525 + 1013904223) % 4294967296; return x / 4294967296; }; };
+    Object.assign(P(), { w: 90, h: 179, goal: 'recomp', train: true, tdays: [0, 2, 4] }); const bad = [];
+    for (let k = 1; k <= 4; k++) { seed(k); S.menuSet = { people: 1, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } }; makeMenu();
+      for (let i = 0; i < 7; i++) { openDayInit = true; openDay = i; go('menu'); const day = document.querySelector('#view .mday.open'), pill = day.querySelector('.mday-h .pill').textContent, fit = day.querySelector('.dfit').textContent;
+        const okPill = pill.includes(t('st_ok')), okMsg = fit.includes(t('fit_good')), carbPill = pill.includes(t('st_carb')), carbMsg = !!day.querySelector('.dfit .pgap') && /karb/i.test(fit.replace(t('carbs'), ''));
+        if (okPill !== okMsg || (carbPill && okMsg)) bad.push([k, i, pill, okMsg]); } }
+    openDay = 0; swapAt = '0:ghda'; render(); const body = document.querySelector('#view .mday.open .mday-b'), first = body.firstElementChild.className;
+    const o = document.querySelector('#view .swap .fopt'), kids = [...o.children].map(c => Math.round(c.getBoundingClientRect().top + c.getBoundingClientRect().height / 2));
+    return { bad, first, spread: Math.max(...kids) - Math.min(...kids), n: kids.length }; }, ONE.toString());
+  eq(r.bad.length, 0, 'days where pill and summary disagree: ' + JSON.stringify(r.bad));
+  eq(r.first, 'dfit', 'the day numbers come before the meals'); ok(r.n === 3 && r.spread <= 6, 'swap option on one row (centres within ' + r.spread + ' px)');
+});
+test('Menu', 'portions stop near the protein target (≤ 115 %, quarter steps) instead of doubling lean plates; a carb side added with the menu supplies the rest; costs still agree', async ({ page }) => {
+  const r = await page.evaluate(ONE => { eval('(' + ONE + ')')(); const seed = s => { let x = s; Math.random = () => { x = (x * 1664525 + 1013904223) % 4294967296; return x / 4294967296; }; };
+    Object.assign(P(), { w: 90, h: 179, goal: 'recomp', train: true, tdays: [0, 2, 4] });
+    const set = { people: 1, budget: '', time: 999, excl: [], meals: { ftour: true, ghda: true, '3cha': true } };
+    S.menu = { set, at: 1, days: [{ ftour: [['bid', 2], ['khobz', 0.25]], ghda: 'r_g_djaj_rouz_brocoli', '3cha': 'r_g_chlada_ton_7mes' }, {}, {}, {}, {}, {}, {}] };
+    const d = S.menu.days[0], x = dayFit(d, P(), undefined, 0), ft = sum(d.ftour), main = sum([[d.ghda, 1], [d['3cha'], 1]]);
+    const byKcal = Math.max(.5, Math.min(2.5, Math.round((x.tg.kcal - ft.k) / main.k * 4) / 4)), low0 = carbLow(x);
+    const a = autoSnacks(d, 0, set), side = (a.pM || {}).side || []; setX(d, 'pM', 'side', side); const y = dayFit(d, P(), undefined, 0); save();
+    const forced = { f: x.f, byKcal, p: x.sc.p / x.tg.prot, low0, side: side.length, lowAfter: carbLow(y), pAfter: y.sc.p / y.tg.prot, kAfter: y.sc.k / y.tg.kcal, cost: menuWeekCost(), list: shopData().cost, gen: menuCostEst(S.menu.set, S.menu.days) };
+    let n = 0, sp = 0, sk = 0, maxP = 0, sides = 0; for (let k = 1; k <= 4; k++) { seed(k * 3); S.menuSet = JSON.parse(JSON.stringify(set)); makeMenu();
+      S.menu.days.forEach((dd, i) => { const z = dayFit(dd, P(), undefined, i); n++; sp += z.sc.p / z.tg.prot; sk += z.sc.k / z.tg.kcal; maxP = Math.max(maxP, z.sc.p / z.tg.prot); if ((xOf(dd, 'pM').side || []).length) sides++; }); }
+    return { forced, avgP: sp / n, avgK: sk / n, maxP, sides, tab: menuWeekCost(), list: shopData().cost, gen: menuCostEst(S.menu.set, S.menu.days) }; }, ONE.toString());
+  const f = r.forced;
+  ok(f.f < f.byKcal, 'lean day: portion ' + f.f + ' instead of the ' + f.byKcal + ' that calories alone would give'); ok(f.p <= 1.25, 'protein at ' + Math.round(f.p * 100) + ' % of target, not doubled');
+  ok(f.low0 && f.side > 0 && !f.lowAfter, 'carbs were short, a side was added, carbs are fine after'); ok(f.pAfter >= 0.92 && f.kAfter >= 0.85, 'protein and calories still close to target after the side');
+  near(f.list, f.cost, 1e-6, 'the side is on the list'); near(f.gen, f.cost, 1e-6, 'and in the generator’s cost');
+  ok(r.maxP <= 1.3 && r.avgP <= 1.15, 'generated weeks: protein ' + Math.round(r.avgP * 100) + ' % of target on average, ' + Math.round(r.maxP * 100) + ' % at most');
+  ok(r.avgK > 0.92 && r.avgK < 1.08, 'calories ' + Math.round(r.avgK * 100) + ' % of target on average'); near(r.gen, r.tab, 1e-6, 'generator = Menu tab'); near(r.list, r.tab, 1e-6, 'list = Menu tab');
+});
+test('Interface', 'first run asks "do you train?": no → everyday protein (1.2 g/kg) and no training recipes; yes → training days and the usual protein; unanswered → as before; the choice survives a reload', async () => {
+  const run = async sport => { const { ctx, page, errors } = await openApp(); try {
+    await page.evaluate(sport => { S.onboarded = false; save(); obStart(); obGo(1); obGo(1); obGo(1); ob.macros = true; ob.name = 'T'; ob.sex = 'm'; ob.age = '30'; ob.w = '70'; ob.h = '175'; ob.goal = 'maintain'; if (sport !== null) ob.sport = sport; renderOb(); obFinish(); }, sport);
+    await page.reload(); await page.waitForTimeout(300);
+    const r = await page.evaluate(() => { const p = P(), tg = targets(p), ids = new Set(S.recipes.filter(x => x.cat === 'gym').map(x => x.id));
+      return { low: !!p.lowProt, train: !!p.train, tdays: JSON.stringify(p.tdays || []), prot: tg.prot, pk: tg.pk, gym: S.menu.days.flatMap(d => [d.ghda, d['3cha']].concat((d.ftour || []).map(x => x[0]))).filter(id => ids.has(id)).length, chip: !!document.getElementById('view') }; });
+    eq(errors.length, 0, 'page errors'); return r; } finally { await ctx.close(); } };
+  const no = await run(false), yes = await run(true), none = await run(null);
+  ok(no.low && !no.train && no.pk === 1.2 && no.prot === 84, 'no: 1.2 g/kg → 84 g for 70 kg (got ' + no.prot + ')'); eq(no.gym, 0, 'no: no training recipes in the menu');
+  ok(!yes.low && yes.train && yes.tdays === '[0,2,4]' && yes.pk === 1.8, 'yes: trains Mon/Wed/Fri, 1.8 g/kg'); ok(yes.gym > 0, 'yes: training recipes used');
+  ok(!none.low && !none.train && none.pk === 1.8 && none.prot === 126, 'unanswered: as before (126 g)');
+});
+test('Interface', 'recipes: categories on one scrollable row, no price field inside a recipe; the list explains its totals', async ({ page }) => {
+  const r = await page.evaluate(() => { makeMenu(); go('recettes'); recCat = 'all'; render(); const row = document.querySelector('#view .chips.hrow'), tops = [...row.children].map(c => c.offsetTop);
+    editRec = S.recipes[0].id; render(); const price = document.querySelectorAll('#recEd input[id^="rp_"]').length, qty = document.querySelectorAll('#recEd input[id^="rq_"]').length;
+    editRec = null; go('t9edya'); const v = document.getElementById('view').textContent;
+    return { oneRow: new Set(tops).size === 1, scroll: row.scrollWidth > row.clientWidth, n: tops.length, price, qty, hint: v.includes(t('tot_hint')), top: !!document.querySelector('#view .tot-top') }; });
+  ok(r.oneRow && r.n >= 8, 'all ' + r.n + ' categories on one row'); ok(r.price === 0 && r.qty > 0, 'quantities stay, price fields gone (prices live in Réglages)');
+  ok(r.hint && r.top, 'list: total on top and explained');
 });
 /* ---------- runner ---------- */
 (async () => {
