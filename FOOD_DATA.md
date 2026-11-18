@@ -1,6 +1,6 @@
 # Food data — sources, conventions and known limits
 
-The app ships 192 built-in foods (`FOODS` in `index.html`) and ~90 built-in recipes.
+The app ships 194 built-in foods (`FOODS` in `index.html`) and 130 built-in recipes (90 Moroccan dishes + 40 high-protein ones).
 Users can override any built-in food (`S.ov`), change its price (`S.prices`) or add their own (`S.custom`); those user
 values are never touched by updates.
 
